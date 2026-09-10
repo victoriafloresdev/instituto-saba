@@ -21,6 +21,8 @@ import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as AudicoesRouteImport } from './routes/audicoes'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminRedefinirSenhaRouteImport } from './routes/admin.redefinir-senha'
+import { Route as AdminRecuperarSenhaRouteImport } from './routes/admin.recuperar-senha'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminRegistroTipoIdRouteImport } from './routes/admin.registro.$tipo.$id'
 
@@ -84,6 +86,16 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRedefinirSenhaRoute = AdminRedefinirSenhaRouteImport.update({
+  id: '/admin/redefinir-senha',
+  path: '/admin/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRecuperarSenhaRoute = AdminRecuperarSenhaRouteImport.update({
+  id: '/admin/recuperar-senha',
+  path: '/admin/recuperar-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/admin/dashboard',
   path: '/admin/dashboard',
@@ -108,6 +120,8 @@ export interface FileRoutesByFullPath {
   '/projeto': typeof ProjetoRoute
   '/sobre': typeof SobreRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
+  '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/registro/$tipo/$id': typeof AdminRegistroTipoIdRoute
 }
@@ -124,6 +138,8 @@ export interface FileRoutesByTo {
   '/projeto': typeof ProjetoRoute
   '/sobre': typeof SobreRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
+  '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/admin': typeof AdminIndexRoute
   '/admin/registro/$tipo/$id': typeof AdminRegistroTipoIdRoute
 }
@@ -141,6 +157,8 @@ export interface FileRoutesById {
   '/projeto': typeof ProjetoRoute
   '/sobre': typeof SobreRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
+  '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/registro/$tipo/$id': typeof AdminRegistroTipoIdRoute
 }
@@ -159,6 +177,8 @@ export interface FileRouteTypes {
     | '/projeto'
     | '/sobre'
     | '/admin/dashboard'
+    | '/admin/recuperar-senha'
+    | '/admin/redefinir-senha'
     | '/admin/'
     | '/admin/registro/$tipo/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -175,6 +195,8 @@ export interface FileRouteTypes {
     | '/projeto'
     | '/sobre'
     | '/admin/dashboard'
+    | '/admin/recuperar-senha'
+    | '/admin/redefinir-senha'
     | '/admin'
     | '/admin/registro/$tipo/$id'
   id:
@@ -191,6 +213,8 @@ export interface FileRouteTypes {
     | '/projeto'
     | '/sobre'
     | '/admin/dashboard'
+    | '/admin/recuperar-senha'
+    | '/admin/redefinir-senha'
     | '/admin/'
     | '/admin/registro/$tipo/$id'
   fileRoutesById: FileRoutesById
@@ -208,6 +232,8 @@ export interface RootRouteChildren {
   ProjetoRoute: typeof ProjetoRoute
   SobreRoute: typeof SobreRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminRecuperarSenhaRoute: typeof AdminRecuperarSenhaRoute
+  AdminRedefinirSenhaRoute: typeof AdminRedefinirSenhaRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminRegistroTipoIdRoute: typeof AdminRegistroTipoIdRoute
 }
@@ -298,6 +324,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/redefinir-senha': {
+      id: '/admin/redefinir-senha'
+      path: '/admin/redefinir-senha'
+      fullPath: '/admin/redefinir-senha'
+      preLoaderRoute: typeof AdminRedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/recuperar-senha': {
+      id: '/admin/recuperar-senha'
+      path: '/admin/recuperar-senha'
+      fullPath: '/admin/recuperar-senha'
+      preLoaderRoute: typeof AdminRecuperarSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/admin/dashboard'
@@ -328,6 +368,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProjetoRoute: ProjetoRoute,
   SobreRoute: SobreRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminRecuperarSenhaRoute: AdminRecuperarSenhaRoute,
+  AdminRedefinirSenhaRoute: AdminRedefinirSenhaRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminRegistroTipoIdRoute: AdminRegistroTipoIdRoute,
 }
