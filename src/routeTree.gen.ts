@@ -14,13 +14,14 @@ import { Route as ProjetoRouteImport } from './routes/projeto'
 import { Route as ProgramacaoRouteImport } from './routes/programacao'
 import { Route as PatrocinioRouteImport } from './routes/patrocinio'
 import { Route as PatrocinadoresRouteImport } from './routes/patrocinadores'
-import { Route as EspetaculoRouteImport } from './routes/espetaculo'
 import { Route as EscolasRouteImport } from './routes/escolas'
 import { Route as ElencoRouteImport } from './routes/elenco'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as AudicoesRouteImport } from './routes/audicoes'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EspetaculoIndexRouteImport } from './routes/espetaculo.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as EspetaculoSlugRouteImport } from './routes/espetaculo.$slug'
 import { Route as AdminRedefinirSenhaRouteImport } from './routes/admin.redefinir-senha'
 import { Route as AdminRecuperarSenhaRouteImport } from './routes/admin.recuperar-senha'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
@@ -51,11 +52,6 @@ const PatrocinadoresRoute = PatrocinadoresRouteImport.update({
   path: '/patrocinadores',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EspetaculoRoute = EspetaculoRouteImport.update({
-  id: '/espetaculo',
-  path: '/espetaculo',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const EscolasRoute = EscolasRouteImport.update({
   id: '/escolas',
   path: '/escolas',
@@ -81,9 +77,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EspetaculoIndexRoute = EspetaculoIndexRouteImport.update({
+  id: '/espetaculo/',
+  path: '/espetaculo/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EspetaculoSlugRoute = EspetaculoSlugRouteImport.update({
+  id: '/espetaculo/$slug',
+  path: '/espetaculo/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRedefinirSenhaRoute = AdminRedefinirSenhaRouteImport.update({
@@ -113,7 +119,6 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/elenco': typeof ElencoRoute
   '/escolas': typeof EscolasRoute
-  '/espetaculo': typeof EspetaculoRoute
   '/patrocinadores': typeof PatrocinadoresRoute
   '/patrocinio': typeof PatrocinioRoute
   '/programacao': typeof ProgramacaoRoute
@@ -122,7 +127,9 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
+  '/espetaculo/$slug': typeof EspetaculoSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/espetaculo/': typeof EspetaculoIndexRoute
   '/admin/registro/$tipo/$id': typeof AdminRegistroTipoIdRoute
 }
 export interface FileRoutesByTo {
@@ -131,7 +138,6 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/elenco': typeof ElencoRoute
   '/escolas': typeof EscolasRoute
-  '/espetaculo': typeof EspetaculoRoute
   '/patrocinadores': typeof PatrocinadoresRoute
   '/patrocinio': typeof PatrocinioRoute
   '/programacao': typeof ProgramacaoRoute
@@ -140,7 +146,9 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
+  '/espetaculo/$slug': typeof EspetaculoSlugRoute
   '/admin': typeof AdminIndexRoute
+  '/espetaculo': typeof EspetaculoIndexRoute
   '/admin/registro/$tipo/$id': typeof AdminRegistroTipoIdRoute
 }
 export interface FileRoutesById {
@@ -150,7 +158,6 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/elenco': typeof ElencoRoute
   '/escolas': typeof EscolasRoute
-  '/espetaculo': typeof EspetaculoRoute
   '/patrocinadores': typeof PatrocinadoresRoute
   '/patrocinio': typeof PatrocinioRoute
   '/programacao': typeof ProgramacaoRoute
@@ -159,7 +166,9 @@ export interface FileRoutesById {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
+  '/espetaculo/$slug': typeof EspetaculoSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/espetaculo/': typeof EspetaculoIndexRoute
   '/admin/registro/$tipo/$id': typeof AdminRegistroTipoIdRoute
 }
 export interface FileRouteTypes {
@@ -170,7 +179,6 @@ export interface FileRouteTypes {
     | '/contato'
     | '/elenco'
     | '/escolas'
-    | '/espetaculo'
     | '/patrocinadores'
     | '/patrocinio'
     | '/programacao'
@@ -179,7 +187,9 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/recuperar-senha'
     | '/admin/redefinir-senha'
+    | '/espetaculo/$slug'
     | '/admin/'
+    | '/espetaculo/'
     | '/admin/registro/$tipo/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -188,7 +198,6 @@ export interface FileRouteTypes {
     | '/contato'
     | '/elenco'
     | '/escolas'
-    | '/espetaculo'
     | '/patrocinadores'
     | '/patrocinio'
     | '/programacao'
@@ -197,7 +206,9 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/recuperar-senha'
     | '/admin/redefinir-senha'
+    | '/espetaculo/$slug'
     | '/admin'
+    | '/espetaculo'
     | '/admin/registro/$tipo/$id'
   id:
     | '__root__'
@@ -206,7 +217,6 @@ export interface FileRouteTypes {
     | '/contato'
     | '/elenco'
     | '/escolas'
-    | '/espetaculo'
     | '/patrocinadores'
     | '/patrocinio'
     | '/programacao'
@@ -215,7 +225,9 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/recuperar-senha'
     | '/admin/redefinir-senha'
+    | '/espetaculo/$slug'
     | '/admin/'
+    | '/espetaculo/'
     | '/admin/registro/$tipo/$id'
   fileRoutesById: FileRoutesById
 }
@@ -225,7 +237,6 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   ElencoRoute: typeof ElencoRoute
   EscolasRoute: typeof EscolasRoute
-  EspetaculoRoute: typeof EspetaculoRoute
   PatrocinadoresRoute: typeof PatrocinadoresRoute
   PatrocinioRoute: typeof PatrocinioRoute
   ProgramacaoRoute: typeof ProgramacaoRoute
@@ -234,7 +245,9 @@ export interface RootRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminRecuperarSenhaRoute: typeof AdminRecuperarSenhaRoute
   AdminRedefinirSenhaRoute: typeof AdminRedefinirSenhaRoute
+  EspetaculoSlugRoute: typeof EspetaculoSlugRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  EspetaculoIndexRoute: typeof EspetaculoIndexRoute
   AdminRegistroTipoIdRoute: typeof AdminRegistroTipoIdRoute
 }
 
@@ -275,13 +288,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PatrocinadoresRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/espetaculo': {
-      id: '/espetaculo'
-      path: '/espetaculo'
-      fullPath: '/espetaculo'
-      preLoaderRoute: typeof EspetaculoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/escolas': {
       id: '/escolas'
       path: '/escolas'
@@ -317,11 +323,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/espetaculo/': {
+      id: '/espetaculo/'
+      path: '/espetaculo'
+      fullPath: '/espetaculo/'
+      preLoaderRoute: typeof EspetaculoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/espetaculo/$slug': {
+      id: '/espetaculo/$slug'
+      path: '/espetaculo/$slug'
+      fullPath: '/espetaculo/$slug'
+      preLoaderRoute: typeof EspetaculoSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/redefinir-senha': {
@@ -361,7 +381,6 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   ElencoRoute: ElencoRoute,
   EscolasRoute: EscolasRoute,
-  EspetaculoRoute: EspetaculoRoute,
   PatrocinadoresRoute: PatrocinadoresRoute,
   PatrocinioRoute: PatrocinioRoute,
   ProgramacaoRoute: ProgramacaoRoute,
@@ -370,7 +389,9 @@ const rootRouteChildren: RootRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminRecuperarSenhaRoute: AdminRecuperarSenhaRoute,
   AdminRedefinirSenhaRoute: AdminRedefinirSenhaRoute,
+  EspetaculoSlugRoute: EspetaculoSlugRoute,
   AdminIndexRoute: AdminIndexRoute,
+  EspetaculoIndexRoute: EspetaculoIndexRoute,
   AdminRegistroTipoIdRoute: AdminRegistroTipoIdRoute,
 }
 export const routeTree = rootRouteImport
