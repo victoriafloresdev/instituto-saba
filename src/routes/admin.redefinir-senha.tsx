@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { SupabaseConfigNotice } from "@/components/admin/SupabaseConfigNotice";
 
 export const Route = createFileRoute("/admin/redefinir-senha")({
   head: () => ({
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/admin/redefinir-senha")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  component: ResetPassword,
+  component: () => (isSupabaseConfigured ? <ResetPassword /> : <SupabaseConfigNotice />),
 });
 
 function ResetPassword() {

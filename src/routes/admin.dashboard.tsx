@@ -32,7 +32,8 @@ import {
   Handshake,
 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { SupabaseConfigNotice } from "@/components/admin/SupabaseConfigNotice";
 import { SpectacleManager } from "@/components/admin/SpectacleManager";
 import { SponsorManager } from "@/components/admin/SponsorManager";
 import type { Status } from "@/lib/database.types";
@@ -44,7 +45,7 @@ export const Route = createFileRoute("/admin/dashboard")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  component: Dashboard,
+  component: () => (isSupabaseConfigured ? <Dashboard /> : <SupabaseConfigNotice />),
 });
 
 // Formulários recebidos do site.

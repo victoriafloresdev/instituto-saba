@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { CheckCircle2, Info } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured, SUPABASE_UNAVAILABLE_MESSAGE } from "@/lib/supabase";
 import {
   FORM_LIMITS,
   formString,
@@ -52,6 +52,10 @@ function Patrocinio() {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (submitting) return;
+    if (!isSupabaseConfigured) {
+      toast.error(SUPABASE_UNAVAILABLE_MESSAGE);
+      return;
+    }
     if (!consent) return toast.error("É necessário aceitar o consentimento de dados.");
     const form = e.currentTarget;
     const data = new FormData(form);

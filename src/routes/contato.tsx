@@ -10,7 +10,7 @@ import { Mail, MessageCircle, MapPin, Instagram } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured, SUPABASE_UNAVAILABLE_MESSAGE } from "@/lib/supabase";
 import { FORM_LIMITS, formString, isValidEmail, isWithinLength } from "@/lib/form-validation";
 
 export const Route = createFileRoute("/contato")({
@@ -32,6 +32,10 @@ function Contato() {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (submitting) return;
+    if (!isSupabaseConfigured) {
+      toast.error(SUPABASE_UNAVAILABLE_MESSAGE);
+      return;
+    }
     if (!consent) {
       toast.error("É necessário aceitar o consentimento de dados.");
       return;

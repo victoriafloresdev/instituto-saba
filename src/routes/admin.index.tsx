@@ -6,7 +6,8 @@ import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Lock } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { SupabaseConfigNotice } from "@/components/admin/SupabaseConfigNotice";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/admin/")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  component: AdminLogin,
+  component: () => (isSupabaseConfigured ? <AdminLogin /> : <SupabaseConfigNotice />),
 });
 
 function AdminLogin() {

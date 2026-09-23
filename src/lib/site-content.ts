@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import type {
   Spectacle,
   SpectacleInsert,
@@ -78,6 +78,7 @@ export function formatSpectacleLocation(spectacle: Spectacle): string {
 // ela apenas cai no estado vazio de cada seção.
 
 export async function fetchPublishedSpectacles(): Promise<Spectacle[]> {
+  if (!isSupabaseConfigured) return [];
   try {
     const { data, error } = await supabase
       .from("spectacles")
@@ -94,6 +95,7 @@ export async function fetchPublishedSpectacles(): Promise<Spectacle[]> {
 }
 
 export async function fetchPublishedSpectacleBySlug(slug: string): Promise<Spectacle | null> {
+  if (!isSupabaseConfigured) return null;
   try {
     const { data, error } = await supabase
       .from("spectacles")
@@ -109,6 +111,7 @@ export async function fetchPublishedSpectacleBySlug(slug: string): Promise<Spect
 }
 
 export async function fetchActiveSponsors(): Promise<Sponsor[]> {
+  if (!isSupabaseConfigured) return [];
   try {
     const { data, error } = await supabase
       .from("sponsors")
