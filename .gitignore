@@ -16,6 +16,9 @@ dist-ssr
 .nitro
 *.local
 
+# Vercel (a build é gerada pela própria Vercel a cada deploy)
+.vercel
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
