@@ -1,5 +1,5 @@
 import { t as cn } from "./utils-C_uf36nf.mjs";
-import { s as require_jsx_runtime } from "../_libs/@radix-ui/react-arrow+[...].mjs";
+import { M as require_jsx_runtime } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/Section-CKYAUsRZ.js
 var import_jsx_runtime = require_jsx_runtime();
 function Section({ eyebrow, title, subtitle, children, align = "left", className, id, tone = "default" }) {

@@ -1,6 +1,6 @@
 import { t as cn } from "./utils-C_uf36nf.mjs";
-import { s as require_jsx_runtime } from "../_libs/@radix-ui/react-arrow+[...].mjs";
-import { g as Image } from "../_libs/lucide-react.mjs";
+import { M as require_jsx_runtime } from "../_libs/@radix-ui/react-alert-dialog+[...].mjs";
+import { w as Image } from "../_libs/lucide-react.mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/ImagePlaceholder-BCLwpPOg.js
 var import_jsx_runtime = require_jsx_runtime();
 function ImagePlaceholder({ label = "Imagem", aspect = "4/5", className }) {
