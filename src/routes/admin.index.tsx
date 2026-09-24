@@ -1,18 +1,16 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Lock } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { AuthLayout } from "@/components/admin/AuthLayout";
 import { SupabaseConfigNotice } from "@/components/admin/SupabaseConfigNotice";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({
     meta: [
-      { title: "Admin — Instituto Cultural Sabá" },
+      { title: "Admin — Instituto Cultural Saba" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
@@ -51,57 +49,34 @@ function AdminLogin() {
     navigate({ to: "/admin/dashboard" });
   }
   return (
-    <div className="min-h-screen bg-ink text-cream grid place-items-center px-4">
-      <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center gap-2 mb-8 justify-center">
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-accent text-ink font-display text-lg">
-            S
-          </span>
-          <span className="font-display text-xl">Instituto Cultural Sabá</span>
+    <AuthLayout
+      titulo="Entrar no painel"
+      descricao="Acesso restrito à equipe do Instituto."
+      rodape={
+        <Link to="/admin/recuperar-senha" className="link-traco font-semibold">
+          Esqueci minha senha
         </Link>
-        <Card className="p-8 bg-cream/[0.03] border-cream/15 text-cream backdrop-blur">
-          <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-accent/20 text-accent">
-              <Lock className="h-4 w-4" />
-            </span>
-            <div>
-              <h1 className="text-xl text-cream">Área administrativa</h1>
-              <p className="text-xs text-cream/60">Acesso restrito à equipe do Instituto.</p>
-            </div>
-          </div>
-          <form onSubmit={submit} className="mt-6 space-y-4">
-            <div>
-              <Label className="mb-2 block text-sm text-cream/80">E-mail</Label>
-              <Input
-                required
-                name="email"
-                type="email"
-                autoComplete="email"
-                className="bg-cream/5 border-cream/15 text-cream"
-              />
-            </div>
-            <div>
-              <Label className="mb-2 block text-sm text-cream/80">Senha</Label>
-              <Input
-                required
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                className="bg-cream/5 border-cream/15 text-cream"
-              />
-            </div>
-            <Button type="submit" disabled={loading} className="w-full" size="lg">
-              {loading ? "Entrando..." : "Entrar"}
-            </Button>
-          </form>
-          <Link
-            to="/admin/recuperar-senha"
-            className="mt-5 block text-center text-xs text-cream/60 transition-colors hover:text-accent"
-          >
-            Esqueci minha senha
-          </Link>
-        </Card>
-      </div>
-    </div>
+      }
+    >
+      <form onSubmit={submit} className="space-y-5">
+        <div>
+          <Label htmlFor="login-email">E-mail</Label>
+          <Input id="login-email" required name="email" type="email" autoComplete="email" />
+        </div>
+        <div>
+          <Label htmlFor="login-senha">Senha</Label>
+          <Input
+            id="login-senha"
+            required
+            name="password"
+            type="password"
+            autoComplete="current-password"
+          />
+        </div>
+        <button type="submit" disabled={loading} className="chamada chamada--cheia w-full">
+          {loading ? "Entrando…" : "Entrar"}
+        </button>
+      </form>
+    </AuthLayout>
   );
 }

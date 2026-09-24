@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Pencil, Plus, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -37,6 +38,10 @@ import {
 } from "@/lib/site-content";
 import type { Spectacle, SpectacleInsert, SpectacleStatus } from "@/lib/database.types";
 
+type LinhaSessao = { data: string; hora: string };
+/** Data e hora em campos separados; a hora é opcional (vale o início do dia). */
+type DataHora = { data: string; hora: string };
+
 const STATUS_OPTIONS: { value: SpectacleStatus; label: string }[] = [
   { value: "draft", label: "Rascunho" },
   { value: "published", label: "Publicado" },
@@ -44,9 +49,9 @@ const STATUS_OPTIONS: { value: SpectacleStatus; label: string }[] = [
 ];
 
 const STATUS_STYLES: Record<SpectacleStatus, string> = {
-  draft: "bg-amber-100 text-amber-700",
-  published: "bg-emerald-100 text-emerald-700",
-  archived: "bg-slate-200 text-slate-700",
+  draft: "bg-amber-100 text-amber-900",
+  published: "bg-emerald-100 text-emerald-900",
+  archived: "bg-secondary text-tinta-suave",
 };
 
 interface FormValues {
@@ -66,6 +71,10 @@ interface FormValues {
   ticket_url: string;
   image_path: string | null;
   image_alt: string;
+  sessions: LinhaSessao[];
+  audition_enabled: boolean;
+  audition_opens_at: DataHora;
+  ticket_sales_open_at: DataHora;
   status: SpectacleStatus;
   sort_order: string;
 }
@@ -87,6 +96,10 @@ const EMPTY: FormValues = {
   ticket_url: "",
   image_path: null,
   image_alt: "",
+  sessions: [],
+  audition_enabled: false,
+  audition_opens_at: { data: "", hora: "" },
+  ticket_sales_open_at: { data: "", hora: "" },
   status: "draft",
   sort_order: "0",
 };
@@ -109,6 +122,13 @@ function toFormValues(spectacle: Spectacle): FormValues {
     ticket_url: spectacle.ticket_url ?? "",
     image_path: spectacle.image_path,
     image_alt: spectacle.image_alt ?? "",
+    sessions: (spectacle.sessions ?? []).map((sessao) => ({
+      data: sessao.data,
+      hora: sessao.hora?.slice(0, 5) ?? "",
+    })),
+    audition_enabled: spectacle.audition_enabled ?? false,
+    audition_opens_at: paraCampoLocal(spectacle.audition_opens_at),
+    ticket_sales_open_at: paraCampoLocal(spectacle.ticket_sales_open_at),
     status: spectacle.status,
     sort_order: String(spectacle.sort_order),
   };
@@ -117,6 +137,26 @@ function toFormValues(spectacle: Spectacle): FormValues {
 function optional(value: string): string | null {
   const trimmed = value.trim();
   return trimmed === "" ? null : trimmed;
+}
+
+/** Data do banco (ISO) para os campos de data e hora, no fuso de quem edita. */
+function paraCampoLocal(iso: string | null | undefined): DataHora {
+  if (!iso) return { data: "", hora: "" };
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return {
+    data: `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`,
+    hora: `${p(d.getHours())}:${p(d.getMinutes())}`,
+  };
+}
+
+/**
+ * Campos de data e hora (hora local) para ISO com fuso, como o banco guarda.
+ * Sem hora, vale o início do dia — antes, um campo único de data e hora
+ * ficava vazio se a hora não fosse preenchida, e a data se perdia em silêncio.
+ */
+function paraIso({ data, hora }: DataHora): string | null {
+  return data ? new Date(`${data}T${hora || "00:00"}`).toISOString() : null;
 }
 
 function toPayload(values: FormValues): SpectacleInsert {
@@ -137,6 +177,12 @@ function toPayload(values: FormValues): SpectacleInsert {
     ticket_url: optional(values.ticket_url),
     image_path: values.image_path,
     image_alt: optional(values.image_alt),
+    sessions: values.sessions
+      .filter((linha) => linha.data)
+      .map((linha) => ({ data: linha.data, hora: linha.hora || null })),
+    audition_enabled: values.audition_enabled,
+    audition_opens_at: paraIso(values.audition_opens_at),
+    ticket_sales_open_at: paraIso(values.ticket_sales_open_at),
     status: values.status,
     sort_order: Number(values.sort_order),
   };
@@ -182,7 +228,7 @@ export function SpectacleManager() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
+        <p className="max-w-[60ch] text-muted-foreground">
           Espetáculos e sessões exibidos em <strong className="text-foreground">Programação</strong>
           . Apenas os publicados aparecem no site.
         </p>
@@ -193,9 +239,11 @@ export function SpectacleManager() {
       </div>
 
       <Card className="overflow-hidden p-0">
-        <div className="flex items-center justify-between border-b border-border p-6">
-          <p className="text-sm font-medium">Espetáculos</p>
-          <p className="text-xs text-muted-foreground">{items.length} registros</p>
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <h2 className="font-semibold">Espetáculos</h2>
+          <p className="text-sm text-muted-foreground">
+            {items.length} {items.length === 1 ? "registro" : "registros"}
+          </p>
         </div>
         {loading ? (
           <p className="p-6 text-sm text-muted-foreground">Carregando espetáculos...</p>
@@ -227,7 +275,7 @@ export function SpectacleManager() {
                     <TableCell>
                       <Badge
                         variant="secondary"
-                        className={`rounded-full font-normal ${STATUS_STYLES[item.status]}`}
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLES[item.status]}`}
                       >
                         {STATUS_OPTIONS.find((option) => option.value === item.status)?.label}
                       </Badge>
@@ -308,6 +356,7 @@ function SpectacleDialog({
 }) {
   const [values, setValues] = useState<FormValues>(EMPTY);
   const [saving, setSaving] = useState(false);
+  const campos = useRef<HTMLDivElement>(null);
   // Enquanto o identificador não for editado à mão, ele acompanha o título.
   const [slugTouched, setSlugTouched] = useState(false);
 
@@ -330,6 +379,16 @@ function SpectacleDialog({
   }
 
   async function save() {
+    // Data digitada pela metade: o navegador devolve valor vazio e a
+    // informação sumiria sem aviso. Melhor barrar e mostrar onde está.
+    const incompleto = Array.from(campos.current?.querySelectorAll("input") ?? []).find(
+      (campo) => campo.validity.badInput,
+    );
+    if (incompleto) {
+      toast.error("Há uma data ou um horário incompleto. Complete ou apague antes de salvar.");
+      incompleto.focus();
+      return;
+    }
     const payload = toPayload(values);
     if (payload.title.length === 0 || payload.title.length > 180) {
       toast.error("Informe um título com até 180 caracteres.");
@@ -372,7 +431,7 @@ function SpectacleDialog({
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="form-editorial max-h-[92vh] overflow-y-auto sm:max-w-3xl bg-papel">
         <DialogHeader>
           <DialogTitle>{spectacle ? "Editar espetáculo" : "Novo espetáculo"}</DialogTitle>
           <DialogDescription>
@@ -381,7 +440,7 @@ function SpectacleDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div ref={campos} className="grid gap-5 sm:grid-cols-2">
           <TextField
             label="Título"
             required
@@ -432,6 +491,7 @@ function SpectacleDialog({
               onChange={(value) => set("end_time", value)}
             />
           </div>
+          <Sessoes linhas={values.sessions} onChange={(linhas) => set("sessions", linhas)} />
           <TextField
             label="Teatro / local"
             value={values.venue}
@@ -461,8 +521,34 @@ function SpectacleDialog({
             label="Link de ingressos"
             value={values.ticket_url}
             placeholder="https://..."
-            hint="Sem link, o site exibe o aviso de vendas em breve."
+            hint="O botão de compra só aparece depois da abertura da venda (se houver data)."
             onChange={(value) => set("ticket_url", value)}
+          />
+          <label className="flex items-start gap-3 rounded-lg border border-border bg-card p-4 sm:col-span-2">
+            <Checkbox
+              checked={values.audition_enabled}
+              onCheckedChange={(v) => set("audition_enabled", v === true)}
+              className="mt-0.5"
+            />
+            <span>
+              <span className="block font-semibold">Este espetáculo terá audição</span>
+              <span className="mt-0.5 block text-sm font-normal text-muted-foreground">
+                Aparece na página de Audições. As inscrições para ele só abrem na data de abertura
+                abaixo.
+              </span>
+            </span>
+          </label>
+          <CampoAbertura
+            rotulo="Abertura das audições"
+            dica="É esta data que libera as inscrições; antes dela, o site mostra a contagem regressiva. Sem data, fica “a definir” e ninguém consegue se inscrever."
+            valor={values.audition_opens_at}
+            onChange={(valor) => set("audition_opens_at", valor)}
+          />
+          <CampoAbertura
+            rotulo="Abertura da venda de ingressos"
+            dica="Até esta data, a página do espetáculo mostra a contagem regressiva; depois dela, o botão de compra com o link de ingressos."
+            valor={values.ticket_sales_open_at}
+            onChange={(valor) => set("ticket_sales_open_at", valor)}
           />
           <TextAreaField
             label="Descrição"
@@ -521,5 +607,125 @@ function SpectacleDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** Sessões do espetáculo: linhas de data e hora que se adicionam e removem. */
+function Sessoes({
+  linhas,
+  onChange,
+}: {
+  linhas: LinhaSessao[];
+  onChange: (linhas: LinhaSessao[]) => void;
+}) {
+  const alterar = (i: number, campo: keyof LinhaSessao, valor: string) =>
+    onChange(linhas.map((linha, j) => (j === i ? { ...linha, [campo]: valor } : linha)));
+
+  return (
+    <fieldset className="sm:col-span-2">
+      <legend>Sessões</legend>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Cada data de apresentação. Com sessões cadastradas, o site lista todas na página do
+        espetáculo.
+      </p>
+      <div className="mt-3 space-y-3">
+        {linhas.map((linha, i) => (
+          <div key={i} className="flex items-end gap-3">
+            <label className="flex-1">
+              <span className="sr-only">Data da sessão {i + 1}</span>
+              <input
+                type="date"
+                value={linha.data}
+                onChange={(e) => alterar(i, "data", e.target.value)}
+                className="w-full"
+              />
+            </label>
+            <label className="w-36">
+              <span className="sr-only">Horário da sessão {i + 1}</span>
+              <input
+                type="time"
+                value={linha.hora}
+                onChange={(e) => alterar(i, "hora", e.target.value)}
+                className="w-full"
+              />
+            </label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              title="Remover sessão"
+              onClick={() => onChange(linhas.filter((_, j) => j !== i))}
+            >
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </div>
+        ))}
+      </div>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="mt-3"
+        onClick={() => onChange([...linhas, { data: "", hora: "" }])}
+      >
+        <Plus className="h-4 w-4" /> Adicionar sessão
+      </Button>
+    </fieldset>
+  );
+}
+
+/** Data de abertura com hora opcional, em dois campos independentes. */
+function CampoAbertura({
+  rotulo,
+  dica,
+  valor,
+  onChange,
+}: {
+  rotulo: string;
+  dica: string;
+  valor: DataHora;
+  onChange: (valor: DataHora) => void;
+}) {
+  const id = rotulo.toLowerCase().replace(/[^a-z]+/g, "-");
+  return (
+    <fieldset>
+      <legend>{rotulo}</legend>
+      <div className="flex items-end gap-3">
+        <label className="flex-1">
+          <span className="sr-only">Data</span>
+          <input
+            id={`${id}-data`}
+            type="date"
+            value={valor.data}
+            onChange={(e) => onChange({ ...valor, data: e.target.value })}
+            className="w-full"
+          />
+        </label>
+        <label className="w-32">
+          <span className="sr-only">Horário (opcional)</span>
+          <input
+            type="time"
+            value={valor.hora}
+            onChange={(e) => onChange({ ...valor, hora: e.target.value })}
+            className="w-full"
+          />
+        </label>
+      </div>
+      <p className="mt-1.5 text-sm text-muted-foreground">
+        {dica} Sem horário, vale o início do dia.
+        {valor.data && (
+          <>
+            {" "}
+            <button
+              type="button"
+              className="font-semibold text-tinta underline-offset-2 hover:underline"
+              onClick={() => onChange({ data: "", hora: "" })}
+            >
+              Limpar
+            </button>
+          </>
+        )}
+      </p>
+    </fieldset>
   );
 }

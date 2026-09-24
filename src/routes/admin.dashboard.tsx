@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -30,18 +29,24 @@ import {
   RefreshCw,
   Theater,
   Handshake,
+  Contact,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { Marca } from "@/components/site/Marca";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { SupabaseConfigNotice } from "@/components/admin/SupabaseConfigNotice";
 import { SpectacleManager } from "@/components/admin/SpectacleManager";
+import { StatusBadge } from "@/components/admin/StatusBadge";
 import { SponsorManager } from "@/components/admin/SponsorManager";
+import { PeopleManager } from "@/components/admin/PeopleManager";
 import type { Status } from "@/lib/database.types";
 
 export const Route = createFileRoute("/admin/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard — Admin Instituto Sabá" },
+      { title: "Painel — Instituto Cultural Saba" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
@@ -51,7 +56,7 @@ export const Route = createFileRoute("/admin/dashboard")({
 // Formulários recebidos do site.
 type Kind = "audicoes" | "patrocinadores" | "escolas" | "mensagens";
 // Conteúdo editável que alimenta as páginas públicas.
-type ContentView = "conteudo-espetaculos" | "conteudo-patrocinadores";
+type ContentView = "conteudo-espetaculos" | "conteudo-equipe" | "conteudo-patrocinadores";
 type View = "dashboard" | Kind | ContentView;
 type NavItem = { key: View; label: string; icon: React.ComponentType<{ className?: string }> };
 type AdminRow = {
@@ -62,7 +67,12 @@ type AdminRow = {
   detail: string;
   status: Status;
   createdAt: string;
+  /** Só nas audições: espetáculo da inscrição (nulo = banco de talentos). */
+  espetaculoId?: string | null;
 };
+
+const BANCO = "banco";
+const TODAS = "todas";
 const statuses: Status[] = ["Novo", "Em análise", "Aprovado", "Recusado", "Contatado"];
 
 function Dashboard() {
@@ -71,6 +81,8 @@ function Dashboard() {
   const [openNav, setOpenNav] = useState(false);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AdminRow[]>([]);
+  const [espetaculos, setEspetaculos] = useState<{ id: string; title: string }[]>([]);
+  const [filtroAudicao, setFiltroAudicao] = useState(TODAS);
 
   async function load() {
     setLoading(true);
@@ -91,23 +103,29 @@ function Dashboard() {
       navigate({ to: "/admin" });
       return;
     }
-    const [auditions, sponsorships, schools, messages] = await Promise.all([
+    const [auditions, sponsorships, schools, messages, lista] = await Promise.all([
       supabase.from("auditions").select("*").order("created_at", { ascending: false }),
       supabase.from("sponsorship_leads").select("*").order("created_at", { ascending: false }),
       supabase.from("school_registrations").select("*").order("created_at", { ascending: false }),
       supabase.from("contact_messages").select("*").order("created_at", { ascending: false }),
+      supabase.from("spectacles").select("id, title").order("sort_order"),
     ]);
     const error = auditions.error || sponsorships.error || schools.error || messages.error;
     if (error) toast.error("Não foi possível carregar os dados do painel.");
+    const titulos = new Map((lista.data ?? []).map((e) => [e.id, e.title]));
+    setEspetaculos(lista.data ?? []);
     setRows([
       ...(auditions.data ?? []).map((r) => ({
         id: r.id,
         kind: "audicoes" as const,
         title: r.nome,
-        subtitle: r.modalidade || "Modalidade não informada",
-        detail: `${r.cidade} · ${r.email}`,
+        subtitle: r.spectacle_id
+          ? (titulos.get(r.spectacle_id) ?? "Espetáculo removido")
+          : "Banco de talentos",
+        detail: [r.modalidade, r.cidade, r.email].filter(Boolean).join(" · "),
         status: r.status,
         createdAt: r.created_at,
+        espetaculoId: r.spectacle_id,
       })),
       ...(sponsorships.data ?? []).map((r) => ({
         id: r.id,
@@ -173,19 +191,27 @@ function Dashboard() {
     navigate({ to: "/admin" });
   }
   async function exportCsv() {
-    const [auditions, sponsorships, schools, messages] = await Promise.all([
+    const [auditions, sponsorships, schools, messages, lista] = await Promise.all([
       supabase.from("auditions").select("*").order("created_at", { ascending: false }),
       supabase.from("sponsorship_leads").select("*").order("created_at", { ascending: false }),
       supabase.from("school_registrations").select("*").order("created_at", { ascending: false }),
       supabase.from("contact_messages").select("*").order("created_at", { ascending: false }),
+      supabase.from("spectacles").select("id, title"),
     ]);
     const error = auditions.error || sponsorships.error || schools.error || messages.error;
+    const nomes = new Map((lista.data ?? []).map((e) => [e.id, e.title]));
     if (error) {
       toast.error("Não foi possível preparar o CSV completo.");
       return;
     }
     const completeRows = [
-      ...(auditions.data ?? []).map((record) => ({ tipo_registro: "Audição", ...record })),
+      ...(auditions.data ?? []).map((record) => ({
+        tipo_registro: "Audição",
+        audicao: record.spectacle_id
+          ? (nomes.get(record.spectacle_id) ?? "Espetáculo removido")
+          : "Banco de talentos",
+        ...record,
+      })),
       ...(sponsorships.data ?? []).map((record) => ({ tipo_registro: "Patrocínio", ...record })),
       ...(schools.data ?? []).map((record) => ({ tipo_registro: "Escola", ...record })),
       ...(messages.data ?? []).map((record) => ({ tipo_registro: "Contato", ...record })),
@@ -212,7 +238,7 @@ function Dashboard() {
   }
 
   const leadItems: NavItem[] = [
-    { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { key: "dashboard", label: "Visão geral", icon: LayoutDashboard },
     { key: "audicoes", label: "Audições", icon: Users },
     { key: "patrocinadores", label: "Patrocínios", icon: Building2 },
     { key: "escolas", label: "Escolas", icon: GraduationCap },
@@ -220,99 +246,153 @@ function Dashboard() {
   ];
   const contentItems: NavItem[] = [
     { key: "conteudo-espetaculos", label: "Espetáculos", icon: Theater },
+    { key: "conteudo-equipe", label: "Equipe e elenco", icon: Contact },
     { key: "conteudo-patrocinadores", label: "Patrocinadores", icon: Handshake },
   ];
   const items = [...leadItems, ...contentItems];
-  const isContentView = view === "conteudo-espetaculos" || view === "conteudo-patrocinadores";
-  const currentRows = view === "dashboard" || isContentView ? [] : byKind(view);
+  const isContentView =
+    view === "conteudo-espetaculos" ||
+    view === "conteudo-equipe" ||
+    view === "conteudo-patrocinadores";
+  const currentRows = (view === "dashboard" || isContentView ? [] : byKind(view)).filter(
+    (row) =>
+      view !== "audicoes" ||
+      filtroAudicao === TODAS ||
+      (filtroAudicao === BANCO ? !row.espetaculoId : row.espetaculoId === filtroAudicao),
+  );
+  const novos = (kind: View) =>
+    rows.filter((row) => row.kind === kind && row.status === "Novo").length;
+
+  function selecionar(key: View) {
+    setView(key);
+    setOpenNav(false);
+  }
 
   return (
-    <div className="min-h-screen bg-muted/40 flex">
+    <div className="papel flex min-h-screen">
+      {openNav && (
+        <button
+          type="button"
+          aria-label="Fechar menu"
+          className="fixed inset-0 z-30 bg-tinta/50 md:hidden"
+          onClick={() => setOpenNav(false)}
+        />
+      )}
+
       <aside
-        className={`${openNav ? "flex" : "hidden"} md:flex w-64 bg-ink text-cream fixed md:sticky top-0 h-screen z-40 flex-col`}
+        className={cn(
+          "palco fixed inset-y-0 left-0 z-40 flex w-64 flex-col transition-transform duration-300 ease-[var(--ease-releve)] md:sticky md:top-0 md:h-screen md:translate-x-0",
+          openNav ? "translate-x-0" : "-translate-x-full",
+        )}
       >
-        <div className="p-6 border-b border-cream/10">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-accent text-ink font-display text-lg">
-              S
-            </span>
-            <div>
-              <p className="font-display text-lg">Instituto Sabá</p>
-              <p className="text-[10px] uppercase tracking-[0.18em] text-cream/50">Painel admin</p>
-            </div>
+        <div className="fio flex h-16 shrink-0 items-center border-b px-5">
+          <Link to="/" className="group" aria-label="Ver o site">
+            <Marca />
           </Link>
         </div>
-        <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
+
+        <nav aria-label="Painel" className="flex-1 overflow-y-auto px-3 py-6">
+          <p className="eyebrow suave px-3 pb-2">Recebidos</p>
           {leadItems.map((item) => (
             <NavButton
               key={item.key}
               item={item}
               active={view === item.key}
-              onSelect={() => {
-                setView(item.key);
-                setOpenNav(false);
-              }}
+              contagem={item.key === "dashboard" ? 0 : novos(item.key)}
+              onSelect={() => selecionar(item.key)}
             />
           ))}
-          <p className="px-3 pb-1 pt-5 text-[10px] uppercase tracking-[0.18em] text-cream/40">
-            Conteúdo do site
-          </p>
+          <p className="eyebrow suave px-3 pb-2 pt-7">Conteúdo do site</p>
           {contentItems.map((item) => (
             <NavButton
               key={item.key}
               item={item}
               active={view === item.key}
-              onSelect={() => {
-                setView(item.key);
-                setOpenNav(false);
-              }}
+              onSelect={() => selecionar(item.key)}
             />
           ))}
         </nav>
-        <div className="p-3 border-t border-cream/10">
+
+        <div className="fio space-y-0.5 border-t p-3">
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-[0.9375rem] text-papel-suave transition-colors hover:bg-white/5 hover:text-papel"
+          >
+            <ExternalLink className="h-4 w-4" /> Ver o site
+          </a>
           <button
+            type="button"
             onClick={() => void logout()}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-cream/75 hover:bg-cream/5"
+            className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-[0.9375rem] text-papel-suave transition-colors hover:bg-white/5 hover:text-papel"
           >
             <LogOut className="h-4 w-4" /> Sair
           </button>
         </div>
       </aside>
-      <div className="flex-1 min-w-0">
-        <header className="h-16 border-b border-border bg-background flex items-center justify-between px-4 md:px-8 sticky top-0 z-30">
-          <div className="flex items-center gap-3">
+
+      <div className="min-w-0 flex-1">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-border bg-papel/95 px-4 backdrop-blur md:px-8">
+          <div className="flex min-w-0 items-center gap-3">
             <button
-              className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-md border border-border"
-              onClick={() => setOpenNav(!openNav)}
+              type="button"
+              aria-label="Abrir menu"
+              aria-expanded={openNav}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border md:hidden"
+              onClick={() => setOpenNav(true)}
             >
               <Menu className="h-4 w-4" />
             </button>
-            <h1 className="text-xl capitalize">{items.find((item) => item.key === view)?.label}</h1>
+            <h1 className="truncate font-display text-2xl font-semibold [font-stretch:88%]">
+              {items.find((item) => item.key === view)?.label}
+            </h1>
           </div>
           {!isContentView && (
-            <div className="flex gap-2">
+            <div className="flex shrink-0 gap-2">
               <Button variant="outline" size="sm" onClick={() => void load()}>
-                <RefreshCw className="mr-1 h-4 w-4" />
-                Atualizar
+                <RefreshCw className="h-4 w-4" />
+                <span className="hidden sm:inline">Atualizar</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={() => void exportCsv()}>
-                <Download className="mr-1 h-4 w-4" />
-                CSV
+              <Button size="sm" onClick={() => void exportCsv()}>
+                <Download className="h-4 w-4" />
+                <span className="hidden sm:inline">Exportar CSV</span>
               </Button>
             </div>
           )}
         </header>
-        <main className="p-4 md:p-8">
+
+        <main className="mx-auto max-w-[1400px] p-4 md:p-8">
           {view === "conteudo-espetaculos" ? (
             <SpectacleManager />
+          ) : view === "conteudo-equipe" ? (
+            <PeopleManager />
           ) : view === "conteudo-patrocinadores" ? (
             <SponsorManager />
           ) : loading ? (
-            <p className="text-muted-foreground">Carregando dados...</p>
+            <Carregando />
           ) : view === "dashboard" ? (
             <Overview rows={rows} onOpen={setView} />
           ) : (
             <DataTable
+              filtro={
+                view === "audicoes" ? (
+                  <Select value={filtroAudicao} onValueChange={setFiltroAudicao}>
+                    <SelectTrigger className="h-9 w-[220px]" aria-label="Filtrar por audição">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={TODAS}>Todas as audições</SelectItem>
+                      {espetaculos.map((e) => (
+                        <SelectItem key={e.id} value={e.id}>
+                          {e.title}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value={BANCO}>Banco de talentos</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : undefined
+              }
               title={items.find((item) => item.key === view)?.label || ""}
               rows={currentRows}
               onStatus={updateStatus}
@@ -320,6 +400,15 @@ function Dashboard() {
           )}
         </main>
       </div>
+    </div>
+  );
+}
+
+function Carregando() {
+  return (
+    <div className="flex items-center gap-3 py-16 text-muted-foreground" role="status">
+      <span aria-hidden="true" className="traco traco--desenho block w-8 text-laranja" />
+      Carregando registros…
     </div>
   );
 }
@@ -335,138 +424,195 @@ function Overview({ rows, onOpen }: { rows: AdminRow[]; onOpen: (view: View) => 
     [],
   );
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((card) => (
-          <button key={card.kind} onClick={() => onOpen(card.kind)} className="text-left">
-            <Card className="p-6 hover:border-primary/40 transition-colors">
-              <div className="flex justify-between">
-                <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-                  {card.label}
-                </p>
-                <card.icon className="h-4 w-4 text-primary" />
+    <div className="space-y-8">
+      <div className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
+        {cards.map((card) => {
+          const doTipo = rows.filter((row) => row.kind === card.kind);
+          const novos = doTipo.filter((row) => row.status === "Novo").length;
+          return (
+            <button
+              key={card.kind}
+              type="button"
+              onClick={() => onOpen(card.kind)}
+              className="group rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-tinta/40 md:p-6"
+            >
+              <div className="flex items-center justify-between">
+                <p className="font-semibold">{card.label}</p>
+                <card.icon className="h-5 w-5 text-muted-foreground" />
               </div>
-              <p className="mt-4 font-display text-4xl">
-                {rows.filter((row) => row.kind === card.kind).length}
+              <p className="numeral mt-4 text-4xl leading-none md:mt-5 md:text-5xl">
+                {doTipo.length}
               </p>
-            </Card>
-          </button>
-        ))}
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-x-2 text-sm md:mt-4">
+                <span
+                  className={novos > 0 ? "font-semibold text-[#8f3412]" : "text-muted-foreground"}
+                >
+                  {novos > 0 ? `${novos} ${novos === 1 ? "novo" : "novos"}` : "Nenhum novo"}
+                </span>
+                <span className="font-semibold transition-transform group-hover:translate-x-0.5">
+                  Ver →
+                </span>
+              </div>
+            </button>
+          );
+        })}
       </div>
       <DataTable
-        title="Registros recentes"
+        title="Recebidos recentemente"
         rows={[...rows].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 8)}
         onStatus={() => undefined}
         readonly
+        mostrarTipo
       />
     </div>
   );
 }
+
+const TIPO_ROTULO: Record<Kind, string> = {
+  audicoes: "Audição",
+  patrocinadores: "Patrocínio",
+  escolas: "Escola",
+  mensagens: "Mensagem",
+};
 
 function DataTable({
   title,
   rows,
   onStatus,
   readonly = false,
+  mostrarTipo = false,
+  filtro,
 }: {
+  filtro?: React.ReactNode;
   title: string;
   rows: AdminRow[];
   onStatus: (row: AdminRow, status: Status) => void;
   readonly?: boolean;
+  mostrarTipo?: boolean;
 }) {
+  const navigate = useNavigate();
+  const abrir = (row: AdminRow) =>
+    navigate({ to: "/admin/registro/$tipo/$id", params: { tipo: row.kind, id: row.id } });
+
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex items-center justify-between border-b border-border p-6">
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted-foreground">{rows.length} registros</p>
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="font-semibold">{title}</h2>
+          {filtro}
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {rows.length} {rows.length === 1 ? "registro" : "registros"}
+        </p>
       </div>
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Detalhe</TableHead>
-              <TableHead>Informação</TableHead>
-              <TableHead>Recebido</TableHead>
-              <TableHead>Status</TableHead>
-              {!readonly && <TableHead className="text-right">Alterar</TableHead>}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow
-                key={`${row.kind}-${row.id}`}
-                className="cursor-pointer transition-colors hover:bg-primary/5"
-                onClick={() => {
-                  window.location.assign(`/admin/registro/${row.kind}/${row.id}`);
-                }}
-              >
-                <TableCell className="font-medium">{row.title}</TableCell>
-                <TableCell>{row.subtitle}</TableCell>
-                <TableCell>{row.detail}</TableCell>
-                <TableCell>{new Date(row.createdAt).toLocaleDateString("pt-BR")}</TableCell>
-                <TableCell>
-                  <StatusBadge value={row.status} />
-                </TableCell>
-                {!readonly && (
-                  <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
-                    <Select
-                      value={row.status}
-                      onValueChange={(value) => onStatus(row, value as Status)}
-                    >
-                      <SelectTrigger className="ml-auto h-8 w-[140px] text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statuses.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                )}
+      {rows.length === 0 ? (
+        <p className="px-5 py-12 text-center text-muted-foreground">Nenhum registro ainda.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>Nome</TableHead>
+                {mostrarTipo && <TableHead>Tipo</TableHead>}
+                <TableHead>Detalhe</TableHead>
+                <TableHead className="hidden lg:table-cell">Informação</TableHead>
+                <TableHead>Recebido</TableHead>
+                <TableHead>Status</TableHead>
+                {!readonly && <TableHead className="text-right">Alterar</TableHead>}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow
+                  key={`${row.kind}-${row.id}`}
+                  className="cursor-pointer"
+                  onClick={() => abrir(row)}
+                >
+                  <TableCell className="font-semibold">
+                    {/* Link de verdade: a linha inteira abre com o mouse, e o nome
+                        também pelo teclado. */}
+                    <Link
+                      to="/admin/registro/$tipo/$id"
+                      params={{ tipo: row.kind, id: row.id }}
+                      className="hover:underline"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      {row.title}
+                    </Link>
+                  </TableCell>
+                  {mostrarTipo && <TableCell>{TIPO_ROTULO[row.kind]}</TableCell>}
+                  <TableCell>{row.subtitle}</TableCell>
+                  <TableCell className="hidden text-muted-foreground lg:table-cell">
+                    {row.detail}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {new Date(row.createdAt).toLocaleDateString("pt-BR")}
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge value={row.status} />
+                  </TableCell>
+                  {!readonly && (
+                    <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
+                      <Select
+                        value={row.status}
+                        onValueChange={(value) => onStatus(row, value as Status)}
+                      >
+                        <SelectTrigger
+                          className="ml-auto h-9 w-[150px]"
+                          aria-label={`Alterar status de ${row.title}`}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statuses.map((status) => (
+                            <SelectItem key={status} value={status}>
+                              {status}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </Card>
-  );
-}
-
-function StatusBadge({ value }: { value: Status }) {
-  const colors: Record<Status, string> = {
-    Novo: "bg-blue-100 text-blue-700",
-    "Em análise": "bg-amber-100 text-amber-700",
-    Aprovado: "bg-emerald-100 text-emerald-700",
-    Recusado: "bg-rose-100 text-rose-700",
-    Contatado: "bg-violet-100 text-violet-700",
-  };
-  return (
-    <Badge variant="secondary" className={`rounded-full font-normal ${colors[value]}`}>
-      {value}
-    </Badge>
   );
 }
 
 function NavButton({
   item,
   active,
+  contagem = 0,
   onSelect,
 }: {
   item: NavItem;
   active: boolean;
+  contagem?: number;
   onSelect: () => void;
 }) {
   return (
     <button
+      type="button"
       onClick={onSelect}
-      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors ${active ? "bg-accent text-ink font-medium" : "text-cream/75 hover:bg-cream/5"}`}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "relative flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-[0.9375rem] transition-colors",
+        active
+          ? "bg-white/[0.08] font-semibold text-papel before:absolute before:inset-y-2 before:left-0 before:w-[3px] before:rounded-full before:bg-laranja"
+          : "text-papel-suave hover:bg-white/5 hover:text-papel",
+      )}
     >
       <item.icon className="h-4 w-4" />
-      {item.label}
+      <span className="flex-1 text-left">{item.label}</span>
+      {contagem > 0 && (
+        <span className="rounded-full bg-laranja px-2 py-0.5 text-xs font-bold text-tinta">
+          {contagem}
+        </span>
+      )}
     </button>
   );
 }

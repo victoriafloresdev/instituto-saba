@@ -26,12 +26,12 @@ function FieldShell({
 }: BaseProps & { children: ReactNode }) {
   return (
     <div className={className}>
-      <Label className="mb-2 block text-sm">
+      <Label className="block">
         {label}
         {required && " *"}
       </Label>
       {children}
-      {hint && <p className="mt-1.5 text-xs text-muted-foreground">{hint}</p>}
+      {hint && <p className="mt-1.5 text-sm text-muted-foreground">{hint}</p>}
     </div>
   );
 }

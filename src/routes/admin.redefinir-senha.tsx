@@ -1,19 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { AlertCircle, CheckCircle2, KeyRound, LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { SupabaseConfigNotice } from "@/components/admin/SupabaseConfigNotice";
+import { AuthLayout } from "@/components/admin/AuthLayout";
 
 export const Route = createFileRoute("/admin/redefinir-senha")({
   head: () => ({
     meta: [
-      { title: "Definir nova senha — Instituto Cultural Sabá" },
+      { title: "Definir nova senha — Instituto Cultural Saba" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
@@ -79,95 +77,63 @@ function ResetPassword() {
     navigate({ to: "/admin" });
   }
 
-  return (
-    <div className="grid min-h-screen place-items-center bg-ink px-4 text-cream">
-      <div className="w-full max-w-md">
-        <Link to="/" className="mb-8 flex items-center justify-center gap-2">
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-accent font-display text-lg text-ink">
-            S
-          </span>
-          <span className="font-display text-xl">Instituto Cultural Sabá</span>
+  if (checkingSession) {
+    return (
+      <AuthLayout titulo="Validando seu link…" descricao="Só um instante.">
+        <span aria-hidden="true" className="traco traco--desenho block w-12 text-laranja" />
+      </AuthLayout>
+    );
+  }
+
+  if (!recoverySession) {
+    return (
+      <AuthLayout
+        titulo="Link expirado ou inválido"
+        descricao="Solicite um novo link de recuperação para definir sua senha."
+      >
+        <Link to="/admin/recuperar-senha" className="chamada chamada--cheia w-full">
+          Solicitar novo link
         </Link>
+      </AuthLayout>
+    );
+  }
 
-        <Card className="border-cream/15 bg-cream/[0.03] p-8 text-cream backdrop-blur">
-          {checkingSession ? (
-            <div className="py-6 text-center text-sm text-cream/70">Validando seu link...</div>
-          ) : !recoverySession ? (
-            <div className="text-center">
-              <span className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-destructive/15 text-destructive">
-                <AlertCircle className="h-5 w-5" />
-              </span>
-              <h1 className="mt-5 text-2xl text-cream">Link expirado ou inválido</h1>
-              <p className="mt-3 text-sm leading-relaxed text-cream/70">
-                Solicite um novo link de recuperação para definir sua senha.
-              </p>
-              <Button asChild className="mt-6">
-                <Link to="/admin/recuperar-senha">Solicitar novo link</Link>
-              </Button>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-center gap-3">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-accent/20 text-accent">
-                  <LockKeyhole className="h-4 w-4" />
-                </span>
-                <div>
-                  <h1 className="text-xl text-cream">Defina sua nova senha</h1>
-                  <p className="text-xs text-cream/60">Use pelo menos 8 caracteres.</p>
-                </div>
-              </div>
-
-              <form onSubmit={submit} className="mt-6 space-y-4">
-                <div>
-                  <Label htmlFor="new-password" className="mb-2 block text-sm text-cream/80">
-                    Nova senha
-                  </Label>
-                  <div className="relative">
-                    <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cream/45" />
-                    <Input
-                      id="new-password"
-                      required
-                      name="password"
-                      type="password"
-                      autoComplete="new-password"
-                      minLength={8}
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                      className="border-cream/15 bg-cream/5 pl-9 text-cream placeholder:text-cream/35"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="confirm-password" className="mb-2 block text-sm text-cream/80">
-                    Confirmar nova senha
-                  </Label>
-                  <Input
-                    id="confirm-password"
-                    required
-                    name="confirmation"
-                    type="password"
-                    autoComplete="new-password"
-                    minLength={8}
-                    value={confirmation}
-                    onChange={(event) => setConfirmation(event.target.value)}
-                    className="border-cream/15 bg-cream/5 text-cream placeholder:text-cream/35"
-                  />
-                </div>
-                <Button type="submit" disabled={loading} className="w-full" size="lg">
-                  {loading ? "Salvando..." : "Salvar nova senha"}
-                </Button>
-              </form>
-            </>
-          )}
-        </Card>
-
-        {!checkingSession && recoverySession && (
-          <p className="mt-5 flex items-center justify-center gap-1 text-center text-xs text-cream/45">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            Link de recuperação validado com sucesso
-          </p>
-        )}
-      </div>
-    </div>
+  return (
+    <AuthLayout
+      titulo="Defina sua nova senha"
+      descricao="Link validado. Use pelo menos 8 caracteres."
+    >
+      <form onSubmit={submit} className="space-y-5">
+        <div>
+          <Label htmlFor="new-password">Nova senha</Label>
+          <Input
+            id="new-password"
+            required
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            minLength={8}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </div>
+        <div>
+          <Label htmlFor="confirm-password">Confirmar nova senha</Label>
+          <Input
+            id="confirm-password"
+            required
+            name="confirmation"
+            type="password"
+            autoComplete="new-password"
+            minLength={8}
+            value={confirmation}
+            onChange={(event) => setConfirmation(event.target.value)}
+          />
+        </div>
+        <button type="submit" disabled={loading} className="chamada chamada--cheia w-full">
+          {loading ? "Salvando…" : "Salvar nova senha"}
+        </button>
+      </form>
+    </AuthLayout>
   );
 }

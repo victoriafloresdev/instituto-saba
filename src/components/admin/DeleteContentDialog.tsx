@@ -20,7 +20,7 @@ interface Props {
 export function DeleteContentDialog({ open, title, description, onCancel, onConfirm }: Props) {
   return (
     <AlertDialog open={open} onOpenChange={(next) => !next && onCancel()}>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-papel">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>

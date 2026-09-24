@@ -145,7 +145,7 @@ export function SponsorManager() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
+        <p className="max-w-[60ch] text-muted-foreground">
           Marcas exibidas na página <strong className="text-foreground">Patrocinadores</strong>.
           Apenas as ativas aparecem no site.
         </p>
@@ -156,9 +156,11 @@ export function SponsorManager() {
       </div>
 
       <Card className="overflow-hidden p-0">
-        <div className="flex items-center justify-between border-b border-border p-6">
-          <p className="text-sm font-medium">Patrocinadores e parceiros</p>
-          <p className="text-xs text-muted-foreground">{items.length} registros</p>
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <h2 className="font-semibold">Patrocinadores e parceiros</h2>
+          <p className="text-sm text-muted-foreground">
+            {items.length} {items.length === 1 ? "registro" : "registros"}
+          </p>
         </div>
         {loading ? (
           <p className="p-6 text-sm text-muted-foreground">Carregando patrocinadores...</p>
@@ -202,10 +204,10 @@ export function SponsorManager() {
                       <TableCell>
                         <Badge
                           variant="secondary"
-                          className={`rounded-full font-normal ${
+                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                             item.status === "active"
-                              ? "bg-emerald-100 text-emerald-700"
-                              : "bg-slate-200 text-slate-700"
+                              ? "bg-emerald-100 text-emerald-900"
+                              : "bg-secondary text-tinta-suave"
                           }`}
                         >
                           {item.status === "active" ? "Ativo" : "Inativo"}
@@ -344,7 +346,7 @@ function SponsorDialog({
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="form-editorial max-h-[92vh] overflow-y-auto sm:max-w-2xl bg-papel">
         <DialogHeader>
           <DialogTitle>{sponsor ? "Editar patrocinador" : "Novo patrocinador"}</DialogTitle>
           <DialogDescription>
