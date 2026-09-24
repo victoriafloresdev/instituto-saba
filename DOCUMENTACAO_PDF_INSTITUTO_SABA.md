@@ -1,12 +1,12 @@
-# Instituto Cultural Sabá — conteúdo do PDF
+# Instituto Cultural Saba — conteúdo do PDF
 
 Fonte: `Instituto Cultural Saba.pdf` (7 páginas). Este documento reorganiza o conteúdo textual do material por assunto. A página 4 repete, essencialmente, a página 3; a página 7 não possui texto extraível.
 
-## 1. Instituto Cultural Sabá
+## 1. Instituto Cultural Saba
 
 ### Missão e objetivo
 
-O Instituto Cultural Sabá foi idealizado pela bailarina Marina Sabá com a missão de fortalecer a dança no Brasil e revelar talentos jovens do país para o mundo. Seu objetivo é oferecer oportunidades a jovens artistas, contribuir para o crescimento e a valorização da dança nacional e criar uma plataforma para que talentos locais sejam reconhecidos e celebrados.
+O Instituto Cultural Saba foi idealizado pela bailarina Marina Saba com a missão de fortalecer a dança no Brasil e revelar talentos jovens do país para o mundo. Seu objetivo é oferecer oportunidades a jovens artistas, contribuir para o crescimento e a valorização da dança nacional e criar uma plataforma para que talentos locais sejam reconhecidos e celebrados.
 
 ### Origem e idealização
 
@@ -34,11 +34,11 @@ O Instituto é apresentado como a materialização do desejo de Marina de valori
 - Meses exibidos: setembro e dezembro.
 - Ambos aparecem no material como “em breve”.
 
-## 2. Marina Sabá — fundadora
+## 2. Marina Saba — fundadora
 
 ### Perfil
 
-Marina Sabá é apresentada como bailarina, empresária, advogada e pós-graduanda em direito cultural pela PUC Minas. É fundadora da Boutique 48, loja especializada em artigos de dança.
+Marina Saba é apresentada como bailarina, empresária, advogada e pós-graduanda em direito cultural pela PUC Minas. É fundadora da Boutique 48, loja especializada em artigos de dança.
 
 ### Formação e trajetória em dança
 
@@ -93,7 +93,7 @@ O espetáculo também prevê bailarinos convidados de renome internacional, com 
 | Situação | Aprovado e publicado |
 | PRONAC | 255925 |
 | Projeto | Espetáculo de Dança: Ballet Dom Quixote |
-| Proponente | Marina Furtado Sabá |
+| Proponente | Marina Furtado Saba |
 | CPF da proponente | 107.062.726-76 |
 | Valor do projeto | R$ 4.999.698,0 (texto extraído como “R$49996980”; confirmar no documento oficial) |
 
@@ -199,7 +199,7 @@ O material menciona a Máquinas Bolbi Ltda. e apresenta um histórico institucio
 
 | Função | Nome |
 | --- | --- |
-| Produção | Marina Sabá e Daphne Chequer |
+| Produção | Marina Saba e Daphne Chequer |
 | Direção geral | Tíndaro Silvano |
 | Direção artística | Everson Botelho |
 | Remontagem | Maria Vakhrusheva |
@@ -229,7 +229,7 @@ Nascida na Rússia, é formada em Ballet Clássico e Repertório pela Academia V
 
 ### Personagens e intérpretes — temporada 2025
 
-- Marina Sabá — Kitri.
+- Marina Saba — Kitri.
 - Arthur Willie — Basílio.
 - Dadyer Aguilera — Dom Quixote.
 - Everson Botelho — Sancho Pança.
@@ -278,7 +278,7 @@ Segundo o texto, a lei permite patrocinar projetos como peças de teatro, exposi
 
 - Telefone: `(31) 98430-4111`.
 - E-mail exibido: `institutoculturalsaba@gmail.com`.
-- Nome associado: Marina Sabá.
+- Nome associado: Marina Saba.
 - Redes listadas: Instagram, Twitter, Facebook e LinkedIn.
 - Frase de encerramento: “Nos vemos no teatro”.
 
