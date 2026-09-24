@@ -45,54 +45,68 @@ function Home() {
             <span aria-hidden="true">·</span>
             <span>O Instituto</span>
           </p>
-          <h2 className="t-sub mt-5 max-w-[34ch]" data-reveal="rise" style={atraso(60)}>
-            Idealizado pela bailarina Marina Saba, o Instituto nasceu para{" "}
-            <em className="gesto">fortalecer a dança</em> no Brasil e revelar jovens talentos do
-            país para o mundo.
+          <h2 className="t-titulo mt-4 max-w-[22ch]" data-reveal="rise" style={atraso(60)}>
+            Um palco para o <span className="gesto">talento brasileiro.</span>
           </h2>
-          <div className="suave mt-10 grid max-w-4xl gap-8 leading-relaxed md:grid-cols-2">
-            <p data-reveal="rise" style={atraso(80)}>
-              A ideia surgiu da própria busca de Marina por profissionalização: faltavam
-              oportunidades e visibilidade para bailarinos brasileiros, num mercado marcado por
-              influências estrangeiras.
-            </p>
-            <p data-reveal="rise" style={atraso(160)}>
-              O Instituto oferece espaço e suporte técnico e emocional para que jovens artistas
-              construam carreiras sólidas — e usa as leis de incentivo à cultura para tornar esses
-              projetos possíveis.
-            </p>
-          </div>
-          <Link
-            to="/sobre"
-            className="link-traco mt-8 inline-block font-semibold"
+          <p className="t-lide suave mt-5 max-w-[60ch]" data-reveal="rise" style={atraso(120)}>
+            Idealizado pela bailarina Marina Saba, o Instituto nasceu para fortalecer a dança no
+            Brasil e revelar jovens talentos do país para o mundo.
+          </p>
+
+          <h3 className="eyebrow suave mt-[var(--cena-curta)]" data-reveal="rise">
+            O que fazemos
+          </h3>
+          <ul className="mt-5 grid gap-5 md:grid-cols-3">
+            {FAZEMOS.map((item, i) => (
+              <li
+                key={item.titulo}
+                className={`flex flex-col rounded-lg p-7 md:p-8 ${
+                  i === 0 ? "palco" : "fio border bg-[#efe7d8]"
+                }`}
+                data-reveal="rise"
+                style={atraso(i * 90)}
+              >
+                <span className={`numeral text-3xl leading-none ${i === 0 ? "text-laranja" : ""}`}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h4 className="t-sub mt-5">{item.titulo}</h4>
+                <p className="suave mt-3 leading-relaxed">{item.texto}</p>
+              </li>
+            ))}
+          </ul>
+
+          {/* A idealizadora: retrato e a frase dela, no mesmo cartão. */}
+          <figure
+            className="palco mt-5 grid overflow-hidden rounded-lg md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
+            data-surface="palco"
             data-reveal="rise"
           >
-            Conheça o Instituto →
-          </Link>
-        </div>
-
-        {/* A citação se apoia no retrato, que ultrapassa o grid pela direita. */}
-        <div className="container-x mt-[var(--cena)] grid items-center gap-y-12 md:grid-cols-12 md:gap-x-[var(--calha)]">
-          <figure className="order-2 md:order-1 md:col-span-7 md:pb-16">
-            <blockquote className="font-display text-[clamp(1.6rem,1.1rem+1.8vw,2.6rem)] font-medium italic leading-[1.2]">
-              <p data-reveal="rise">
-                “É preciso dar visibilidade e coragem aos jovens para a dança continuar
-                transformando vidas.”
-              </p>
-            </blockquote>
-            <figcaption className="eyebrow suave mt-8" data-reveal="rise" style={atraso(120)}>
-              Marina Saba — idealizadora
-            </figcaption>
-          </figure>
-          <div className="order-1 md:order-2 md:col-span-4 md:col-start-9 md:-mr-[var(--margem)]">
             <Foto
               nome="marinaSentada"
               enquadramento="4 / 5"
               foco="50% 30%"
-              sizes="(min-width: 768px) 36vw, 100vw"
-              cortina
+              sizes="(min-width: 768px) 40vw, 100vw"
+              className="max-md:aspect-[4/3]!"
             />
-          </div>
+            <div className="flex flex-col justify-center p-7 md:p-12">
+              <blockquote className="font-display text-[clamp(1.5rem,1.1rem+1.4vw,2.4rem)] font-medium italic leading-[1.2]">
+                <span aria-hidden="true" className="text-laranja">
+                  “
+                </span>
+                É preciso dar visibilidade e coragem aos jovens para a dança continuar transformando
+                vidas.
+                <span aria-hidden="true" className="text-laranja">
+                  ”
+                </span>
+              </blockquote>
+              <figcaption className="mt-8">
+                <span className="eyebrow suave block">Marina Saba · idealizadora</span>
+                <Link to="/sobre" className="link-traco mt-5 inline-block font-semibold">
+                  Conheça o Instituto →
+                </Link>
+              </figcaption>
+            </div>
+          </figure>
         </div>
       </section>
 
@@ -133,59 +147,39 @@ function Home() {
 
       {/* 03 — Participe */}
       <section data-surface="papel" className="papel py-[var(--cena)]">
-        <div className="container-x grid gap-y-14 md:grid-cols-12 md:gap-x-[var(--calha)]">
-          <div className="md:col-span-5 md:-ml-[var(--margem)]">
-            <div className="md:sticky md:top-24">
-              <Foto
-                nome="estudio"
-                enquadramento="3 / 4"
-                foco="46% 50%"
-                sizes="(min-width: 768px) 42vw, 100vw"
-                cortina
-              />
-            </div>
-          </div>
+        <div className="container-x">
+          <p className="eyebrow suave flex gap-2.5" data-reveal="rise">
+            <span className="numeral">03</span>
+            <span aria-hidden="true">·</span>
+            <span>Participe</span>
+          </p>
+          <h2 className="t-titulo mt-4" data-reveal="rise" style={atraso(60)}>
+            Há um lugar <span className="gesto">em cena</span> para você.
+          </h2>
+          <p className="t-lide suave mt-5 max-w-[60ch]" data-reveal="rise" style={atraso(120)}>
+            Bailarinos, escolas, empresas e pessoas: cada um tem um jeito de fazer parte da
+            temporada.
+          </p>
 
-          <div className="md:col-span-6 md:col-start-7">
-            <p className="eyebrow suave flex gap-2.5" data-reveal="rise">
-              <span className="numeral">03</span>
-              <span aria-hidden="true">·</span>
-              <span>Participe</span>
-            </p>
-            <h2 className="t-titulo mt-6" data-reveal="rise" style={atraso(80)}>
-              Há um lugar <span className="gesto">em cena</span> para você.
-            </h2>
-
-            <ol className="mt-[var(--cena-curta)]">
-              {PARTICIPE.map((item, i) => (
-                <li
-                  key={item.to}
-                  className="fio border-t py-9 last:border-b"
-                  data-reveal="rise"
-                  style={atraso(i * 90)}
-                >
-                  <Link to={item.to} className="group grid grid-cols-[2.5rem_1fr] gap-x-4">
-                    <span className="numeral pt-1 text-lg italic">{ROMANOS[i]}</span>
-                    <span>
-                      <span className="eyebrow suave">{item.publico}</span>
-                      <span className="t-sub mt-1.5 block transition-transform duration-500 ease-[var(--ease-releve)] group-hover:translate-x-1.5">
-                        {item.titulo}
-                      </span>
-                      <span className="suave mt-4 block max-w-[44ch] leading-relaxed">
-                        {item.texto}
-                      </span>
-                      <span className="mt-4 inline-flex items-center gap-2 font-semibold">
-                        {item.acao}
-                        <span className="transition-transform duration-300 group-hover:translate-x-1">
-                          →
-                        </span>
-                      </span>
-                    </span>
+          <ul className="mt-12 grid gap-5 md:grid-cols-3">
+            {PARTICIPE.map((item, i) => (
+              <li
+                key={item.to}
+                className="fio flex flex-col rounded-lg border bg-[#efe7d8] p-7 md:p-8"
+                data-reveal="rise"
+                style={atraso(i * 90)}
+              >
+                <p className="eyebrow suave">{item.publico}</p>
+                <h3 className="t-sub mt-3">{item.titulo}</h3>
+                <p className="suave mt-3 leading-relaxed">{item.texto}</p>
+                <div className="mt-auto pt-8">
+                  <Link to={item.to} className="chamada chamada--cheia">
+                    {item.acao} <span className="seta">→</span>
                   </Link>
-                </li>
-              ))}
-            </ol>
-          </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -224,7 +218,22 @@ function Home() {
   );
 }
 
-const ROMANOS = ["i.", "ii.", "iii."];
+const FAZEMOS = [
+  {
+    titulo: "Grandes produções",
+    texto:
+      "Montagens de balés de repertório em Belo Horizonte, viabilizadas pelas leis de incentivo à cultura.",
+  },
+  {
+    titulo: "Oportunidade para jovens",
+    texto:
+      "Elenco selecionado por audição pública, dividindo o palco com convidados de renome internacional.",
+  },
+  {
+    titulo: "Acesso à cultura",
+    texto: "Um espetáculo exclusivo para crianças de escolas públicas, com transporte e lanche.",
+  },
+];
 
 /**
  * Faixa logo abaixo da abertura: quem torna a temporada possível aparece
