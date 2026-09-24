@@ -1,4 +1,4 @@
--- Conteúdo administrável do Instituto Cultural Sabá
+-- Conteúdo administrável do Instituto Cultural Saba
 --
 -- Esta migração cria as entidades de conteúdo (espetáculos e patrocinadores)
 -- separadas dos formulários de interesse. O conteúdo público é somente leitura;
@@ -272,7 +272,7 @@ values (
   'maquinas-bolbi-ltda',
   'Máquinas Bolbi Ltda.',
   'master',
-  'Citada no material do Instituto Cultural Sabá como patrocinadora master. Empresa fundada em Belo Horizonte em 1954, atualmente administrada pela terceira geração da família Biskupski.',
+  'Citada no material do Instituto Cultural Saba como patrocinadora master. Empresa fundada em Belo Horizonte em 1954, atualmente administrada pela terceira geração da família Biskupski.',
   'active',
   10
 )

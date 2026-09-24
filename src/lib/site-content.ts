@@ -1,6 +1,10 @@
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import type {
+  PersonCategory,
+  Sessao,
   Spectacle,
+  SpectaclePerson,
+  SpectaclePersonInsert,
   SpectacleInsert,
   Sponsor,
   SponsorInsert,
@@ -28,9 +32,14 @@ export function slugify(value: string): string {
     .slice(0, 80);
 }
 
-/** URL pública de um arquivo do bucket. Retorna null quando não há imagem. */
+/**
+ * URL pública de um arquivo do bucket. Retorna null quando não há imagem.
+ * Caminhos que começam com "/" (ou http) já são endereços prontos — as fotos
+ * que vieram do código e ficam em public/images.
+ */
 export function siteAssetUrl(path: string | null | undefined): string | null {
   if (!path) return null;
+  if (path.startsWith("/") || /^https?:\/\//.test(path)) return path;
   return supabase.storage.from(SITE_ASSETS_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
@@ -57,6 +66,26 @@ export function formatSpectacleDate(spectacle: Spectacle): string {
     month: "long",
     year: "numeric",
   });
+}
+
+/** Sessões em ordem cronológica, ignorando entradas sem data. */
+export function sessoesOrdenadas(spectacle: Pick<Spectacle, "sessions">): Sessao[] {
+  return [...(spectacle.sessions ?? [])]
+    .filter((s) => /^\d{4}-\d{2}-\d{2}$/.test(s.data))
+    .sort((a, b) => `${a.data} ${a.hora ?? ""}`.localeCompare(`${b.data} ${b.hora ?? ""}`));
+}
+
+/** "sábado, 12 de junho · 20h" — a hora aparece só quando existe. */
+export function formatSessao(sessao: Sessao): string {
+  const [ano, mes, dia] = sessao.data.split("-").map(Number);
+  const data = new Date(ano, mes - 1, dia).toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+  if (!sessao.hora) return data;
+  const [h, m] = sessao.hora.split(":");
+  return `${data} · ${Number(h)}h${m && m !== "00" ? m : ""}`;
 }
 
 export function formatSpectacleTime(spectacle: Spectacle): string {
@@ -125,6 +154,37 @@ export async function fetchActiveSponsors(): Promise<Sponsor[]> {
     return [];
   }
 }
+
+/**
+ * Equipe e elenco publicados de um espetáculo. Devolve null quando a tabela
+ * ainda não existe (migração não aplicada) ou a consulta falha — a página
+ * então usa a ficha que está no código.
+ */
+export async function fetchSpectaclePeople(spectacleId: string): Promise<SpectaclePerson[] | null> {
+  if (!isSupabaseConfigured) return null;
+  try {
+    const { data, error } = await supabase
+      .from("spectacle_people")
+      .select("*")
+      .eq("spectacle_id", spectacleId)
+      .eq("visible", true)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) return null;
+    return data ?? [];
+  } catch {
+    return null;
+  }
+}
+
+export const PERSON_CATEGORY_LABELS: Record<PersonCategory, string> = {
+  direcao: "Direção e criação",
+  equipe: "Produção e equipe",
+  elenco: "Elenco (bailarinos)",
+  convidado: "Bailarinos convidados",
+};
+
+export const PERSON_CATEGORY_ORDER: PersonCategory[] = ["direcao", "equipe", "elenco", "convidado"];
 
 // --- Leitura e escrita no painel ------------------------------------------
 // Aqui os erros sobem para a interface, que exibe a mensagem ao administrador.
@@ -200,6 +260,32 @@ export async function deleteSponsor(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function fetchPeopleForAdmin(spectacleId: string): Promise<SpectaclePerson[]> {
+  const { data, error } = await supabase
+    .from("spectacle_people")
+    .select("*")
+    .eq("spectacle_id", spectacleId)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function createPerson(values: SpectaclePersonInsert): Promise<void> {
+  const { error } = await supabase.from("spectacle_people").insert(values);
+  if (error) throw error;
+}
+
+export async function updatePerson(id: string, values: SpectaclePersonInsert): Promise<void> {
+  const { error } = await supabase.from("spectacle_people").update(values).eq("id", id);
+  if (error) throw error;
+}
+
+export async function deletePerson(id: string): Promise<void> {
+  const { error } = await supabase.from("spectacle_people").delete().eq("id", id);
+  if (error) throw error;
+}
+
 // --- Arquivos --------------------------------------------------------------
 
 export const ASSET_MAX_BYTES = 10 * 1024 * 1024;
@@ -234,6 +320,7 @@ export async function uploadSiteAsset(folder: AssetFolder, file: File): Promise<
 }
 
 export async function removeSiteAsset(path: string | null | undefined): Promise<void> {
-  if (!path) return;
+  // Fotos estáticas (public/images) não estão no bucket.
+  if (!path || path.startsWith("/") || /^https?:\/\//.test(path)) return;
   await supabase.storage.from(SITE_ASSETS_BUCKET).remove([path]);
 }
