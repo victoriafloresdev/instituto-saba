@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as ProjetoRouteImport } from './routes/projeto'
 import { Route as ProgramacaoRouteImport } from './routes/programacao'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PatrocinioRouteImport } from './routes/patrocinio'
 import { Route as PatrocinadoresRouteImport } from './routes/patrocinadores'
 import { Route as EscolasRouteImport } from './routes/escolas'
@@ -40,6 +41,11 @@ const ProjetoRoute = ProjetoRouteImport.update({
 const ProgramacaoRoute = ProgramacaoRouteImport.update({
   id: '/programacao',
   path: '/programacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PatrocinioRoute = PatrocinioRouteImport.update({
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/escolas': typeof EscolasRoute
   '/patrocinadores': typeof PatrocinadoresRoute
   '/patrocinio': typeof PatrocinioRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/programacao': typeof ProgramacaoRoute
   '/projeto': typeof ProjetoRoute
   '/sobre': typeof SobreRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/escolas': typeof EscolasRoute
   '/patrocinadores': typeof PatrocinadoresRoute
   '/patrocinio': typeof PatrocinioRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/programacao': typeof ProgramacaoRoute
   '/projeto': typeof ProjetoRoute
   '/sobre': typeof SobreRoute
@@ -160,6 +168,7 @@ export interface FileRoutesById {
   '/escolas': typeof EscolasRoute
   '/patrocinadores': typeof PatrocinadoresRoute
   '/patrocinio': typeof PatrocinioRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/programacao': typeof ProgramacaoRoute
   '/projeto': typeof ProjetoRoute
   '/sobre': typeof SobreRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/escolas'
     | '/patrocinadores'
     | '/patrocinio'
+    | '/privacidade'
     | '/programacao'
     | '/projeto'
     | '/sobre'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/escolas'
     | '/patrocinadores'
     | '/patrocinio'
+    | '/privacidade'
     | '/programacao'
     | '/projeto'
     | '/sobre'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/escolas'
     | '/patrocinadores'
     | '/patrocinio'
+    | '/privacidade'
     | '/programacao'
     | '/projeto'
     | '/sobre'
@@ -239,6 +251,7 @@ export interface RootRouteChildren {
   EscolasRoute: typeof EscolasRoute
   PatrocinadoresRoute: typeof PatrocinadoresRoute
   PatrocinioRoute: typeof PatrocinioRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   ProgramacaoRoute: typeof ProgramacaoRoute
   ProjetoRoute: typeof ProjetoRoute
   SobreRoute: typeof SobreRoute
@@ -272,6 +285,13 @@ declare module '@tanstack/react-router' {
       path: '/programacao'
       fullPath: '/programacao'
       preLoaderRoute: typeof ProgramacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/patrocinio': {
@@ -383,6 +403,7 @@ const rootRouteChildren: RootRouteChildren = {
   EscolasRoute: EscolasRoute,
   PatrocinadoresRoute: PatrocinadoresRoute,
   PatrocinioRoute: PatrocinioRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   ProgramacaoRoute: ProgramacaoRoute,
   ProjetoRoute: ProjetoRoute,
   SobreRoute: SobreRoute,
