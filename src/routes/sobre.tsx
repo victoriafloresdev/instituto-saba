@@ -55,6 +55,47 @@ const PAPEIS = [
   { papel: "Fada Açucarada", obra: "O Quebra-Nozes", ano: "2021" },
 ];
 
+const LEI = [
+  {
+    publico: "Para empresas",
+    quem: "Pessoa jurídica",
+    quanto: "4%",
+    como: "do imposto de renda devido, para empresas tributadas pelo lucro real.",
+  },
+  {
+    publico: "Para pessoas",
+    quem: "Pessoa física",
+    quanto: "6%",
+    como: "do imposto de renda devido, para quem declara pelo modelo completo.",
+  },
+];
+
+const PARTICIPE = [
+  {
+    to: "/audicoes",
+    publico: "Para bailarinos",
+    titulo: "Audições",
+    texto:
+      "O elenco de cada espetáculo é selecionado em audição pública. Há também um banco de talentos aberto o ano todo.",
+    acao: "Ver audições",
+  },
+  {
+    to: "/patrocinio",
+    publico: "Para empresas e pessoas",
+    titulo: "Patrocínio",
+    texto:
+      "Pela Lei Rouanet, parte do imposto de renda devido vira apoio direto a uma grande produção de dança.",
+    acao: "Como patrocinar",
+  },
+  {
+    to: "/escolas",
+    publico: "Para escolas públicas",
+    titulo: "Contrapartida social",
+    texto: "Um espetáculo exclusivo para crianças de escolas públicas, com transporte e lanche.",
+    acao: "Cadastrar escola",
+  },
+] as const;
+
 function Sobre() {
   return (
     <>
@@ -72,39 +113,48 @@ function Sobre() {
         foco="60% 50%"
       />
 
-      <Section numero="01" eyebrow="Por que existimos">
-        <div>
-          <div className="max-w-3xl">
-            <p className="t-lide" data-reveal="rise">
-              O Instituto nasceu da experiência de Marina Saba ao buscar a própria
-              profissionalização: faltavam oportunidades e <em className="gesto">visibilidade</em>{" "}
-              para bailarinos brasileiros, num mercado marcado por influências estrangeiras.
-            </p>
-            <p
-              className="suave mt-8 max-w-[60ch] text-[1.0625rem] leading-relaxed"
-              data-reveal="rise"
-              style={atraso(80)}
-            >
-              Por isso, o Instituto cria espaço para que jovens artistas se destaquem, recebam
-              suporte técnico e emocional e construam carreiras sólidas — contribuindo para o
-              crescimento e a valorização da dança nacional.
-            </p>
-          </div>
-        </div>
+      <Section
+        numero="01"
+        eyebrow="Por que existimos"
+        title={
+          <>
+            Um palco para o <span className="gesto">talento brasileiro.</span>
+          </>
+        }
+        subtitle={
+          <>
+            O Instituto nasceu da experiência de Marina Saba ao buscar a própria profissionalização:
+            faltavam oportunidades e visibilidade para bailarinos brasileiros, num mercado marcado
+            por influências estrangeiras.
+          </>
+        }
+      >
+        <p className="max-w-[62ch] text-[1.0625rem] leading-relaxed" data-reveal="rise">
+          Por isso, o Instituto cria espaço para que jovens artistas se destaquem, recebam suporte
+          técnico e emocional e construam carreiras sólidas — contribuindo para o crescimento e a
+          valorização da dança nacional.
+        </p>
 
-        <ol className="mt-[var(--cena-curta)] grid gap-x-[var(--calha)] md:grid-cols-3">
+        <h3 className="eyebrow suave mt-[var(--cena-curta)]" data-reveal="rise">
+          Em que acreditamos
+        </h3>
+        <ul className="mt-5 grid gap-5 md:grid-cols-3">
           {PREMISSAS.map((premissa, i) => (
             <li
               key={i}
-              className="fio border-t pb-4 pt-7"
+              className={`flex flex-col rounded-lg p-7 md:p-8 ${
+                i === 0 ? "palco" : "fio border bg-[#efe7d8]"
+              }`}
               data-reveal="rise"
-              style={atraso(i * 100)}
+              style={atraso(i * 90)}
             >
-              <span className="numeral text-2xl italic">{["i.", "ii.", "iii."][i]}</span>
-              <p className="mt-4 text-xl font-semibold leading-snug">{premissa}</p>
+              <span className={`numeral text-3xl leading-none ${i === 0 ? "text-laranja" : ""}`}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <p className="mt-5 text-xl font-semibold leading-snug">{premissa}</p>
             </li>
           ))}
-        </ol>
+        </ul>
       </Section>
 
       <section data-surface="papel" className="papel pb-[var(--cena)]">
@@ -122,63 +172,86 @@ function Sobre() {
           </div>
 
           <div className="md:col-span-6 md:col-start-7">
-            <p className="eyebrow suave flex gap-3" data-reveal="rise">
+            <p className="eyebrow suave flex gap-2.5" data-reveal="rise">
               <span className="numeral">02</span>
               <span aria-hidden="true">·</span>
               <span>A idealizadora</span>
             </p>
-            <h2 className="t-titulo mt-6" data-reveal="rise" style={atraso(80)}>
+            <h2 className="t-titulo mt-4" data-reveal="rise" style={atraso(60)}>
               Marina Saba
             </h2>
-            <p className="t-lide suave mt-6" data-reveal="rise" style={atraso(140)}>
+            <p className="t-lide suave mt-5" data-reveal="rise" style={atraso(120)}>
               Bailarina, empresária e advogada. Idealizadora e fundadora do Instituto.
             </p>
-            <p className="suave mt-8 max-w-[56ch] leading-relaxed" data-reveal="rise">
-              Graduada em Direito e especialista em direito cultural pela PUC Minas, fundou a
-              Boutique 48, loja especializada em artigos de dança. Além do ballet clássico, tem
-              formação em dança contemporânea, jazz e sapateado irlandês.
-            </p>
 
-            <h3 className="eyebrow suave mt-16">Trajetória</h3>
-            <dl className="mt-5">
+            <div className="fio mt-10 rounded-lg border bg-[#efe7d8] p-6 md:p-7" data-reveal="rise">
+              <p className="eyebrow suave">Formação</p>
+              <p className="mt-3 leading-relaxed">
+                Graduada em Direito e especialista em direito cultural pela PUC Minas, fundou a
+                Boutique 48, loja especializada em artigos de dança. Além do ballet clássico, tem
+                formação em dança contemporânea, jazz e sapateado irlandês.
+              </p>
+            </div>
+
+            <h3 className="eyebrow suave mt-14">Trajetória</h3>
+            <ol className="mt-5">
               {TRAJETORIA.map((t, i) => (
-                <div
+                <li
                   key={t.quando}
                   className="fio grid grid-cols-[5.5rem_1fr] gap-x-5 border-t py-5 last:border-b"
                   data-reveal="rise"
                   style={atraso(i * 60)}
                 >
-                  <dt className="numeral text-[1.6rem] leading-none">{t.quando}</dt>
-                  <dd className="suave leading-relaxed">{t.marco}</dd>
-                </div>
+                  <span className="numeral text-[1.6rem] leading-none text-[#8f3412]">
+                    {t.quando}
+                  </span>
+                  <span className="leading-relaxed">{t.marco}</span>
+                </li>
               ))}
-            </dl>
+            </ol>
 
-            <h3 className="eyebrow suave mt-16">Papéis</h3>
-            <ul className="mt-5 grid gap-6 sm:grid-cols-3">
-              {PAPEIS.map((p) => (
-                <li key={p.papel} data-reveal="rise">
-                  <p className="text-2xl font-semibold italic leading-tight">{p.papel}</p>
+            <h3 className="eyebrow suave mt-14">Papéis de destaque</h3>
+            <ul className="mt-5 grid gap-3 sm:grid-cols-3">
+              {PAPEIS.map((p, i) => (
+                <li
+                  key={p.papel}
+                  className="fio rounded-lg border bg-[#efe7d8] p-5"
+                  data-reveal="rise"
+                  style={atraso(i * 70)}
+                >
+                  <p className="font-display text-2xl font-semibold italic leading-tight">
+                    {p.papel}
+                  </p>
                   <p className="suave mt-2 text-sm">
-                    {p.obra}, {p.ano}
+                    {p.obra} · {p.ano}
                   </p>
                 </li>
               ))}
             </ul>
 
-            <blockquote
-              className="mt-14 font-display text-[clamp(1.4rem,1.1rem+1vw,1.9rem)] font-medium italic leading-snug"
+            <figure
+              className="palco mt-14 rounded-lg p-7 md:p-9"
+              data-surface="palco"
               data-reveal="rise"
             >
-              “Dançar é sonhar, viver emoções que só os privilegiados podem sentir.”
-            </blockquote>
+              <blockquote className="font-display text-[clamp(1.4rem,1.1rem+1vw,1.9rem)] font-medium italic leading-snug">
+                <span aria-hidden="true" className="text-laranja">
+                  “
+                </span>
+                Dançar é sonhar, viver emoções que só os privilegiados podem sentir.
+                <span aria-hidden="true" className="text-laranja">
+                  ”
+                </span>
+              </blockquote>
+              <figcaption className="eyebrow suave mt-5">Marina Saba</figcaption>
+            </figure>
           </div>
         </div>
       </section>
 
       <Section
         numero="03"
-        eyebrow="Como funciona"
+        eyebrow="Como o Instituto se financia"
         tone="palco"
         title={
           <>
@@ -187,38 +260,61 @@ function Sobre() {
         }
         subtitle="O Instituto viabiliza seus projetos por meio das leis de incentivo à cultura. Pela Lei Rouanet — a Lei Federal de Incentivo à Cultura, criada em 1991 —, empresas e pessoas físicas podem destinar parte do imposto de renda devido a projetos aprovados pelo Ministério da Cultura."
       >
-        <div className="grid gap-x-[var(--calha)] gap-y-10 md:grid-cols-2">
-          {[
-            {
-              quem: "Empresas",
-              quanto: "até 4%",
-              como: "do imposto de renda devido, para empresas tributadas pelo lucro real.",
-            },
-            {
-              quem: "Pessoas físicas",
-              quanto: "até 6%",
-              como: "do imposto de renda devido, para quem declara pelo modelo completo.",
-            },
-          ].map((item, i) => (
-            <div
+        <div className="grid gap-5 md:grid-cols-2">
+          {LEI.map((item, i) => (
+            <article
               key={item.quem}
-              className="fio border-t pt-7"
+              className="flex flex-col rounded-lg bg-[rgb(227_217_199/0.07)] p-7 md:p-9"
               data-reveal="rise"
               style={atraso(i * 100)}
             >
-              <p className="eyebrow suave">{item.quem}</p>
-              <p className="numeral mt-4 text-[clamp(3rem,2rem+4vw,5.5rem)] leading-none text-laranja">
-                {item.quanto}
+              <p className="eyebrow suave">{item.publico}</p>
+              <h3 className="t-sub mt-2">{item.quem}</h3>
+              <p className="mt-6 flex items-baseline gap-3">
+                <span className="suave text-lg">até</span>
+                <span className="numeral text-[clamp(3.2rem,2.2rem+4vw,5.5rem)] leading-none text-laranja">
+                  {item.quanto}
+                </span>
               </p>
-              <p className="suave mt-4 max-w-[36ch] leading-relaxed">{item.como}</p>
-            </div>
+              <p className="suave mt-3 max-w-[36ch] leading-relaxed">{item.como}</p>
+            </article>
           ))}
         </div>
-        <div className="mt-14">
+        <div className="mt-12">
           <Link to="/patrocinio" className="chamada chamada--cheia">
             Saiba como patrocinar <span className="seta">→</span>
           </Link>
         </div>
+      </Section>
+
+      <Section
+        numero="04"
+        eyebrow="Participe"
+        title={
+          <>
+            Faça parte <span className="gesto">da próxima temporada.</span>
+          </>
+        }
+      >
+        <ul className="grid gap-5 md:grid-cols-3">
+          {PARTICIPE.map((item, i) => (
+            <li
+              key={item.to}
+              className="fio flex flex-col rounded-lg border bg-[#efe7d8] p-7 md:p-8"
+              data-reveal="rise"
+              style={atraso(i * 90)}
+            >
+              <p className="eyebrow suave">{item.publico}</p>
+              <h3 className="t-sub mt-3">{item.titulo}</h3>
+              <p className="suave mt-3 leading-relaxed">{item.texto}</p>
+              <div className="mt-auto pt-8">
+                <Link to={item.to} className="link-traco font-semibold">
+                  {item.acao} →
+                </Link>
+              </div>
+            </li>
+          ))}
+        </ul>
       </Section>
     </>
   );
