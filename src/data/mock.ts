@@ -1,8 +1,8 @@
 export const elenco = [
   {
-    nome: "Marina Sabá",
+    nome: "Marina Saba",
     funcao: "Produção",
-    bio: "Bailarina, empresária, advogada e idealizadora do Instituto Cultural Sabá.",
+    bio: "Bailarina, empresária, advogada e idealizadora do Instituto Cultural Saba.",
   },
   {
     nome: "Daphne Chequer",

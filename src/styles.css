@@ -12,7 +12,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
 
-  --font-display: "Archivo Black", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Archivo", "Arial Narrow", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
 
   --color-background: var(--background);
@@ -55,40 +55,93 @@
   --color-terracotta: var(--terracotta);
   --color-saba-orange: var(--saba-orange);
   --color-saba-pink: var(--saba-pink);
+
+  --color-laranja: var(--saba-laranja);
+  --color-tinta: var(--saba-tinta);
+  --color-papel: var(--saba-papel);
+  --color-palco: var(--saba-palco);
+  --color-grafite: var(--saba-grafite);
+  --color-tinta-suave: var(--tinta-suave);
+  --color-papel-suave: var(--papel-suave);
 }
 
+/*
+ * Sistema visual — "palco e programa"
+ *
+ * O site alterna duas superfícies como mudanças de cena num teatro:
+ *   palco    — quase preto, onde vive a fotografia;
+ *   programa — papel creme, onde vive a informação.
+ *
+ * Laranja é luz de palco: como TEXTO só aparece sobre o palco (5,8:1).
+ * Sobre o papel ele reprova em contraste (2,2:1) e fica restrito a
+ * elementos gráficos — o traço, fios, marcadores.
+ */
 :root {
-  --radius: 0.5rem;
+  --radius: 0.375rem;
 
-  /* Warm cultural palette — cream, deep espresso ink, terracotta, ochre */
-  --background: #e7dbc5;
-  --foreground: #20211f;
-  --card: #f2eadc;
-  --card-foreground: #30312e;
-  --popover: #f2eadc;
-  --popover-foreground: #30312e;
+  /* Marca, amostrada do material da contratante */
+  --saba-laranja: #ed6b33;
+  --saba-tinta: #1f1e1c;
+  --saba-papel: #e3d9c7;
+  --saba-palco: #161614;
+  --saba-grafite: #373833;
+  --saba-rosa: #f0a0bb;
 
-  --primary: #f56b36;
-  --primary-foreground: #30312e;
-  --secondary: #f0a0bb;
-  --secondary-foreground: #30312e;
-  --muted: #dcd1bc;
-  --muted-foreground: #545550;
-  --accent: #f0a0bb;
-  --accent-foreground: #30312e;
+  /* Texto secundário, conferido para AA em cada superfície */
+  --tinta-suave: #47433d; /* 7,6:1 sobre o papel */
+  --papel-suave: #bdb6aa; /* 9,2:1 sobre o palco */
+
+  --background: var(--saba-papel);
+  --foreground: var(--saba-tinta);
+  --card: #ebe3d4;
+  --card-foreground: var(--saba-tinta);
+  --popover: #ebe3d4;
+  --popover-foreground: var(--saba-tinta);
+
+  --primary: var(--saba-laranja);
+  --primary-foreground: var(--saba-tinta);
+  --secondary: #d6ccb9;
+  --secondary-foreground: var(--saba-tinta);
+  --muted: #d9cfbd;
+  --muted-foreground: var(--tinta-suave);
+  --accent: var(--saba-rosa);
+  --accent-foreground: var(--saba-tinta);
   --destructive: oklch(0.55 0.2 27);
   --destructive-foreground: oklch(0.985 0.008 82);
 
-  --border: #c8bda9;
-  --input: #c8bda9;
-  --ring: #f56b36;
+  --border: #c3b8a4;
+  --input: #b3a894;
+  --ring: var(--saba-laranja);
 
-  --ink: #30312e;
-  --cream: #e7dbc5;
-  --ochre: #f0a0bb;
-  --terracotta: #f56b36;
-  --saba-orange: #f56b36;
-  --saba-pink: #f0a0bb;
+  /* Nomes legados, usados pelo painel administrativo */
+  --ink: var(--saba-tinta);
+  --cream: var(--saba-papel);
+  --ochre: var(--saba-rosa);
+  --terracotta: var(--saba-laranja);
+  --saba-orange: var(--saba-laranja);
+  --saba-pink: var(--saba-rosa);
+
+  /* Grid e ritmo */
+  --margem: clamp(1.25rem, 4.5vw, 4rem);
+  --calha: clamp(1rem, 2vw, 2rem);
+  --cena: clamp(4.5rem, 3rem + 4.5vw, 8rem); /* respiro entre cenas */
+  --cena-curta: clamp(2.5rem, 1.8rem + 2.6vw, 4.5rem);
+
+  /* Escala tipográfica fluida */
+  --t-cartaz: clamp(2.9rem, 1.4rem + 5.6vw, 7.75rem);
+  --t-titulo: clamp(2.1rem, 1.4rem + 2.6vw, 4rem);
+  --t-subtitulo: clamp(1.45rem, 1.15rem + 1vw, 2.1rem);
+  --t-lide: clamp(1.2rem, 1.05rem + 0.55vw, 1.5rem);
+  --t-corpo: 1.125rem;
+  --t-legenda: 0.8125rem;
+
+  /* Movimento: o "relevé" sobe rápido e sustenta, como subir na ponta
+     e manter o equilíbrio. O "plié" é a preparação, usado nas saídas. */
+  --ease-releve: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-plie: cubic-bezier(0.7, 0, 0.84, 0);
+  --dur-rapida: 240ms;
+  --dur-base: 800ms;
+  --dur-lenta: 1300ms;
 
   --chart-1: oklch(0.51 0.14 38);
   --chart-2: oklch(0.74 0.12 78);
@@ -130,34 +183,487 @@
   * {
     border-color: var(--color-border);
   }
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-feature-settings: "ss01", "cv11";
+    font-size: var(--t-corpo);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: -0.035em;
+    font-weight: 650;
+    font-stretch: 88%;
+    letter-spacing: -0.015em;
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: var(--saba-laranja);
+    color: var(--saba-tinta);
+  }
+  :focus-visible {
+    outline: 2px solid var(--saba-laranja);
+    outline-offset: 3px;
   }
 }
 
+/* O container único do site. O painel também usa. */
 @utility container-x {
   width: 100%;
   margin-inline: auto;
-  padding-inline: 1.25rem;
-  max-width: 1200px;
-  @media (min-width: 768px) {
-    padding-inline: 2rem;
+  padding-inline: var(--margem);
+  max-width: 1480px;
+}
+
+/* Etiqueta de seção: caixa alta curta. Sem cor própria — herda a da
+   superfície, que já passa em contraste. */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--t-legenda);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Números e datas: algarismos alinhados, do mesmo desenho dos títulos. */
+@utility numeral {
+  font-family: var(--font-display);
+  font-weight: 650;
+  font-stretch: 88%;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Padrões editoriais na camada components: utilitários como `hidden`
+   ou `md:flex` precisam poder sobrescrevê-los. */
+@layer components {
+  /* ---------------------------------------------------------------------
+ * Superfícies
+ * ------------------------------------------------------------------ */
+
+  .palco {
+    --fundo: var(--saba-palco);
+    background: var(--saba-palco);
+    color: var(--saba-papel);
+    --fio: rgb(227 217 199 / 0.16);
+    --suave: var(--papel-suave);
+  }
+  .papel {
+    --fundo: var(--saba-papel);
+    background: var(--saba-papel);
+    color: var(--saba-tinta);
+    --fio: rgb(31 30 28 / 0.18);
+    --suave: var(--tinta-suave);
+  }
+  .cena-laranja {
+    --fundo: var(--saba-laranja);
+    background: var(--saba-laranja);
+    color: var(--saba-tinta);
+    --fio: rgb(31 30 28 / 0.22);
+    --suave: rgb(31 30 28 / 0.78);
+  }
+
+  .fio {
+    border-color: var(--fio);
+  }
+
+  /* Listas de texto corrido (política de privacidade): traço laranja. */
+  .lista-politica {
+    display: grid;
+    gap: 0.6rem;
+    list-style: none;
+    padding: 0;
+  }
+  .lista-politica > li {
+    position: relative;
+    padding-left: 1.4rem;
+  }
+  .lista-politica > li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.8em;
+    width: 0.7rem;
+    height: 1.5px;
+    background: var(--saba-laranja);
+  }
+  .suave {
+    color: var(--suave);
+  }
+
+  /* ---------------------------------------------------------------------
+ * Tipografia editorial
+ * ------------------------------------------------------------------ */
+
+  .t-cartaz {
+    font-family: var(--font-display);
+    font-size: var(--t-cartaz);
+    font-weight: 750;
+    font-stretch: 82%;
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+  }
+  .t-titulo {
+    font-family: var(--font-display);
+    font-size: var(--t-titulo);
+    font-weight: 650;
+    font-stretch: 88%;
+    line-height: 1.04;
+    letter-spacing: -0.015em;
+  }
+  .t-sub {
+    font-family: var(--font-display);
+    font-size: var(--t-subtitulo);
+    font-weight: 600;
+    font-stretch: 92%;
+    line-height: 1.15;
+  }
+  /* O lide é texto para ler, não para ver: vai na fonte de texto. */
+  .t-lide {
+    font-family: var(--font-sans);
+    font-size: var(--t-lide);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  /* Linhas de título de abertura: cada span é uma linha. */
+  .abre > span {
+    display: block;
+  }
+
+  /* A palavra em itálico é o gesto de cada título. */
+  .gesto {
+    font-style: italic;
+  }
+  .palco .gesto--luz {
+    color: var(--saba-laranja);
+  }
+
+  /* ---------------------------------------------------------------------
+ * Links e chamadas
+ * ------------------------------------------------------------------ */
+
+  /* Link de texto: o sublinhado se desenha da esquerda para a direita. */
+  .link-traco {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 2px;
+    transition: background-size var(--dur-rapida) var(--ease-releve);
+  }
+  .link-traco:hover,
+  .link-traco:focus-visible,
+  .link-traco[aria-current="page"] {
+    background-size: 100% 1px;
+  }
+
+  /* Chamada principal: o preenchimento sobe de baixo, como luz acendendo. */
+  .chamada {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3rem;
+    padding: 0 1.4rem;
+    border: 1.5px solid currentColor;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    font-weight: 600;
+    overflow: hidden;
+    transition: color var(--dur-rapida) var(--ease-releve);
+  }
+  .chamada::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--chamada-fundo, var(--saba-laranja));
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 420ms var(--ease-releve);
+  }
+  .chamada:hover::before,
+  .chamada:focus-visible::before {
+    transform: scaleY(1);
+  }
+  .chamada:hover,
+  .chamada:focus-visible {
+    color: var(--chamada-texto, var(--saba-tinta));
+  }
+  .chamada .seta {
+    transition: transform var(--dur-rapida) var(--ease-releve);
+  }
+  .chamada:hover .seta,
+  .chamada:focus-visible .seta {
+    transform: translateX(4px);
+  }
+  .chamada:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .chamada--cheia {
+    background: var(--saba-laranja);
+    border-color: var(--saba-laranja);
+    color: var(--saba-tinta);
+    --chamada-fundo: var(--saba-tinta);
+    --chamada-texto: var(--saba-papel);
+  }
+
+  /* ---------------------------------------------------------------------
+ * "Saiba mais": <details> nativo, acessível sem JavaScript. Onde houver
+ * suporte a interpolate-size, a abertura desliza; nos demais, alterna.
+ * ------------------------------------------------------------------ */
+
+  .curriculo summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .curriculo summary::-webkit-details-marker {
+    display: none;
+  }
+  .curriculo .sinal {
+    display: inline-block;
+    transition: transform var(--dur-rapida) var(--ease-releve);
+  }
+  .curriculo[open] .sinal {
+    transform: rotate(45deg);
+  }
+  @supports (interpolate-size: allow-keywords) {
+    .curriculo {
+      interpolate-size: allow-keywords;
+    }
+    .curriculo::details-content {
+      block-size: 0;
+      overflow: hidden;
+      transition:
+        block-size 600ms var(--ease-releve),
+        content-visibility 600ms allow-discrete;
+    }
+    .curriculo[open]::details-content {
+      block-size: auto;
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+ * O traço — a única forma decorativa do site, extraída do logo.
+ * ------------------------------------------------------------------ */
+
+  .traco {
+    display: block;
+    aspect-ratio: 1;
+    background: currentColor;
+    -webkit-mask: url("/images/traco.webp") center / contain no-repeat;
+    mask: url("/images/traco.webp") center / contain no-repeat;
   }
 }
 
-@utility eyebrow {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-primary);
+/* ---------------------------------------------------------------------
+ * Formulários: campos com borda inteira e rótulo em caixa normal — o
+ * campo se reconhece de imediato e o rótulo se lê sem esforço.
+ * Fora de camada de propósito, para prevalecer sobre os utilitários dos
+ * componentes de UI sem alterá-los (o painel também os usa).
+ * ------------------------------------------------------------------ */
+
+.form-editorial input:not([type="checkbox"]):not([type="hidden"]),
+.form-editorial textarea,
+.form-editorial button[role="combobox"] {
+  height: auto;
+  min-height: 3rem;
+  margin-top: 0.4rem;
+  border: 1px solid var(--color-input);
+  border-radius: 0.375rem;
+  background: #f3ede2;
+  box-shadow: none;
+  padding-inline: 0.9rem;
+  font-size: 1.0625rem;
+  transition:
+    border-color var(--dur-rapida) var(--ease-releve),
+    box-shadow var(--dur-rapida) var(--ease-releve);
+}
+.form-editorial textarea {
+  padding-block: 0.75rem;
+}
+.form-editorial input:not([type="checkbox"]):focus-visible,
+.form-editorial textarea:focus-visible,
+.form-editorial button[role="combobox"]:focus-visible,
+.form-editorial button[role="combobox"][data-state="open"] {
+  outline: none;
+  border-color: var(--saba-tinta);
+  box-shadow: 0 0 0 3px rgb(237 107 51 / 0.45);
+}
+.form-editorial label,
+.form-editorial legend {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.form-editorial .consentimento,
+.form-editorial .consentimento * {
+  font-weight: 400;
+}
+/* Perguntas numeradas do simulador de patrocínio. */
+.form-editorial .etapa-simulador {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.1875rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+.etapa-simulador > span {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: var(--saba-tinta);
+  color: var(--saba-papel);
+  font-size: 0.875rem;
+}
+.form-editorial button[role="checkbox"] {
+  border-radius: 0.25rem;
+  border-color: var(--saba-tinta);
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* ---------------------------------------------------------------------
+ * Movimento
+ *
+ * Os estados escondidos só existem com JavaScript ativo (classe .js no
+ * <html>, aplicada antes da primeira pintura) e sem preferência por
+ * movimento reduzido. Faltando uma das duas, tudo aparece de imediato.
+ * ------------------------------------------------------------------ */
+
+@property --varredura {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 360deg;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Subida: textos entram como um relevé. */
+  .js [data-reveal="rise"] {
+    opacity: 0;
+    transform: translateY(0.9em);
+    transition:
+      opacity var(--dur-base) var(--ease-releve),
+      transform var(--dur-base) var(--ease-releve);
+    transition-delay: var(--delay, 0ms);
+  }
+  .js [data-reveal="rise"][data-shown] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Cortina: uma cobertura da cor da cena sobe como o pano do teatro,
+     enquanto a foto desacelera até o enquadramento final.
+     É uma camada por cima, não um recorte da imagem: o Chrome desconta o
+     clip-path tanto no IntersectionObserver quanto no carregamento
+     preguiçoso, e uma foto recortada a 100% nunca seria baixada.
+     De quebra, só se anima transform — nada de repintura por quadro. */
+  .js [data-reveal="curtain"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--fundo);
+    transform-origin: top;
+    transition: transform var(--dur-lenta) var(--ease-releve);
+    transition-delay: var(--delay, 0ms);
+  }
+  .js [data-reveal="curtain"][data-shown]::after {
+    transform: scaleY(0);
+  }
+  .js [data-reveal="curtain"] img {
+    transform: scale(1.14);
+    transition: transform calc(var(--dur-lenta) * 1.4) var(--ease-releve);
+    transition-delay: var(--delay, 0ms);
+  }
+  .js [data-reveal="curtain"][data-shown] img {
+    transform: scale(1);
+  }
+
+  /* Fio: as linhas do programa se estendem da esquerda. */
+  .js [data-reveal="line"] {
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-lenta) var(--ease-releve);
+    transition-delay: var(--delay, 0ms);
+  }
+  .js [data-reveal="line"][data-shown] {
+    transform: scaleX(1);
+  }
+
+  /* O traço é desenhado por uma varredura circular — uma pirueta.
+     CSS puro no carregamento, sem esperar a hidratação. */
+  .traco--desenho {
+    -webkit-mask:
+      url("/images/traco.webp") center / contain no-repeat,
+      conic-gradient(from 210deg, #000 var(--varredura), transparent 0);
+    -webkit-mask-composite: source-in;
+    mask:
+      url("/images/traco.webp") center / contain no-repeat,
+      conic-gradient(from 210deg, #000 var(--varredura), transparent 0);
+    mask-composite: intersect;
+    animation: pirueta 2.6s var(--ease-releve) 0.3s both;
+  }
+  @keyframes pirueta {
+    from {
+      --varredura: 0deg;
+    }
+    to {
+      --varredura: 360deg;
+    }
+  }
+
+  /* Luz de palco: a foto de abertura acende devagar. Sem clip-path,
+     para a imagem pintar de imediato e não atrasar o LCP. */
+  .acende {
+    animation: acende 2s var(--ease-releve) both;
+  }
+  @keyframes acende {
+    from {
+      opacity: 0.35;
+      transform: scale(1.05);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Títulos de abertura sobem linha a linha no carregamento. */
+  .abre > * {
+    animation: abre 1.15s var(--ease-releve) both;
+    animation-delay: calc(0.3s + var(--i, 0) * 0.09s);
+  }
+  @keyframes abre {
+    from {
+      opacity: 0;
+      transform: translateY(0.4em);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }

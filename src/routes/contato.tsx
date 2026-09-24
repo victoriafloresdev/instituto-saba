@@ -1,24 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Section } from "@/components/site/Section";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mail, MessageCircle, MapPin, Instagram } from "lucide-react";
 import { useState } from "react";
+import { Abertura } from "@/components/site/Abertura";
+import { Enviado, FormularioCena } from "@/components/site/FormularioCena";
 import { toast } from "sonner";
-import { CheckCircle2 } from "lucide-react";
 import { supabase, isSupabaseConfigured, SUPABASE_UNAVAILABLE_MESSAGE } from "@/lib/supabase";
 import { FORM_LIMITS, formString, isValidEmail, isWithinLength } from "@/lib/form-validation";
 
 export const Route = createFileRoute("/contato")({
   head: () => ({
     meta: [
-      { title: "Contato — Instituto Cultural Sabá" },
-      { name: "description", content: "Fale com o Instituto Cultural Sabá." },
-      { property: "og:title", content: "Contato — Instituto Cultural Sabá" },
+      { title: "Contato — Instituto Cultural Saba" },
+      { name: "description", content: "Fale com o Instituto Cultural Saba." },
+      { property: "og:title", content: "Contato — Instituto Cultural Saba" },
     ],
   }),
   component: Contato,
@@ -80,146 +77,161 @@ function Contato() {
 
   return (
     <>
-      <Section
+      <Abertura
         eyebrow="Contato"
-        title="Fale com o Instituto."
-        subtitle="Estamos abertos a parcerias, convites, imprensa, audições e patrocínio cultural."
+        linhas={[
+          "Fale com",
+          <span key="g" className="gesto gesto--luz">
+            o Instituto.
+          </span>,
+        ]}
+        lide="Parcerias, convites, imprensa, audições e patrocínio cultural."
       >
-        <div className="grid gap-10 lg:grid-cols-5">
-          <div className="lg:col-span-2 space-y-5">
-            <InfoRow icon={Mail} title="E-mail" text="institutoculturalsaba@gmail.com" />
-            <InfoRow icon={MessageCircle} title="WhatsApp" text="(31) 98430-4111" />
-            <InfoRow icon={MapPin} title="Sede" text="Belo Horizonte — Minas Gerais" />
-            <InfoRow
-              icon={Instagram}
-              title="Redes sociais"
-              text="Instagram, Twitter, Facebook e LinkedIn"
-            />
+        <dl className="grid gap-8 sm:grid-cols-2">
+          <div>
+            <dt className="eyebrow suave">E-mail</dt>
+            <dd className="mt-2">
+              <a
+                href="mailto:institutoculturalsaba@gmail.com"
+                className="link-traco break-all text-lg"
+              >
+                institutoculturalsaba@gmail.com
+              </a>
+            </dd>
           </div>
+          <div>
+            <dt className="eyebrow suave">WhatsApp</dt>
+            <dd className="mt-2">
+              <a
+                href="https://wa.me/5531984304111"
+                target="_blank"
+                rel="noreferrer"
+                className="link-traco text-lg"
+              >
+                (31) 98430-4111
+              </a>
+            </dd>
+          </div>
+        </dl>
+      </Abertura>
 
-          <Card className="lg:col-span-3 p-8">
-            {sent ? (
-              <div className="text-center py-8">
-                <CheckCircle2 className="h-10 w-10 text-primary mx-auto" />
-                <h3 className="mt-4 text-2xl">Mensagem recebida</h3>
-                <p className="mt-3 text-muted-foreground">Retornaremos assim que possível.</p>
-              </div>
-            ) : (
-              <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
-                <input
-                  name="website"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  aria-hidden="true"
-                  className="hidden"
-                />
-                <Field label="Nome" name="nome" required maxLength={FORM_LIMITS.name} />
-                <Field
-                  label="E-mail"
-                  name="email"
-                  type="email"
-                  required
-                  maxLength={FORM_LIMITS.email}
-                />
-                <Field
-                  label="Assunto"
-                  name="assunto"
-                  required
-                  maxLength={FORM_LIMITS.subject}
-                  className="sm:col-span-2"
-                />
-                <div className="sm:col-span-2">
-                  <Label className="mb-2 block text-sm">Mensagem</Label>
-                  <Textarea name="mensagem" rows={5} maxLength={FORM_LIMITS.message} required />
-                </div>
-                <label className="sm:col-span-2 flex gap-3 items-start text-sm text-muted-foreground">
-                  <Checkbox
-                    checked={consent}
-                    onCheckedChange={(v) => setConsent(!!v)}
-                    className="mt-0.5"
-                  />
-                  <span>
-                    Autorizo o uso dos meus dados para retorno desta mensagem, conforme LGPD.
-                  </span>
-                </label>
-                <div className="sm:col-span-2">
-                  <Button type="submit" size="lg" disabled={submitting}>
-                    {submitting ? "Enviando…" : "Enviar mensagem"}
-                  </Button>
-                </div>
-              </form>
-            )}
-          </Card>
-        </div>
-      </Section>
-
-      <Section tone="ink" title="Vamos caminhar juntos.">
-        <div className="grid gap-4 md:grid-cols-3">
-          <CTABox
-            title="Patrocinadores"
-            text="Conheça quem já apoia o Instituto ou veja como patrocinar via Lei Rouanet."
-            to="/patrocinadores"
-            cta="Ver patrocinadores"
+      <FormularioCena
+        numero="01"
+        eyebrow="Mensagem"
+        titulo={
+          <>
+            Escreva <span className="gesto">para nós.</span>
+          </>
+        }
+        apoio={
+          <>
+            <p>Belo Horizonte — Minas Gerais.</p>
+            <p>
+              Para patrocínio, audições ou escolas públicas, os formulários específicos agilizam o
+              retorno:
+            </p>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/patrocinio" className="link-traco text-tinta">
+                  Seja patrocinador →
+                </Link>
+              </li>
+              <li>
+                <Link to="/audicoes" className="link-traco text-tinta">
+                  Audições →
+                </Link>
+              </li>
+              <li>
+                <Link to="/escolas" className="link-traco text-tinta">
+                  Contrapartida social →
+                </Link>
+              </li>
+            </ul>
+          </>
+        }
+      >
+        {sent ? (
+          <Enviado
+            titulo="Mensagem recebida."
+            texto="Obrigado pelo contato. Retornaremos assim que possível."
+            onNovo={() => setSent(false)}
+            novoRotulo="Enviar outra mensagem"
           />
-          <CTABox
-            title="Artistas"
-            text="Inscreva-se para audições e integre o processo criativo."
-            to="/audicoes"
-            cta="Fazer inscrição"
-          />
-          <CTABox
-            title="Escolas públicas"
-            text="Traga as ações culturais do Instituto para sua escola."
-            to="/escolas"
-            cta="Cadastrar escola"
-          />
-        </div>
-      </Section>
+        ) : (
+          <form
+            onSubmit={submit}
+            className="form-editorial grid gap-x-[var(--calha)] gap-y-9 sm:grid-cols-2"
+          >
+            <input
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              className="hidden"
+            />
+            <Field
+              label="Nome"
+              name="nome"
+              required
+              maxLength={FORM_LIMITS.name}
+              autoComplete="name"
+            />
+            <Field
+              label="E-mail"
+              name="email"
+              type="email"
+              required
+              maxLength={FORM_LIMITS.email}
+              autoComplete="email"
+            />
+            <Field
+              label="Assunto"
+              name="assunto"
+              required
+              maxLength={FORM_LIMITS.subject}
+              className="sm:col-span-2"
+            />
+            <div className="sm:col-span-2">
+              <Label htmlFor="mensagem">
+                Mensagem<span aria-hidden="true"> *</span>
+              </Label>
+              <Textarea
+                id="mensagem"
+                name="mensagem"
+                rows={5}
+                maxLength={FORM_LIMITS.message}
+                required
+              />
+            </div>
+            <label className="consentimento flex items-start gap-3 sm:col-span-2">
+              <Checkbox
+                checked={consent}
+                onCheckedChange={(v) => setConsent(!!v)}
+                className="mt-0.5"
+              />
+              <span className="suave">
+                Autorizo o uso dos meus dados para retorno desta mensagem, conforme a{" "}
+                <a
+                  href="/privacidade"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="link-traco font-semibold"
+                >
+                  Política de Privacidade
+                </a>
+                .
+              </span>
+            </label>
+            <div className="sm:col-span-2">
+              <button type="submit" disabled={submitting} className="chamada chamada--cheia">
+                {submitting ? "Enviando…" : "Enviar mensagem"}
+                {!submitting && <span className="seta">→</span>}
+              </button>
+            </div>
+          </form>
+        )}
+      </FormularioCena>
     </>
-  );
-}
-
-function InfoRow({
-  icon: Icon,
-  title,
-  text,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  text: string;
-}) {
-  return (
-    <div className="flex items-start gap-4">
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-        <Icon className="h-4 w-4" />
-      </span>
-      <div>
-        <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{title}</p>
-        <p className="mt-0.5 text-foreground">{text}</p>
-      </div>
-    </div>
-  );
-}
-
-function CTABox({
-  title,
-  text,
-  to,
-  cta,
-}: {
-  title: string;
-  text: string;
-  to: string;
-  cta: string;
-}) {
-  return (
-    <div className="rounded-[1.25rem] border border-foreground/20 bg-background p-7 shadow-[5px_5px_0_rgb(32_33_31_/_18%)]">
-      <p className="font-display text-2xl leading-none text-primary">{title}</p>
-      <p className="mt-4 text-foreground/85 text-sm font-medium leading-relaxed">{text}</p>
-      <Button asChild size="sm" className="mt-6 bg-primary text-foreground hover:bg-primary/85">
-        <Link to={to}>{cta}</Link>
-      </Button>
-    </div>
   );
 }
 
@@ -230,6 +242,7 @@ function Field({
   required,
   className,
   maxLength,
+  autoComplete,
 }: {
   label: string;
   name: string;
@@ -237,14 +250,22 @@ function Field({
   required?: boolean;
   className?: string;
   maxLength?: number;
+  autoComplete?: string;
 }) {
   return (
     <div className={className}>
-      <Label htmlFor={name} className="mb-2 block text-sm">
+      <Label htmlFor={name}>
         {label}
-        {required && " *"}
+        {required && <span aria-hidden="true"> *</span>}
       </Label>
-      <Input id={name} name={name} type={type} required={required} maxLength={maxLength} />
+      <Input
+        id={name}
+        name={name}
+        type={type}
+        required={required}
+        maxLength={maxLength}
+        autoComplete={autoComplete}
+      />
     </div>
   );
 }

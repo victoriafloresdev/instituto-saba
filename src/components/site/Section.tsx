@@ -1,32 +1,91 @@
 import { cn } from "@/lib/utils";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+
+type Tom = "papel" | "palco" | "laranja";
 
 interface SectionProps {
+  /** Número da seção: "01", "02"... */
+  numero?: string;
   eyebrow?: string;
   title?: ReactNode;
   subtitle?: ReactNode;
   children?: ReactNode;
-  align?: "left" | "center";
   className?: string;
   id?: string;
-  tone?: "default" | "muted" | "ink";
+  /** Superfície da cena. "default"/"muted" e "ink" mantidos por compatibilidade. */
+  tone?: Tom | "default" | "muted" | "ink";
+  /** Espaçamento vertical: "cena" é o respiro cheio, "curta" o intermediário. */
+  ritmo?: "cena" | "curta";
 }
 
-export function Section({ eyebrow, title, subtitle, children, align = "left", className, id, tone = "default" }: SectionProps) {
-  const toneCls =
-    tone === "muted" ? "bg-muted/50" : tone === "ink" ? "bg-secondary text-foreground" : "";
+const SUPERFICIE: Record<Tom, string> = {
+  papel: "papel",
+  palco: "palco",
+  laranja: "cena-laranja",
+};
+
+function normalizar(tone: SectionProps["tone"]): Tom {
+  if (tone === "ink") return "palco";
+  if (tone === "palco" || tone === "laranja") return tone;
+  return "papel";
+}
+
+/**
+ * Uma seção do site. Etiqueta, título e texto de apoio ficam empilhados e
+ * alinhados na mesma margem do conteúdo — uma leitura só, de cima para
+ * baixo, sem colunas vazias à esquerda.
+ */
+export function Section({
+  numero,
+  eyebrow,
+  title,
+  subtitle,
+  children,
+  className,
+  id,
+  tone = "papel",
+  ritmo = "cena",
+}: SectionProps) {
+  const t = normalizar(tone);
+  const temCabecalho = Boolean(eyebrow || numero || title || subtitle);
+
   return (
-    <section id={id} className={cn("py-20 md:py-28", toneCls, className)}>
+    <section
+      id={id}
+      data-surface={t === "palco" ? "palco" : "papel"}
+      className={cn(
+        SUPERFICIE[t],
+        "scroll-mt-20",
+        ritmo === "cena" ? "py-[var(--cena)]" : "py-[var(--cena-curta)]",
+        className,
+      )}
+    >
       <div className="container-x">
-        {(eyebrow || title || subtitle) && (
-          <div className={cn("mb-12 md:mb-16 max-w-3xl", align === "center" && "mx-auto text-center")}>
-            {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-            {title && <h2 className="mt-4 text-4xl md:text-5xl leading-[1.05] text-foreground">{title}</h2>}
-            {subtitle && <p className="mt-5 text-base md:text-lg leading-relaxed text-muted-foreground">{subtitle}</p>}
-          </div>
+        {temCabecalho && (
+          <header className={cn("max-w-3xl", title || subtitle ? "mb-12 md:mb-16" : "mb-6")}>
+            {(eyebrow || numero) && (
+              <p className="eyebrow suave flex gap-2.5" data-reveal="rise">
+                {numero && <span className="numeral">{numero}</span>}
+                {numero && eyebrow && <span aria-hidden="true">·</span>}
+                {eyebrow && <span>{eyebrow}</span>}
+              </p>
+            )}
+            {title && (
+              <h2 className="t-titulo mt-4" data-reveal="rise" style={atraso(60)}>
+                {title}
+              </h2>
+            )}
+            {subtitle && (
+              <p className="t-lide suave mt-5" data-reveal="rise" style={atraso(120)}>
+                {subtitle}
+              </p>
+            )}
+          </header>
         )}
         {children}
       </div>
     </section>
   );
 }
+
+const atraso = (ms: number) => ({ "--delay": `${ms}ms` }) as CSSProperties;
