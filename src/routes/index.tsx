@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import type { CSSProperties } from "react";
 import { Foto } from "@/components/site/Foto";
 import { ProgramaLista } from "@/components/site/ProgramaLista";
-import { IMAGENS, srcset } from "@/lib/imagens";
+import { IMAGENS, srcPadrao, srcset } from "@/lib/imagens";
 import { fetchActiveSponsors, fetchPublishedSpectacles, siteAssetUrl } from "@/lib/site-content";
 import type { Spectacle, Sponsor } from "@/lib/database.types";
 
@@ -111,15 +111,22 @@ function Home() {
       </section>
 
       {/* 02 — Temporada */}
-      <section data-surface="palco" className="palco">
-        {/* Pausa: só a imagem, como o respiro entre dois movimentos. */}
-        <Foto
-          nome="tutus"
-          enquadramento="21 / 9"
-          sizes="100vw"
-          cortina
-          className="min-h-[46vh] w-full"
-        />
+      <section data-surface="palco" className="palco relative isolate overflow-hidden">
+        {/* A foto é o cenário da temporada: apagada, e com o véu do palco no
+            alto e na base, para emendar com as cenas vizinhas e a lista de
+            espetáculos ler por cima sem esforço. */}
+        <div aria-hidden="true" className="absolute inset-0 -z-10">
+          <img
+            src={srcPadrao(IMAGENS.tutus)}
+            srcSet={srcset(IMAGENS.tutus)}
+            sizes="100vw"
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="foto-pb h-full w-full object-cover object-[30%_50%] opacity-45"
+          />
+          <span className="absolute inset-0 bg-gradient-to-b from-palco via-palco/25 to-palco" />
+        </div>
 
         <div className="container-x py-[var(--cena)]">
           <header className="mb-10 md:mb-14">
