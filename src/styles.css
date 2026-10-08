@@ -626,6 +626,14 @@
   }
 }
 
+/* Página que termina numa cena escura (ex.: o formulário do Contato): o
+   fundo por trás também escurece, para a junção com o rodapé, também
+   escuro, não mostrar a fresta de 1px com o papel areia. Fora de camada,
+   para prevalecer sobre o utilitário bg-background do layout. */
+.layout-site:has(> main > section:last-child.palco) {
+  background: var(--saba-palco);
+}
+
 /* ---------------------------------------------------------------------
  * Formulários: campos com borda inteira e rótulo em caixa normal — o
  * campo se reconhece de imediato e o rótulo se lê sem esforço.

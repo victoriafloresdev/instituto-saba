@@ -150,7 +150,7 @@ function LayoutSwitch() {
   useReveal(!isAdmin);
   if (isAdmin) return <Outlet />;
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="layout-site flex min-h-screen flex-col bg-background">
       <a
         href="#conteudo"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-laranja focus:px-4 focus:py-2 focus:text-tinta"

@@ -80,6 +80,21 @@ export function SiteFooter() {
             </Link>
           </p>
         </div>
+
+        {/* Crédito de quem fez o site: discreto, na última linha, como de costume. */}
+        <p className="suave mt-3 flex flex-wrap gap-x-2 gap-y-1 text-xs">
+          <span>
+            Site desenvolvido por <span className="font-semibold">Wellnex Solutions</span>
+          </span>
+          <span aria-hidden="true">·</span>
+          <a href="mailto:wellnexsolutions@gmail.com" className="link-traco">
+            wellnexsolutions@gmail.com
+          </a>
+          <span aria-hidden="true">·</span>
+          <a href="tel:+5531993394320" className="link-traco">
+            (31) 99339-4320
+          </a>
+        </p>
       </div>
     </footer>
   );
