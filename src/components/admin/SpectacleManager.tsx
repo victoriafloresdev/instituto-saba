@@ -572,6 +572,8 @@ function SpectacleDialog({
             label="Imagem"
             folder="spectacles"
             value={values.image_path}
+            hint="Vira o fundo do topo da página do espetáculo, atrás do título. Use uma foto horizontal, com pelo menos 2000 px de largura e o assunto principal à direita — o lado esquerdo fica escurecido para o título. O site exibe em preto e branco."
+            recomendado={{ larguraMinima: 2000, horizontal: true }}
             onChange={(path) => set("image_path", path)}
           />
           <TextField

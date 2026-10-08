@@ -458,7 +458,7 @@ function PersonDialog({
             label="Foto"
             folder="spectacles"
             value={values.photo_path}
-            hint="Retrato, de preferência vertical e com pelo menos 600 px de largura. O site exibe em preto e branco."
+            hint="Retrato com o rosto centralizado, com pelo menos 600 px de largura. Na ficha técnica o site recorta a foto em círculo e exibe em preto e branco."
             onChange={(path) => set("photo_path", path)}
           />
           <TextField

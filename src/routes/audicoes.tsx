@@ -20,6 +20,13 @@ import type { Disponibilidade } from "@/lib/database.types";
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured, SUPABASE_UNAVAILABLE_MESSAGE } from "@/lib/supabase";
 import {
+  CURRICULO_MAX_BYTES,
+  FOTO_MAX_BYTES,
+  FOTO_TIPOS,
+  enviarArquivoAudicao,
+  prepararFoto,
+} from "@/lib/arquivos-audicao";
+import {
   FORM_LIMITS,
   formString,
   isIntegerBetween,
@@ -81,6 +88,10 @@ function Audicoes() {
   const [modalidade, setModalidade] = useState("");
   const [disponibilidade, setDisponibilidade] = useState<Disponibilidade[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [enviandoArquivos, setEnviandoArquivos] = useState(false);
+  // Foto de rosto (obrigatória) e currículo em PDF (opcional).
+  const [foto, setFoto] = useState<File | null>(null);
+  const [curriculo, setCurriculo] = useState<File | null>(null);
   // Menores de 18 anos precisam do responsável (LGPD, art. 14).
   const [idadeDigitada, setIdadeDigitada] = useState("");
   const [autorizaResponsavel, setAutorizaResponsavel] = useState(false);
@@ -206,8 +217,39 @@ function Audicoes() {
       toast.error("Marque pelo menos um período de disponibilidade para os ensaios.");
       return;
     }
+    if (!foto) {
+      toast.error("Envie uma foto de rosto.");
+      return;
+    }
+    const altura = formString(data, "altura_cm");
+    const peso = formString(data, "peso_kg").replace(",", ".");
+    if (altura && !isIntegerBetween(altura, 80, 230)) {
+      toast.error("Informe a altura em centímetros, entre 80 e 230. Ex.: 165.");
+      return;
+    }
+    if (peso && !(Number(peso) >= 20 && Number(peso) <= 200)) {
+      toast.error("Informe o peso em quilos, entre 20 e 200. Ex.: 52,5.");
+      return;
+    }
 
     setSubmitting(true);
+    // Os arquivos sobem antes: a inscrição só é gravada com eles no lugar.
+    setEnviandoArquivos(true);
+    let fotoPath: string;
+    let curriculoPath: string | null = null;
+    try {
+      fotoPath = await enviarArquivoAudicao("foto", await prepararFoto(foto));
+      if (curriculo) curriculoPath = await enviarArquivoAudicao("curriculo", curriculo);
+    } catch {
+      toast.error(
+        "Não foi possível enviar a foto ou o currículo. Confira os arquivos e tente de novo.",
+      );
+      setSubmitting(false);
+      setEnviandoArquivos(false);
+      return;
+    }
+    setEnviandoArquivos(false);
+
     try {
       const { error } = await supabase.from("auditions").insert({
         nome,
@@ -221,6 +263,10 @@ function Audicoes() {
         mensagem: mensagem || null,
         disponibilidade,
         spectacle_id: destino === BANCO ? null : destino,
+        foto_path: fotoPath,
+        curriculo_path: curriculoPath,
+        altura_cm: altura ? Number(altura) : null,
+        peso_kg: peso ? Math.round(Number(peso) * 10) / 10 : null,
         // Só vai quando é menor: inscrições de adultos não dependem destas colunas.
         ...(ehMenor
           ? {
@@ -237,6 +283,8 @@ function Audicoes() {
       form.reset();
       setModalidade("");
       setDisponibilidade([]);
+      setFoto(null);
+      setCurriculo(null);
       setIdadeDigitada("");
       setAutorizaResponsavel(false);
       setConsent(false);
@@ -260,8 +308,8 @@ function Audicoes() {
           </span>,
         ]}
         lide="O elenco de cada espetáculo do Instituto é formado por bailarinos selecionados em audição pública, ao lado de convidados de renome internacional."
-        foto="estudio"
-        foco="46% 50%"
+        fundo="estudio"
+        fundoFoco="60% 50%"
       >
         <a href="#audicoes" className="chamada chamada--cheia">
           Ver audições <span className="seta">↓</span>
@@ -289,7 +337,7 @@ function Audicoes() {
             />
           ))}
           <li
-            className="palco flex flex-col rounded-lg p-7 md:p-9"
+            className="palco flex flex-col rounded-cartao p-7 md:p-9"
             data-surface="palco"
             data-reveal="rise"
             style={atraso(audicoes.length * 90)}
@@ -363,7 +411,7 @@ function Audicoes() {
 
           <div className="grid md:grid-cols-[1fr_1.55fr]">
             <aside
-              className="palco rounded-t-lg p-7 md:rounded-l-lg md:rounded-tr-none md:p-10"
+              className="palco rounded-t-cartao p-7 md:rounded-l-cartao md:rounded-tr-none md:p-10"
               data-surface="palco"
             >
               {/* Acompanha a rolagem do formulário, que é mais alto. */}
@@ -415,7 +463,7 @@ function Audicoes() {
               </div>
             </aside>
 
-            <div className="fio rounded-b-lg border border-t-0 bg-[#efe7d8] p-7 md:rounded-r-lg md:rounded-bl-none md:border-l-0 md:border-t md:p-10">
+            <div className="fio rounded-b-cartao border border-t-0 bg-[#efe7d8] p-7 md:rounded-r-cartao md:rounded-bl-none md:border-l-0 md:border-t md:p-10">
               {sent ? (
                 <div className="flex h-full flex-col justify-center py-6" role="status">
                   <span
@@ -526,7 +574,7 @@ function Audicoes() {
                         placeholder="Ex.: Belo Horizonte"
                       />
                       {menor && (
-                        <div className="fio rounded-md border-2 border-laranja bg-[#f6f1e8] p-5 sm:col-span-2">
+                        <div className="fio rounded-controle border-2 border-laranja bg-[#f6f1e8] p-5 sm:col-span-2">
                           <p className="font-semibold">Menor de 18 anos</p>
                           <p className="suave mt-1 text-sm leading-relaxed">
                             A inscrição precisa dos dados e da autorização de um responsável legal
@@ -573,7 +621,39 @@ function Audicoes() {
 
                   <fieldset>
                     <legend className="etapa-simulador">
-                      <span>3</span> A sua dança
+                      <span>3</span> Foto e medidas
+                    </legend>
+                    <p className="suave mt-2 text-sm leading-relaxed">
+                      Vistos só pela equipe de seleção, para conhecer você e pensar em figurino e
+                      composição do elenco. Ficam guardados com acesso restrito.
+                    </p>
+                    <div className="mt-5 grid gap-x-6 gap-y-6 sm:grid-cols-2">
+                      <CampoFoto foto={foto} aoEscolher={setFoto} className="sm:col-span-2" />
+                      <Field
+                        label="Altura (cm)"
+                        name="altura_cm"
+                        type="number"
+                        opcional
+                        min={80}
+                        max={230}
+                        placeholder="Ex.: 165"
+                      />
+                      <Field
+                        label="Peso (kg)"
+                        name="peso_kg"
+                        type="number"
+                        opcional
+                        min={20}
+                        max={200}
+                        step="0.1"
+                        placeholder="Ex.: 52,5"
+                      />
+                    </div>
+                  </fieldset>
+
+                  <fieldset>
+                    <legend className="etapa-simulador">
+                      <span>4</span> A sua dança
                     </legend>
                     <div className="mt-5 space-y-6">
                       <div>
@@ -614,6 +694,7 @@ function Audicoes() {
                         placeholder="https://"
                         dica="YouTube, Vimeo, Instagram ou Google Drive — confira se o link está aberto para qualquer pessoa ver."
                       />
+                      <CampoCurriculo arquivo={curriculo} aoEscolher={setCurriculo} />
                       <fieldset>
                         <legend>
                           Disponibilidade para ensaios<span aria-hidden="true"> *</span>
@@ -625,7 +706,7 @@ function Audicoes() {
                             return (
                               <label
                                 key={periodo}
-                                className={`flex min-h-12 cursor-pointer items-center justify-center gap-2.5 rounded-md border-2 bg-[#f6f1e8] px-3 font-semibold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-laranja ${
+                                className={`flex min-h-12 cursor-pointer items-center justify-center gap-2.5 rounded-controle border-2 bg-[#f6f1e8] px-3 font-semibold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-laranja ${
                                   marcado
                                     ? "border-tinta"
                                     : "border-transparent hover:border-[rgb(31_30_28/0.3)]"
@@ -646,7 +727,7 @@ function Audicoes() {
 
                   <fieldset>
                     <legend className="etapa-simulador">
-                      <span>4</span> Algo mais?
+                      <span>5</span> Algo mais?
                     </legend>
                     <div className="mt-5">
                       <Label htmlFor="mensagem">
@@ -689,7 +770,11 @@ function Audicoes() {
                         disabled={submitting}
                         className="chamada chamada--cheia"
                       >
-                        {submitting ? "Enviando…" : "Enviar inscrição"}
+                        {enviandoArquivos
+                          ? "Enviando arquivos…"
+                          : submitting
+                            ? "Enviando…"
+                            : "Enviar inscrição"}
                         {!submitting && <span className="seta">→</span>}
                       </button>
                       <span className="suave text-sm">* campos obrigatórios</span>
@@ -725,7 +810,8 @@ const COMO_FUNCIONA = [
   },
   {
     titulo: "Envie sua inscrição",
-    texto: "Preencha o formulário com seus dados, sua experiência e, se tiver, um vídeo.",
+    texto:
+      "Preencha o formulário com seus dados, uma foto de rosto, sua experiência e, se tiver, um vídeo e o currículo.",
   },
   {
     titulo: "Aguarde o contato",
@@ -740,6 +826,10 @@ const COMO_FUNCIONA = [
 ];
 
 const TENHA_EM_MAOS = [
+  {
+    titulo: "Uma foto de rosto",
+    texto: "De frente, com boa luz e sem filtro. Pode ser feita com o celular.",
+  },
   {
     titulo: "Um vídeo dançando",
     texto: "Ou um portfólio. Não é obrigatório, mas ajuda muito a equipe a conhecer você.",
@@ -776,7 +866,7 @@ function CartaoAudicao({
 }) {
   return (
     <li
-      className="fio flex flex-col rounded-lg border bg-[#efe7d8] p-7 md:p-9"
+      className="fio flex flex-col rounded-cartao border bg-[#efe7d8] p-7 md:p-9"
       data-reveal="rise"
       style={style}
     >
@@ -850,6 +940,7 @@ function Field({
   maxLength,
   min,
   max,
+  step,
   autoComplete,
 }: {
   label: string;
@@ -863,6 +954,7 @@ function Field({
   maxLength?: number;
   min?: number;
   max?: number;
+  step?: string;
   autoComplete?: string;
 }) {
   return (
@@ -881,6 +973,8 @@ function Field({
         maxLength={maxLength}
         min={min}
         max={max}
+        step={step}
+        inputMode={step ? "decimal" : undefined}
         autoComplete={autoComplete}
         aria-describedby={dica ? `${name}-dica` : undefined}
       />
@@ -889,6 +983,143 @@ function Field({
           {dica}
         </p>
       )}
+    </div>
+  );
+}
+
+/**
+ * Foto de rosto: o input nativo fica escondido e o rótulo vira o botão, com
+ * a miniatura da foto escolhida ao lado. Navegável pelo teclado como um
+ * campo comum.
+ */
+function CampoFoto({
+  foto,
+  aoEscolher,
+  className,
+}: {
+  foto: File | null;
+  aoEscolher: (arquivo: File | null) => void;
+  className?: string;
+}) {
+  const [miniatura, setMiniatura] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!foto) {
+      setMiniatura(null);
+      return;
+    }
+    const url = URL.createObjectURL(foto);
+    setMiniatura(url);
+    return () => URL.revokeObjectURL(url);
+  }, [foto]);
+
+  function escolher(arquivo: File | undefined) {
+    if (!arquivo) return;
+    if (!FOTO_TIPOS.includes(arquivo.type)) {
+      toast.error("Envie a foto em JPG, PNG ou WEBP.");
+      return;
+    }
+    if (arquivo.size > FOTO_MAX_BYTES) {
+      toast.error("A foto precisa ter no máximo 15 MB.");
+      return;
+    }
+    aoEscolher(arquivo);
+  }
+
+  return (
+    <div className={className}>
+      <p id="foto-rotulo" className="text-[0.9375rem] font-semibold">
+        Foto de rosto<span aria-hidden="true"> *</span>
+      </p>
+      <div className="mt-2 flex items-center gap-5">
+        <div className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-dashed border-[rgb(31_30_28/0.25)] bg-[#f6f1e8]">
+          {miniatura ? (
+            <img
+              src={miniatura}
+              alt="Prévia da foto escolhida"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <span aria-hidden="true" className="suave text-xs">
+              sem foto
+            </span>
+          )}
+        </div>
+        <div>
+          <label className="chamada cursor-pointer has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-laranja">
+            {foto ? "Trocar foto" : "Escolher foto"}
+            <input
+              type="file"
+              accept={FOTO_TIPOS.join(",")}
+              className="sr-only"
+              aria-labelledby="foto-rotulo"
+              aria-describedby="foto-dica"
+              onChange={(e) => {
+                escolher(e.target.files?.[0]);
+                e.target.value = "";
+              }}
+            />
+          </label>
+          <p id="foto-dica" className="suave mt-2 text-sm">
+            De frente, com boa luz e sem filtro. JPG, PNG ou WEBP.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Currículo em PDF, opcional. */
+function CampoCurriculo({
+  arquivo,
+  aoEscolher,
+}: {
+  arquivo: File | null;
+  aoEscolher: (arquivo: File | null) => void;
+}) {
+  function escolher(novo: File | undefined) {
+    if (!novo) return;
+    if (novo.type !== "application/pdf") {
+      toast.error("Envie o currículo em PDF.");
+      return;
+    }
+    if (novo.size > CURRICULO_MAX_BYTES) {
+      toast.error("O currículo precisa ter no máximo 5 MB.");
+      return;
+    }
+    aoEscolher(novo);
+  }
+
+  return (
+    <div>
+      <p id="curriculo-rotulo" className="text-[0.9375rem] font-semibold">
+        Currículo em PDF <span className="suave font-normal">(opcional)</span>
+      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <label className="chamada cursor-pointer has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-laranja">
+          {arquivo ? "Trocar arquivo" : "Escolher PDF"}
+          <input
+            type="file"
+            accept="application/pdf"
+            className="sr-only"
+            aria-labelledby="curriculo-rotulo"
+            onChange={(e) => {
+              escolher(e.target.files?.[0]);
+              e.target.value = "";
+            }}
+          />
+        </label>
+        {arquivo ? (
+          <span className="flex items-center gap-3 text-sm">
+            <span className="max-w-[24ch] truncate font-semibold">{arquivo.name}</span>
+            <button type="button" className="link-traco suave" onClick={() => aoEscolher(null)}>
+              Remover
+            </button>
+          </span>
+        ) : (
+          <span className="suave text-sm">Até 5 MB.</span>
+        )}
+      </div>
     </div>
   );
 }

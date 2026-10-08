@@ -31,6 +31,7 @@ import {
   Handshake,
   Contact,
   ExternalLink,
+  Mail,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -41,7 +42,11 @@ import { SpectacleManager } from "@/components/admin/SpectacleManager";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { SponsorManager } from "@/components/admin/SponsorManager";
 import { PeopleManager } from "@/components/admin/PeopleManager";
+import { EnviarEmailAudicao } from "@/components/admin/EnviarEmailAudicao";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { Status } from "@/lib/database.types";
+import { STATUS_AUDICAO, opcoesDeStatus } from "@/lib/status";
+import { EMAIL_AOS_APROVADOS } from "@/lib/recursos";
 
 export const Route = createFileRoute("/admin/dashboard")({
   head: () => ({
@@ -69,11 +74,12 @@ type AdminRow = {
   createdAt: string;
   /** Só nas audições: espetáculo da inscrição (nulo = banco de talentos). */
   espetaculoId?: string | null;
+  /** Só nas audições: título do espetáculo, para o e-mail aos aprovados. */
+  espetaculoTitulo?: string | null;
 };
 
 const BANCO = "banco";
 const TODAS = "todas";
-const statuses: Status[] = ["Novo", "Em análise", "Aprovado", "Recusado", "Contatado"];
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -83,6 +89,17 @@ function Dashboard() {
   const [rows, setRows] = useState<AdminRow[]>([]);
   const [espetaculos, setEspetaculos] = useState<{ id: string; title: string }[]>([]);
   const [filtroAudicao, setFiltroAudicao] = useState(TODAS);
+  // Nas audições, filtrar por status mostra quem segue para a próxima fase.
+  const [filtroStatus, setFiltroStatus] = useState<Status | typeof TODAS>(TODAS);
+  // Inscrições marcadas para o e-mail aos aprovados.
+  const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
+  const [emailAberto, setEmailAberto] = useState(false);
+
+  // Trocar de aba ou de filtro desfaz a seleção: o que some da tela não
+  // pode continuar marcado sem a pessoa ver.
+  useEffect(() => {
+    setSelecionados(new Set());
+  }, [view, filtroAudicao, filtroStatus]);
 
   async function load() {
     setLoading(true);
@@ -126,6 +143,7 @@ function Dashboard() {
         status: r.status,
         createdAt: r.created_at,
         espetaculoId: r.spectacle_id,
+        espetaculoTitulo: r.spectacle_id ? (titulos.get(r.spectacle_id) ?? null) : null,
       })),
       ...(sponsorships.data ?? []).map((r) => ({
         id: r.id,
@@ -254,12 +272,14 @@ function Dashboard() {
     view === "conteudo-espetaculos" ||
     view === "conteudo-equipe" ||
     view === "conteudo-patrocinadores";
-  const currentRows = (view === "dashboard" || isContentView ? [] : byKind(view)).filter(
-    (row) =>
-      view !== "audicoes" ||
-      filtroAudicao === TODAS ||
-      (filtroAudicao === BANCO ? !row.espetaculoId : row.espetaculoId === filtroAudicao),
-  );
+  const currentRows = (view === "dashboard" || isContentView ? [] : byKind(view))
+    .filter(
+      (row) =>
+        view !== "audicoes" ||
+        filtroAudicao === TODAS ||
+        (filtroAudicao === BANCO ? !row.espetaculoId : row.espetaculoId === filtroAudicao),
+    )
+    .filter((row) => view !== "audicoes" || filtroStatus === TODAS || row.status === filtroStatus);
   const novos = (kind: View) =>
     rows.filter((row) => row.kind === kind && row.status === "Novo").length;
 
@@ -377,28 +397,82 @@ function Dashboard() {
             <DataTable
               filtro={
                 view === "audicoes" ? (
-                  <Select value={filtroAudicao} onValueChange={setFiltroAudicao}>
-                    <SelectTrigger className="h-9 w-[220px]" aria-label="Filtrar por audição">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={TODAS}>Todas as audições</SelectItem>
-                      {espetaculos.map((e) => (
-                        <SelectItem key={e.id} value={e.id}>
-                          {e.title}
-                        </SelectItem>
-                      ))}
-                      <SelectItem value={BANCO}>Banco de talentos</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <>
+                    <Select value={filtroAudicao} onValueChange={setFiltroAudicao}>
+                      <SelectTrigger className="h-9 w-[220px]" aria-label="Filtrar por audição">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={TODAS}>Todas as audições</SelectItem>
+                        {espetaculos.map((e) => (
+                          <SelectItem key={e.id} value={e.id}>
+                            {e.title}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value={BANCO}>Banco de talentos</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={filtroStatus}
+                      onValueChange={(v) => setFiltroStatus(v as Status | typeof TODAS)}
+                    >
+                      <SelectTrigger className="h-9 w-[200px]" aria-label="Filtrar por status">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={TODAS}>Todos os status</SelectItem>
+                        {STATUS_AUDICAO.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {EMAIL_AOS_APROVADOS && (
+                      <Button
+                        size="sm"
+                        disabled={selecionados.size === 0}
+                        onClick={() => setEmailAberto(true)}
+                      >
+                        <Mail className="h-4 w-4" />
+                        {selecionados.size === 0
+                          ? "Enviar e-mail"
+                          : `Enviar e-mail (${selecionados.size})`}
+                      </Button>
+                    )}
+                  </>
                 ) : undefined
               }
               title={items.find((item) => item.key === view)?.label || ""}
               rows={currentRows}
               onStatus={updateStatus}
+              selecao={
+                // A seleção só serve ao e-mail aos aprovados (desligado em lib/recursos).
+                EMAIL_AOS_APROVADOS && view === "audicoes"
+                  ? { ids: selecionados, alterar: setSelecionados }
+                  : undefined
+              }
             />
           )}
         </main>
+        {EMAIL_AOS_APROVADOS && (
+          <EnviarEmailAudicao
+            aberto={emailAberto}
+            aoFechar={() => setEmailAberto(false)}
+            destinatarios={rows
+              .filter((row) => row.kind === "audicoes" && selecionados.has(row.id))
+              .map((row) => ({
+                id: row.id,
+                nome: row.title,
+                status: row.status,
+                espetaculo: row.espetaculoTitulo ?? null,
+              }))}
+            aoEnviar={() => {
+              setEmailAberto(false);
+              setSelecionados(new Set());
+            }}
+          />
+        )}
       </div>
     </div>
   );
@@ -482,6 +556,7 @@ function DataTable({
   readonly = false,
   mostrarTipo = false,
   filtro,
+  selecao,
 }: {
   filtro?: React.ReactNode;
   title: string;
@@ -489,10 +564,22 @@ function DataTable({
   onStatus: (row: AdminRow, status: Status) => void;
   readonly?: boolean;
   mostrarTipo?: boolean;
+  /** Caixas de seleção por linha (audições, para o e-mail aos aprovados). */
+  selecao?: { ids: Set<string>; alterar: (ids: Set<string>) => void };
 }) {
   const navigate = useNavigate();
   const abrir = (row: AdminRow) =>
     navigate({ to: "/admin/registro/$tipo/$id", params: { tipo: row.kind, id: row.id } });
+  const todosMarcados =
+    Boolean(selecao) && rows.length > 0 && rows.every((r) => selecao?.ids.has(r.id));
+  const algunsMarcados = Boolean(selecao) && rows.some((r) => selecao?.ids.has(r.id));
+  function marcar(id: string, marcado: boolean) {
+    if (!selecao) return;
+    const novos = new Set(selecao.ids);
+    if (marcado) novos.add(id);
+    else novos.delete(id);
+    selecao.alterar(novos);
+  }
 
   return (
     <Card className="overflow-hidden p-0">
@@ -512,6 +599,17 @@ function DataTable({
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
+                {selecao && (
+                  <TableHead className="w-10">
+                    <Checkbox
+                      aria-label="Selecionar todos da lista"
+                      checked={todosMarcados ? true : algunsMarcados ? "indeterminate" : false}
+                      onCheckedChange={(v) =>
+                        selecao.alterar(v === true ? new Set(rows.map((r) => r.id)) : new Set())
+                      }
+                    />
+                  </TableHead>
+                )}
                 <TableHead>Nome</TableHead>
                 {mostrarTipo && <TableHead>Tipo</TableHead>}
                 <TableHead>Detalhe</TableHead>
@@ -528,6 +626,15 @@ function DataTable({
                   className="cursor-pointer"
                   onClick={() => abrir(row)}
                 >
+                  {selecao && (
+                    <TableCell onClick={(event) => event.stopPropagation()}>
+                      <Checkbox
+                        aria-label={`Selecionar ${row.title}`}
+                        checked={selecao.ids.has(row.id)}
+                        onCheckedChange={(v) => marcar(row.id, v === true)}
+                      />
+                    </TableCell>
+                  )}
                   <TableCell className="font-semibold">
                     {/* Link de verdade: a linha inteira abre com o mouse, e o nome
                         também pelo teclado. */}
@@ -558,13 +665,13 @@ function DataTable({
                         onValueChange={(value) => onStatus(row, value as Status)}
                       >
                         <SelectTrigger
-                          className="ml-auto h-9 w-[150px]"
+                          className="ml-auto h-9 w-[190px]"
                           aria-label={`Alterar status de ${row.title}`}
                         >
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {statuses.map((status) => (
+                          {opcoesDeStatus(row.kind === "audicoes", row.status).map((status) => (
                             <SelectItem key={status} value={status}>
                               {status}
                             </SelectItem>

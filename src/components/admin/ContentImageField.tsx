@@ -17,6 +17,44 @@ interface Props {
   value: string | null;
   onChange: (path: string | null) => void;
   hint?: string;
+  /**
+   * Formato esperado. Depois do envio, a imagem é medida e, se fugir do
+   * recomendado, o painel avisa — sem bloquear, porque às vezes é a única
+   * foto disponível.
+   */
+  recomendado?: { larguraMinima: number; horizontal?: boolean };
+}
+
+/** Largura e altura da imagem, lidas no navegador antes do envio. */
+function medir(file: File): Promise<{ largura: number; altura: number } | null> {
+  if (file.type === "image/svg+xml") return Promise.resolve(null);
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      resolve({ largura: img.naturalWidth, altura: img.naturalHeight });
+      URL.revokeObjectURL(url);
+    };
+    img.onerror = () => {
+      resolve(null);
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  });
+}
+
+function avisoDeFormato(
+  medida: { largura: number; altura: number } | null,
+  recomendado: NonNullable<Props["recomendado"]>,
+): string | null {
+  if (!medida) return null;
+  if (recomendado.horizontal && medida.altura >= medida.largura) {
+    return "Esta imagem é vertical ou quadrada. No site ela ocupa a largura da tela, então vai aparecer bem recortada — prefira uma foto horizontal.";
+  }
+  if (medida.largura < recomendado.larguraMinima) {
+    return `Esta imagem tem ${medida.largura} px de largura; o recomendado é pelo menos ${recomendado.larguraMinima} px. Em telas grandes ela pode aparecer sem nitidez.`;
+  }
+  return null;
 }
 
 /**
@@ -24,7 +62,7 @@ interface Props {
  * anterior não é apagado na troca: a exclusão definitiva acontece junto com o
  * registro, para não quebrar uma versão já publicada por engano.
  */
-export function ContentImageField({ label, folder, value, onChange, hint }: Props) {
+export function ContentImageField({ label, folder, value, onChange, hint, recomendado }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const previewUrl = siteAssetUrl(value);
@@ -33,8 +71,14 @@ export function ContentImageField({ label, folder, value, onChange, hint }: Prop
     if (!file) return;
     setUploading(true);
     try {
-      onChange(await uploadSiteAsset(folder, file));
-      toast.success("Imagem enviada.");
+      const [path, medida] = await Promise.all([
+        uploadSiteAsset(folder, file),
+        recomendado ? medir(file) : Promise.resolve(null),
+      ]);
+      onChange(path);
+      const aviso = recomendado ? avisoDeFormato(medida, recomendado) : null;
+      if (aviso) toast.warning(`Imagem enviada, mas atenção: ${aviso}`, { duration: 12000 });
+      else toast.success("Imagem enviada.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Não foi possível enviar a imagem.");
     } finally {

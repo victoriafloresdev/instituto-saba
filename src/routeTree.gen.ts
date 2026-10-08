@@ -23,9 +23,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EspetaculoIndexRouteImport } from './routes/espetaculo.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as EspetaculoSlugRouteImport } from './routes/espetaculo.$slug'
+import { Route as ApiLimpezaAudicoesRouteImport } from './routes/api.limpeza-audicoes'
 import { Route as AdminRedefinirSenhaRouteImport } from './routes/admin.redefinir-senha'
 import { Route as AdminRecuperarSenhaRouteImport } from './routes/admin.recuperar-senha'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as ApiAudicoesEmailRouteImport } from './routes/api.audicoes.email'
 import { Route as AdminRegistroTipoIdRouteImport } from './routes/admin.registro.$tipo.$id'
 
 const SobreRoute = SobreRouteImport.update({
@@ -98,6 +100,11 @@ const EspetaculoSlugRoute = EspetaculoSlugRouteImport.update({
   path: '/espetaculo/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLimpezaAudicoesRoute = ApiLimpezaAudicoesRouteImport.update({
+  id: '/api/limpeza-audicoes',
+  path: '/api/limpeza-audicoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRedefinirSenhaRoute = AdminRedefinirSenhaRouteImport.update({
   id: '/admin/redefinir-senha',
   path: '/admin/redefinir-senha',
@@ -111,6 +118,11 @@ const AdminRecuperarSenhaRoute = AdminRecuperarSenhaRouteImport.update({
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/admin/dashboard',
   path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAudicoesEmailRoute = ApiAudicoesEmailRouteImport.update({
+  id: '/api/audicoes/email',
+  path: '/api/audicoes/email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRegistroTipoIdRoute = AdminRegistroTipoIdRouteImport.update({
@@ -134,9 +146,11 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
+  '/api/limpeza-audicoes': typeof ApiLimpezaAudicoesRoute
   '/espetaculo/$slug': typeof EspetaculoSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/espetaculo/': typeof EspetaculoIndexRoute
+  '/api/audicoes/email': typeof ApiAudicoesEmailRoute
   '/admin/registro/$tipo/$id': typeof AdminRegistroTipoIdRoute
 }
 export interface FileRoutesByTo {
@@ -154,9 +168,11 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
+  '/api/limpeza-audicoes': typeof ApiLimpezaAudicoesRoute
   '/espetaculo/$slug': typeof EspetaculoSlugRoute
   '/admin': typeof AdminIndexRoute
   '/espetaculo': typeof EspetaculoIndexRoute
+  '/api/audicoes/email': typeof ApiAudicoesEmailRoute
   '/admin/registro/$tipo/$id': typeof AdminRegistroTipoIdRoute
 }
 export interface FileRoutesById {
@@ -175,9 +191,11 @@ export interface FileRoutesById {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
+  '/api/limpeza-audicoes': typeof ApiLimpezaAudicoesRoute
   '/espetaculo/$slug': typeof EspetaculoSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/espetaculo/': typeof EspetaculoIndexRoute
+  '/api/audicoes/email': typeof ApiAudicoesEmailRoute
   '/admin/registro/$tipo/$id': typeof AdminRegistroTipoIdRoute
 }
 export interface FileRouteTypes {
@@ -197,9 +215,11 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/recuperar-senha'
     | '/admin/redefinir-senha'
+    | '/api/limpeza-audicoes'
     | '/espetaculo/$slug'
     | '/admin/'
     | '/espetaculo/'
+    | '/api/audicoes/email'
     | '/admin/registro/$tipo/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -217,9 +237,11 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/recuperar-senha'
     | '/admin/redefinir-senha'
+    | '/api/limpeza-audicoes'
     | '/espetaculo/$slug'
     | '/admin'
     | '/espetaculo'
+    | '/api/audicoes/email'
     | '/admin/registro/$tipo/$id'
   id:
     | '__root__'
@@ -237,9 +259,11 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/recuperar-senha'
     | '/admin/redefinir-senha'
+    | '/api/limpeza-audicoes'
     | '/espetaculo/$slug'
     | '/admin/'
     | '/espetaculo/'
+    | '/api/audicoes/email'
     | '/admin/registro/$tipo/$id'
   fileRoutesById: FileRoutesById
 }
@@ -258,9 +282,11 @@ export interface RootRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminRecuperarSenhaRoute: typeof AdminRecuperarSenhaRoute
   AdminRedefinirSenhaRoute: typeof AdminRedefinirSenhaRoute
+  ApiLimpezaAudicoesRoute: typeof ApiLimpezaAudicoesRoute
   EspetaculoSlugRoute: typeof EspetaculoSlugRoute
   AdminIndexRoute: typeof AdminIndexRoute
   EspetaculoIndexRoute: typeof EspetaculoIndexRoute
+  ApiAudicoesEmailRoute: typeof ApiAudicoesEmailRoute
   AdminRegistroTipoIdRoute: typeof AdminRegistroTipoIdRoute
 }
 
@@ -364,6 +390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EspetaculoSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/limpeza-audicoes': {
+      id: '/api/limpeza-audicoes'
+      path: '/api/limpeza-audicoes'
+      fullPath: '/api/limpeza-audicoes'
+      preLoaderRoute: typeof ApiLimpezaAudicoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/redefinir-senha': {
       id: '/admin/redefinir-senha'
       path: '/admin/redefinir-senha'
@@ -383,6 +416,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/dashboard'
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/audicoes/email': {
+      id: '/api/audicoes/email'
+      path: '/api/audicoes/email'
+      fullPath: '/api/audicoes/email'
+      preLoaderRoute: typeof ApiAudicoesEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/registro/$tipo/$id': {
@@ -410,9 +450,11 @@ const rootRouteChildren: RootRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminRecuperarSenhaRoute: AdminRecuperarSenhaRoute,
   AdminRedefinirSenhaRoute: AdminRedefinirSenhaRoute,
+  ApiLimpezaAudicoesRoute: ApiLimpezaAudicoesRoute,
   EspetaculoSlugRoute: EspetaculoSlugRoute,
   AdminIndexRoute: AdminIndexRoute,
   EspetaculoIndexRoute: EspetaculoIndexRoute,
+  ApiAudicoesEmailRoute: ApiAudicoesEmailRoute,
   AdminRegistroTipoIdRoute: AdminRegistroTipoIdRoute,
 }
 export const routeTree = rootRouteImport

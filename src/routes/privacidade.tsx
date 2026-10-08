@@ -1,3 +1,4 @@
+import { EMAIL_AOS_APROVADOS } from "@/lib/recursos";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
@@ -24,13 +25,18 @@ export const Route = createFileRoute("/privacidade")({
 const CONTROLADOR = "Instituto Cultural Saba";
 const CIDADE = "Belo Horizonte, Minas Gerais";
 const EMAIL_PRIVACIDADE = "institutoculturalsaba@gmail.com";
-const ATUALIZADA_EM = "23 de setembro de 2026";
+const ATUALIZADA_EM = "9 de outubro de 2026";
 
 const PRAZOS = [
   {
     quem: "Inscrições de audição",
     prazo:
       "até o fim da seleção do elenco do espetáculo, e por mais 1 ano para eventuais substituições",
+  },
+  {
+    quem: "Foto, altura, peso e currículo da audição",
+    prazo:
+      "apagados automaticamente 6 meses depois da última apresentação do espetáculo (no banco de talentos, 12 meses depois da inscrição). De quem entra no elenco, guardados enquanto durar a relação com o Instituto",
   },
   { quem: "Banco de talentos", prazo: "até 2 anos, ou até você pedir a exclusão" },
   {
@@ -58,7 +64,7 @@ const FORMULARIOS = [
   {
     nome: "Audições",
     dados:
-      "nome, e-mail, WhatsApp, idade, cidade, modalidade, experiência, link de vídeo ou portfólio, disponibilidade para ensaios e mensagem. Para menores de 18 anos, também nome e contato do responsável.",
+      "nome, e-mail, WhatsApp, idade, cidade, foto de rosto, altura e peso (opcionais), modalidade, experiência, currículo em PDF (opcional), link de vídeo ou portfólio, disponibilidade para ensaios e mensagem. Para menores de 18 anos, também nome e contato do responsável. A foto e o currículo ficam num armazenamento privado, acessível só à equipe de seleção.",
   },
   {
     nome: "Patrocínio",
@@ -188,8 +194,14 @@ function Privacidade() {
                   site;
                 </li>
                 <li>
-                  <strong>Vercel</strong>, que hospeda e exibe o site.
+                  <strong>Vercel</strong>, que hospeda e exibe o site;
                 </li>
+                {EMAIL_AOS_APROVADOS && (
+                  <li>
+                    <strong>Resend</strong>, que entrega os e-mails enviados aos candidatos
+                    aprovados nas audições.
+                  </li>
+                )}
               </ul>
               <p>
                 Esses fornecedores podem manter servidores fora do Brasil. Eles atuam apenas sob

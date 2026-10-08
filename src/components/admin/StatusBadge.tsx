@@ -7,6 +7,9 @@ const ESTILO: Record<Status, string> = {
   Novo: "bg-laranja/15 text-[#8f3412]",
   "Em análise": "bg-amber-100 text-amber-900",
   Aprovado: "bg-emerald-100 text-emerald-900",
+  // A 1ª fase é um passo intermediário; a 2ª, a aprovação final.
+  "Aprovado na 1ª fase": "bg-violet-100 text-violet-900",
+  "Aprovado na 2ª fase": "bg-emerald-100 text-emerald-900",
   Recusado: "bg-rose-100 text-rose-900",
   Contatado: "bg-sky-100 text-sky-900",
 };

@@ -5,7 +5,10 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { SupabaseConfigNotice } from "@/components/admin/SupabaseConfigNotice";
 import { Marca } from "@/components/site/Marca";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import type { Status } from "@/lib/database.types";
+import type { AuditionEmail, Status } from "@/lib/database.types";
+import { linkTemporario } from "@/lib/arquivos-audicao";
+import { MODELOS_EMAIL } from "@/lib/email-audicao";
+import { EMAIL_AOS_APROVADOS } from "@/lib/recursos";
 
 const sources = {
   audicoes: {
@@ -17,6 +20,8 @@ const sources = {
       ["email", "E-mail"],
       ["whatsapp", "WhatsApp"],
       ["idade", "Idade"],
+      ["altura_cm", "Altura (cm)"],
+      ["peso_kg", "Peso (kg)"],
       ["responsavel_nome", "Responsável (menor de idade)"],
       ["responsavel_contato", "Contato do responsável"],
       ["cidade", "Cidade"],
@@ -193,6 +198,8 @@ function RegistroDetalhe() {
         )}
       </div>
 
+      {tipo === "audicoes" && <ArquivosEEmails registro={record} />}
+
       <Card className="mt-10 max-w-4xl overflow-hidden p-0">
         <dl>
           {config.fields
@@ -260,6 +267,102 @@ function DetailRow({ label, value: bruto }: { label: string; value: unknown }) {
           displayed
         )}
       </dd>
+    </div>
+  );
+}
+
+/**
+ * Foto, currículo e e-mails enviados de uma inscrição de audição. Os
+ * arquivos são privados: o painel pede links temporários de 10 minutos.
+ */
+function ArquivosEEmails({ registro }: { registro: Record<string, unknown> }) {
+  const fotoPath = typeof registro.foto_path === "string" ? registro.foto_path : null;
+  const curriculoPath =
+    typeof registro.curriculo_path === "string" ? registro.curriculo_path : null;
+  const apagadosEm =
+    typeof registro.dados_apagados_em === "string" ? registro.dados_apagados_em : null;
+  const [foto, setFoto] = useState<string | null>(null);
+  const [curriculo, setCurriculo] = useState<string | null>(null);
+  const [emails, setEmails] = useState<AuditionEmail[]>([]);
+
+  useEffect(() => {
+    if (fotoPath) void linkTemporario(fotoPath).then(setFoto);
+    if (curriculoPath) void linkTemporario(curriculoPath).then(setCurriculo);
+    if (EMAIL_AOS_APROVADOS)
+      void supabase
+        .from("audition_emails")
+        .select("*")
+        .eq("audition_id", String(registro.id))
+        .order("enviado_em", { ascending: false })
+        .then(({ data }) => setEmails(data ?? []));
+  }, [fotoPath, curriculoPath, registro.id]);
+
+  return (
+    <div className="mt-10 grid max-w-4xl gap-5 md:grid-cols-[13rem_1fr]">
+      <Card className="flex flex-col items-center gap-4 p-5 text-center">
+        <div className="aspect-[4/5] w-full overflow-hidden rounded-md bg-muted">
+          {foto ? (
+            <a href={foto} target="_blank" rel="noreferrer" title="Abrir a foto em tamanho real">
+              <img
+                src={foto}
+                alt={`Foto de ${String(registro.nome)}`}
+                className="h-full w-full object-cover"
+              />
+            </a>
+          ) : (
+            <p className="grid h-full place-items-center px-3 text-sm text-muted-foreground">
+              {apagadosEm
+                ? "Foto apagada pelo prazo de guarda"
+                : fotoPath
+                  ? "Carregando…"
+                  : "Sem foto"}
+            </p>
+          )}
+        </div>
+        {curriculo ? (
+          <a href={curriculo} target="_blank" rel="noreferrer" className="chamada w-full">
+            Abrir currículo ↗
+          </a>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            {curriculoPath ? "Carregando currículo…" : "Sem currículo em PDF"}
+          </p>
+        )}
+        {apagadosEm && (
+          <p className="text-xs text-muted-foreground">
+            Foto, medidas e currículo apagados em {new Date(apagadosEm).toLocaleDateString("pt-BR")}
+            , pelo prazo de guarda (LGPD).
+          </p>
+        )}
+      </Card>
+
+      {EMAIL_AOS_APROVADOS && (
+        <Card className="p-5">
+          <h2 className="font-semibold">E-mails enviados</h2>
+          {emails.length === 0 ? (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Nenhum ainda. Para enviar, marque a inscrição na lista de audições e use “Enviar
+              e-mail”.
+            </p>
+          ) : (
+            <ul className="mt-3 divide-y divide-border">
+              {emails.map((e) => (
+                <li key={e.id} className="py-3 text-sm">
+                  <p className="font-semibold">{e.assunto}</p>
+                  <p className="mt-0.5 text-muted-foreground">
+                    {MODELOS_EMAIL[e.modelo]?.rotulo ?? e.modelo} ·{" "}
+                    {new Date(e.enviado_em).toLocaleString("pt-BR")} · para{" "}
+                    {e.destinatarios.join(", ")}
+                  </p>
+                  {!e.sucesso && (
+                    <p className="mt-1 font-semibold text-rose-800">Falhou: {e.erro}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      )}
     </div>
   );
 }

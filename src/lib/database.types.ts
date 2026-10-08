@@ -1,4 +1,12 @@
-export type Status = "Novo" | "Em análise" | "Aprovado" | "Recusado" | "Contatado";
+export type Status =
+  | "Novo"
+  | "Em análise"
+  | "Aprovado"
+  // As audições têm duas fases; os outros formulários usam "Aprovado".
+  | "Aprovado na 1ª fase"
+  | "Aprovado na 2ª fase"
+  | "Recusado"
+  | "Contatado";
 export type SpectacleStatus = "draft" | "published" | "archived";
 export type SponsorStatus = "active" | "inactive";
 export type SponsorType = "master" | "sponsor" | "supporter" | "partner";
@@ -30,9 +38,34 @@ export interface Audition {
   responsavel_nome?: string | null;
   responsavel_contato?: string | null;
   responsavel_autorizou?: boolean;
+  /** Altura em centímetros e peso em quilos, opcionais. */
+  altura_cm?: number | null;
+  peso_kg?: number | null;
+  /** Arquivos no bucket privado "audicoes": fotos/<uuid>.jpg e curriculos/<uuid>.pdf. */
+  foto_path?: string | null;
+  curriculo_path?: string | null;
+  /** Quando a retenção (LGPD) apagou foto, medidas e currículo. */
+  dados_apagados_em?: string | null;
   status: Status;
   created_at: string;
   updated_at: string;
+}
+
+/** Modelos de e-mail aos aprovados na audição. */
+export type ModeloEmail = "fase1" | "fase2" | "livre";
+
+/** Registro de um e-mail enviado pelo painel a um candidato. */
+export interface AuditionEmail {
+  [key: string]: unknown;
+  id: string;
+  audition_id: string;
+  modelo: ModeloEmail;
+  assunto: string;
+  destinatarios: string[];
+  sucesso: boolean;
+  erro: string | null;
+  enviado_por: string | null;
+  enviado_em: string;
 }
 
 export interface SponsorshipLead {
@@ -223,6 +256,15 @@ export interface Database {
           spectacle_id?: string | null;
         };
         Update: Partial<Omit<Audition, "id" | "created_at">>;
+        Relationships: [];
+      };
+      audition_emails: {
+        Row: AuditionEmail;
+        Insert: Omit<AuditionEmail, "id" | "enviado_em" | "erro" | "enviado_por"> & {
+          erro?: string | null;
+          enviado_por?: string | null;
+        };
+        Update: Partial<Omit<AuditionEmail, "id">>;
         Relationships: [];
       };
       sponsorship_leads: {
