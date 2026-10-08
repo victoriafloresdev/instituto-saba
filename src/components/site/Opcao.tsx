@@ -24,7 +24,7 @@ export function Opcao({
   return (
     <label
       className={cn(
-        "relative flex cursor-pointer items-start justify-between gap-3 rounded-md border-2 bg-[#f6f1e8] transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-laranja",
+        "relative flex cursor-pointer items-start justify-between gap-3 rounded-controle border-2 bg-[#f6f1e8] transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-laranja",
         compacta ? "px-4 py-3" : "px-4 py-4",
         marcada ? "border-tinta" : "border-transparent hover:border-[rgb(31_30_28/0.3)]",
       )}

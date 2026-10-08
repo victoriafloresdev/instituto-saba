@@ -61,7 +61,7 @@ export function Contagem({ alvo, rotulo, depois = null, className }: Props) {
   });
 
   return (
-    <div className={cn("inline-block", className)}>
+    <div className={cn("inline-block max-w-full", className)}>
       <p className="eyebrow suave">{rotulo}</p>
       <p className="sr-only">{porExtenso}</p>
       {agora === null ? (
@@ -73,9 +73,9 @@ export function Contagem({ alvo, rotulo, depois = null, className }: Props) {
           {partes.map((p) => (
             <div
               key={p.rotulo}
-              className="fio min-w-[4.25rem] rounded-lg border px-3 py-2.5 text-center"
+              className="fio min-w-0 flex-1 rounded-controle border px-2 py-2.5 text-center sm:min-w-[4.25rem] sm:flex-none sm:px-3"
             >
-              <span className="numeral block text-3xl leading-none">
+              <span className="numeral block text-[clamp(1.5rem,1.2rem+1.4vw,1.875rem)] leading-none">
                 {String(p.valor).padStart(2, "0")}
               </span>
               <span className="suave mt-1.5 block text-xs">{p.rotulo}</span>

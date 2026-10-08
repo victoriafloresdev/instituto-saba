@@ -5,7 +5,17 @@ import tailwindcss from "@tailwindcss/vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 import { nitro } from "nitro/vite";
 
+// Endereço público do site, para as imagens de compartilhamento (og:image),
+// que precisam de URL absoluta. SITE_URL vale quando houver domínio próprio;
+// sem ele, usa o domínio de produção que a Vercel informa na build.
+const siteUrl =
+  process.env.SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "");
+
 export default defineConfig(({ command }) => ({
+  define: { __SITE_URL__: JSON.stringify(siteUrl.replace(/\/$/, "")) },
   server: { host: "::", port: 8080 },
   resolve: {
     alias: { "@": `${process.cwd()}/src` },
@@ -31,7 +41,20 @@ export default defineConfig(({ command }) => ({
       },
     }),
     // Saída de produção no formato da Vercel.
-    ...(command === "build" ? [nitro({ preset: "vercel" })] : []),
+    // A limpeza das audições (LGPD) roda todo dia às 6h UTC (3h em Brasília).
+    ...(command === "build"
+      ? [
+          nitro({
+            preset: "vercel",
+            vercel: {
+              config: {
+                version: 3,
+                crons: [{ path: "/api/limpeza-audicoes", schedule: "0 6 * * *" }],
+              },
+            },
+          }),
+        ]
+      : []),
     viteReact(),
   ],
 }));

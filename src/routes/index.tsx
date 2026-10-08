@@ -60,7 +60,7 @@ function Home() {
             {FAZEMOS.map((item, i) => (
               <li
                 key={item.titulo}
-                className={`flex flex-col rounded-lg p-7 md:p-8 ${
+                className={`flex flex-col rounded-cartao p-7 md:p-8 ${
                   i === 0 ? "palco" : "fio border bg-[#efe7d8]"
                 }`}
                 data-reveal="rise"
@@ -77,7 +77,7 @@ function Home() {
 
           {/* A idealizadora: retrato e a frase dela, no mesmo cartão. */}
           <figure
-            className="palco mt-5 grid overflow-hidden rounded-lg md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
+            className="palco mt-5 grid overflow-hidden rounded-cartao md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
             data-surface="palco"
             data-reveal="rise"
           >
@@ -89,7 +89,7 @@ function Home() {
               className="max-md:aspect-[4/3]!"
             />
             <div className="flex flex-col justify-center p-7 md:p-12">
-              <blockquote className="font-display text-[clamp(1.5rem,1.1rem+1.4vw,2.4rem)] font-medium italic leading-[1.2]">
+              <blockquote className="font-display text-[clamp(1.5rem,1.1rem+1.4vw,2.4rem)] font-semibold leading-[1.25]">
                 <span aria-hidden="true" className="text-laranja">
                   “
                 </span>
@@ -165,7 +165,7 @@ function Home() {
             {PARTICIPE.map((item, i) => (
               <li
                 key={item.to}
-                className="fio flex flex-col rounded-lg border bg-[#efe7d8] p-7 md:p-8"
+                className="fio flex flex-col rounded-cartao border bg-[#efe7d8] p-7 md:p-8"
                 data-reveal="rise"
                 style={atraso(i * 90)}
               >
@@ -327,7 +327,7 @@ function AberturaHome({ espetaculos }: { espetaculos: Spectacle[] }) {
           alt={horizontal.alt}
           fetchPriority="high"
           decoding="sync"
-          className="acende h-full w-full object-cover object-[50%_35%]"
+          className="acende foto-pb h-full w-full object-cover object-[50%_35%]"
         />
       </picture>
 
@@ -367,7 +367,7 @@ function AberturaHome({ espetaculos }: { espetaculos: Spectacle[] }) {
                   <span key={e.id}>
                     {i > 0 && " · "}
                     {e.title}
-                    {e.date_label && <span className="italic"> — {e.date_label}</span>}
+                    {e.date_label && <span> — {e.date_label}</span>}
                   </span>
                 ))}
               </span>

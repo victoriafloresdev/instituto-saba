@@ -194,7 +194,7 @@ function MenuCheio({
                 <span className="numeral w-7 shrink-0 text-sm text-papel-suave">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="font-display text-[clamp(1.9rem,7vw,3rem)] font-bold leading-none [font-stretch:84%] transition-[color,transform] duration-300 group-hover:translate-x-2 group-hover:text-laranja">
+                <span className="font-display text-[clamp(1.6rem,6vw,2.6rem)] font-extrabold leading-none tracking-[-0.02em] transition-[color,transform] duration-300 group-hover:translate-x-2 group-hover:text-laranja">
                   {item.label}
                 </span>
               </Link>

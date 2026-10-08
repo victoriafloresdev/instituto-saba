@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { CSSProperties } from "react";
-import { Foto } from "@/components/site/Foto";
+import { FotoDeFundo } from "@/components/site/Abertura";
 import { fichaDoEspetaculo, type Pessoa } from "@/data/ficha-tecnica";
 import { Contagem } from "@/components/site/Contagem";
 import type { SpectaclePerson } from "@/lib/database.types";
@@ -110,46 +110,43 @@ function EspetaculoDetalhe() {
 
   return (
     <>
-      {/* Cartaz: caminho de volta, título, imagem e a faixa com o essencial. */}
-      <section data-surface="palco" className="palco pt-[4.5rem]">
-        <div className="container-x pb-10 pt-10 md:pt-14">
-          <nav aria-label="Caminho" className="eyebrow suave">
-            <Link to="/programacao" className="link-traco">
-              Programação
-            </Link>
-            <span aria-hidden="true" className="mx-2">
-              /
-            </span>
-            <span aria-current="page">{spectacle.title}</span>
-          </nav>
-
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            {spectacle.subtitle && (
-              <span className="eyebrow inline-flex items-center rounded-full bg-laranja px-3 py-1 text-tinta">
-                {spectacle.subtitle}
-              </span>
-            )}
-            {spectacle.date_label && <span className="eyebrow suave">{spectacle.date_label}</span>}
-          </div>
-          <h1 className="t-cartaz mt-5 max-w-[16ch]">{spectacle.title}</h1>
-          {(ficha?.genero || local) && (
-            <p className="t-lide suave mt-5">
-              {[ficha?.genero, local].filter(Boolean).join(" · ")}
-            </p>
-          )}
-        </div>
-
-        <div className="container-x">
-          <Foto
+      {/* Cartaz: a imagem do espetáculo como cenário, com o caminho de volta e
+          o título por cima; logo abaixo, a faixa com o essencial. */}
+      <section data-surface="palco" className="palco">
+        <div className="relative isolate flex min-h-[min(80svh,50rem)] flex-col justify-end overflow-hidden pt-[4.5rem]">
+          <FotoDeFundo
             caminho={spectacle.image_path}
             nome={spectacle.image_path ? undefined : "romantico"}
-            alt={spectacle.image_alt ?? undefined}
-            enquadramento="21 / 9"
-            sizes="(min-width: 1480px) 1400px, 100vw"
-            prioridade
-            imgClassName="acende"
-            className="max-sm:aspect-[4/3]!"
+            foco="65% 40%"
           />
+          <div className="container-x pb-12 pt-16 md:pb-16">
+            <nav aria-label="Caminho" className="eyebrow suave">
+              <Link to="/programacao" className="link-traco">
+                Programação
+              </Link>
+              <span aria-hidden="true" className="mx-2">
+                /
+              </span>
+              <span aria-current="page">{spectacle.title}</span>
+            </nav>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              {spectacle.subtitle && (
+                <span className="eyebrow inline-flex items-center rounded-full bg-laranja px-3 py-1 text-tinta">
+                  {spectacle.subtitle}
+                </span>
+              )}
+              {spectacle.date_label && (
+                <span className="eyebrow suave">{spectacle.date_label}</span>
+              )}
+            </div>
+            <h1 className="t-cartaz mt-5 max-w-[16ch]">{spectacle.title}</h1>
+            {(ficha?.genero || local) && (
+              <p className="t-lide suave mt-5">
+                {[ficha?.genero, local].filter(Boolean).join(" · ")}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* O que a pessoa precisa para ir ao teatro, logo abaixo da imagem. */}
@@ -163,9 +160,7 @@ function EspetaculoDetalhe() {
                     <dt className="eyebrow suave">{f.rotulo}</dt>
                     <dd
                       className={
-                        pendente
-                          ? "suave mt-2 italic"
-                          : "mt-2 text-[1.0625rem] font-semibold leading-snug"
+                        pendente ? "suave mt-2" : "mt-2 text-[1.0625rem] font-semibold leading-snug"
                       }
                     >
                       {f.valor}
@@ -185,7 +180,7 @@ function EspetaculoDetalhe() {
                     {sessoes.map(formatSessao).map((sessao) => (
                       <span
                         key={sessao}
-                        className="fio rounded-md border px-3 py-1.5 text-[0.9375rem] font-semibold first-letter:uppercase"
+                        className="fio rounded-controle border px-3 py-1.5 text-[0.9375rem] font-semibold first-letter:uppercase"
                       >
                         {sessao}
                       </span>
@@ -195,7 +190,7 @@ function EspetaculoDetalhe() {
               )}
             </dl>
 
-            <div className="rounded-lg bg-[rgb(227_217_199/0.07)] p-6">
+            <div className="rounded-cartao bg-[rgb(227_217_199/0.07)] p-6">
               <p className="eyebrow text-laranja">Ingressos</p>
               {/* A data de abertura da venda manda: antes dela, contagem — mesmo
                   que o link já esteja cadastrado. Depois, o botão. */}
@@ -310,7 +305,7 @@ function EspetaculoDetalhe() {
             ))}
 
             {time.direcao.length > 0 && (
-              <ul className="mt-5 grid items-start gap-5 md:grid-cols-2">
+              <ul className="mt-5 grid gap-5 md:grid-cols-2">
                 {time.direcao.map((p, i) => (
                   <li key={p.nome} data-reveal="rise" style={atraso(i * 80)}>
                     <CartaoPessoa pessoa={p} />
@@ -322,36 +317,10 @@ function EspetaculoDetalhe() {
             {time.equipe.length > 0 && (
               <>
                 <h3 className="eyebrow suave mt-16">Produção e equipe</h3>
-                <ul className="mt-4 grid gap-x-10 md:grid-cols-2">
-                  {time.equipe.map((p) => (
-                    <li key={p.nome} className="fio border-t py-6">
-                      <div className="flex items-start gap-4">
-                        {p.foto ? (
-                          <img
-                            src={p.foto}
-                            alt=""
-                            loading="lazy"
-                            className="h-16 w-16 shrink-0 rounded-full object-cover grayscale"
-                          />
-                        ) : (
-                          <span
-                            aria-hidden="true"
-                            className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-[rgb(31_30_28/0.08)] font-display text-lg"
-                          >
-                            {iniciais(p.nome)}
-                          </span>
-                        )}
-                        <div className="min-w-0">
-                          <p className="eyebrow text-[#8f3412]">{p.funcao}</p>
-                          <p className="mt-1 text-lg font-semibold leading-tight">{p.nome}</p>
-                          {p.resumo && (
-                            <p className="suave mt-2 text-[0.9375rem] leading-relaxed">
-                              {p.resumo}
-                            </p>
-                          )}
-                          <Curriculo pessoa={p} />
-                        </div>
-                      </div>
+                <ul className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                  {time.equipe.map((p, i) => (
+                    <li key={p.nome} data-reveal="rise" style={atraso((i % 4) * 70)}>
+                      <CartaoPessoa pessoa={p} compacto />
                     </li>
                   ))}
                 </ul>
@@ -375,7 +344,7 @@ function EspetaculoDetalhe() {
             )}
 
             {!temElenco && (
-              <div className="fio mt-12 flex flex-col gap-4 rounded-lg border border-dashed p-7 md:flex-row md:items-center md:justify-between md:p-8">
+              <div className="fio mt-12 flex flex-col gap-4 rounded-cartao border border-dashed p-7 md:flex-row md:items-center md:justify-between md:p-8">
                 <div>
                   <p className="font-semibold">Elenco em formação</p>
                   <p className="suave mt-1.5 max-w-[60ch] leading-relaxed">
@@ -434,7 +403,7 @@ function EspetaculoDetalhe() {
         >
           <div className="container-x">
             {spectacle.audition_enabled && (
-              <div className="grid gap-8 rounded-lg bg-[rgb(227_217_199/0.07)] p-7 md:grid-cols-[1.3fr_1fr] md:items-center md:p-10">
+              <div className="grid gap-8 rounded-cartao bg-[rgb(227_217_199/0.07)] p-7 md:grid-cols-[1.3fr_1fr] md:items-center md:p-10">
                 <div>
                   <p className="eyebrow text-laranja">Audição</p>
                   <p className="t-sub mt-3">Quer fazer parte do elenco?</p>
@@ -516,7 +485,7 @@ function EspetaculoDetalhe() {
 function BotaoIngressos({ url }: { url: string | null }) {
   if (!url) {
     return (
-      <p className="rounded-lg bg-[rgb(227_217_199/0.1)] px-4 py-3 text-center text-[0.9375rem] font-medium">
+      <p className="rounded-cartao bg-[rgb(227_217_199/0.1)] px-4 py-3 text-center text-[0.9375rem] font-medium">
         Venda de ingressos em breve
       </p>
     );
@@ -532,17 +501,17 @@ function BotaoIngressos({ url }: { url: string | null }) {
 function Destaque({ pessoa: p }: { pessoa: Pessoa }) {
   return (
     <article
-      className="palco mt-12 grid gap-8 rounded-lg p-7 sm:grid-cols-[11rem_1fr] md:grid-cols-[13rem_1fr] md:gap-12 md:p-10"
+      className="palco cartao-fio mt-12 grid gap-8 rounded-cartao p-7 sm:grid-cols-[11rem_1fr] md:grid-cols-[13rem_1fr] md:gap-12 md:p-10"
       data-surface="palco"
       data-reveal="rise"
     >
-      <div className="aspect-[4/5] w-40 self-start overflow-hidden rounded-md bg-[rgb(227_217_199/0.08)] sm:w-full">
+      <div className="aspect-[4/5] w-40 self-start overflow-hidden rounded-cartao bg-[rgb(227_217_199/0.08)] sm:w-full">
         {p.foto && (
           <img
             src={p.foto}
             alt={p.alt ?? `Retrato de ${p.nome}`}
             loading="lazy"
-            className="h-full w-full object-cover grayscale"
+            className="foto-pb h-full w-full object-cover"
           />
         )}
       </div>
@@ -556,27 +525,58 @@ function Destaque({ pessoa: p }: { pessoa: Pessoa }) {
   );
 }
 
-function CartaoPessoa({ pessoa: p }: { pessoa: Pessoa }) {
+/**
+ * Cartão da ficha técnica, no padrão "Nossa equipe" do designer: retrato
+ * em círculo com anel, nome em caixa alta, função e resumo centralizados,
+ * e o fio laranja fechando a base.
+ */
+function CartaoPessoa({ pessoa: p, compacto = false }: { pessoa: Pessoa; compacto?: boolean }) {
   return (
-    <article className="fio flex items-start gap-5 rounded-lg border bg-[#efe7d8] p-6 md:p-7">
-      <div className="aspect-[4/5] w-24 shrink-0 overflow-hidden rounded-md bg-[rgb(31_30_28/0.08)] md:w-28">
-        {p.foto && (
-          <img
-            src={p.foto}
-            alt={p.alt ?? `Retrato de ${p.nome}`}
-            loading="lazy"
-            className="h-full w-full object-cover grayscale"
-          />
-        )}
-      </div>
-      <div className="min-w-0">
-        {/* Laranja escurecido para passar em contraste sobre o papel. */}
-        <p className="eyebrow text-[#8f3412]">{p.funcao}</p>
-        <h3 className="mt-1.5 text-xl font-semibold leading-tight">{p.nome}</h3>
-        {p.resumo && <p className="suave mt-2 text-[0.9375rem] leading-relaxed">{p.resumo}</p>}
-        <Curriculo pessoa={p} />
-      </div>
+    <article
+      className={`cartao-fio flex h-full flex-col items-center rounded-cartao bg-[#efe7d8] text-center ${
+        compacto ? "px-5 pb-6 pt-7" : "px-6 pb-8 pt-9 md:px-10"
+      }`}
+    >
+      <Retrato pessoa={p} tamanho={compacto ? "h-24 w-24" : "h-32 w-32"} />
+      <h3
+        className={`mt-5 font-display font-extrabold uppercase leading-tight ${
+          compacto ? "text-base" : "text-xl"
+        }`}
+      >
+        {p.nome}
+      </h3>
+      {/* Laranja escurecido para passar em contraste sobre o papel. */}
+      <p className="eyebrow mt-1.5 text-laranja-tinta">{p.funcao}</p>
+      {p.resumo && (
+        <p className="suave mt-3 max-w-[42ch] text-[0.9375rem] leading-relaxed">{p.resumo}</p>
+      )}
+      <Curriculo pessoa={p} />
     </article>
+  );
+}
+
+/** Retrato em círculo, com o anel da referência; sem foto, as iniciais. */
+function Retrato({ pessoa: p, tamanho }: { pessoa: Pessoa; tamanho: string }) {
+  return (
+    <div
+      className={`${tamanho} shrink-0 rounded-full border-[3px] border-[rgb(31_30_28/0.16)] p-1`}
+    >
+      {p.foto ? (
+        <img
+          src={p.foto}
+          alt={p.alt ?? `Retrato de ${p.nome}`}
+          loading="lazy"
+          className="foto-pb h-full w-full rounded-full object-cover"
+        />
+      ) : (
+        <span
+          aria-hidden="true"
+          className="grid h-full w-full place-items-center rounded-full bg-[rgb(31_30_28/0.08)] font-display text-xl font-bold"
+        >
+          {iniciais(p.nome)}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -584,13 +584,13 @@ function CartaoPessoa({ pessoa: p }: { pessoa: Pessoa }) {
 function Bailarino({ pessoa: p, convidado }: { pessoa: Pessoa; convidado: boolean }) {
   return (
     <article>
-      <div className="aspect-[4/5] overflow-hidden rounded-md bg-[rgb(31_30_28/0.08)]">
+      <div className="aspect-[4/5] overflow-hidden rounded-cartao bg-[rgb(31_30_28/0.08)]">
         {p.foto ? (
           <img
             src={p.foto}
             alt={p.alt ?? `Retrato de ${p.nome}`}
             loading="lazy"
-            className="h-full w-full object-cover grayscale"
+            className="foto-pb h-full w-full object-cover"
           />
         ) : (
           <span
@@ -643,14 +643,14 @@ function agruparPessoas(lista: SpectaclePerson[]) {
 function Curriculo({ pessoa }: { pessoa: Pessoa }) {
   if (!pessoa.curriculo?.length) return null;
   return (
-    <details className="curriculo mt-2">
+    <details className="curriculo mt-2 w-full">
       <summary className="inline-flex min-h-11 items-center gap-2 text-[0.9375rem] font-semibold">
         Saiba mais{" "}
         <span className="sinal text-lg leading-none" aria-hidden="true">
           +
         </span>
       </summary>
-      <div className="space-y-3 pb-2">
+      <div className="space-y-3 pb-2 text-left">
         {pessoa.curriculo.map((p, i) => (
           <p key={i} className="suave text-[0.9375rem] leading-relaxed">
             {p}

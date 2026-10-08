@@ -73,19 +73,38 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Instituto Cultural Saba" },
       { property: "og:description", content: "Dança, cultura e impacto social em movimento." },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "pt_BR" },
+      { property: "og:image", content: `${__SITE_URL__}/og-image.jpg` },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      {
+        property: "og:image:alt",
+        content: "Instituto Cultural Saba — O futuro da dança começa aqui.",
+      },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#161614" },
+      { name: "twitter:image", content: `${__SITE_URL__}/og-image.jpg` },
+      { name: "theme-color", content: "#121212" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
       { rel: "icon", href: "/icon-192.png", type: "image/png", sizes: "192x192" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      // As duas fontes do manual são servidas pelo próprio site (styles.css).
+      // Pré-carregadas para o título da primeira dobra não trocar de fonte.
       {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..800;1,62..125,400..800&family=DM+Sans:opsz,wght@9..40,400..600&display=swap",
+        rel: "preload",
+        href: "/fonts/montserrat-latin.woff2",
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
+      {
+        rel: "preload",
+        href: "/fonts/open-sans-latin.woff2",
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
       },
     ],
     // Marca o documento como capaz de animar antes da primeira pintura.

@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { Abertura } from "@/components/site/Abertura";
 import { Enviado, FormularioCena } from "@/components/site/FormularioCena";
+import { FotoMoldurada } from "@/components/site/Foto";
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured, SUPABASE_UNAVAILABLE_MESSAGE } from "@/lib/supabase";
 import { FORM_LIMITS, formString, isValidEmail, isWithinLength } from "@/lib/form-validation";
@@ -86,6 +87,7 @@ function Contato() {
           </span>,
         ]}
         lide="Parcerias, convites, imprensa, audições e patrocínio cultural."
+        traco="grafite"
       >
         <dl className="grid gap-8 sm:grid-cols-2">
           <div>
@@ -116,6 +118,16 @@ function Contato() {
       </Abertura>
 
       <FormularioCena
+        tom="palco"
+        foto={
+          <FotoMoldurada
+            nome="recolhimento"
+            enquadramento="4 / 5"
+            foco="45% 50%"
+            sizes="(min-width: 1024px) 36vw, 100vw"
+            cortina
+          />
+        }
         numero="01"
         eyebrow="Mensagem"
         titulo={
@@ -132,17 +144,17 @@ function Contato() {
             </p>
             <ul className="space-y-2">
               <li>
-                <Link to="/patrocinio" className="link-traco text-tinta">
+                <Link to="/patrocinio" className="link-traco font-semibold text-papel">
                   Seja patrocinador →
                 </Link>
               </li>
               <li>
-                <Link to="/audicoes" className="link-traco text-tinta">
+                <Link to="/audicoes" className="link-traco font-semibold text-papel">
                   Audições →
                 </Link>
               </li>
               <li>
-                <Link to="/escolas" className="link-traco text-tinta">
+                <Link to="/escolas" className="link-traco font-semibold text-papel">
                   Contrapartida social →
                 </Link>
               </li>

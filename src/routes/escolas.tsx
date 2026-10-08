@@ -146,7 +146,7 @@ function Escolas() {
           {GARANTIAS.map((g, i) => (
             <li
               key={g.titulo}
-              className={`flex flex-col rounded-lg p-7 md:p-8 ${
+              className={`flex flex-col rounded-cartao p-7 md:p-8 ${
                 i === 0 ? "palco" : "fio border bg-[#efe7d8]"
               }`}
               data-reveal="rise"
@@ -215,7 +215,7 @@ function Escolas() {
 
           <div className="grid md:grid-cols-[1fr_1.55fr]">
             <aside
-              className="palco rounded-t-lg p-7 md:rounded-l-lg md:rounded-tr-none md:p-10"
+              className="palco rounded-t-cartao p-7 md:rounded-l-cartao md:rounded-tr-none md:p-10"
               data-surface="palco"
             >
               {/* Acompanha a rolagem do formulário, que é mais alto. */}
@@ -264,7 +264,7 @@ function Escolas() {
               </div>
             </aside>
 
-            <div className="fio rounded-b-lg border border-t-0 bg-[#efe7d8] p-7 md:rounded-r-lg md:rounded-bl-none md:border-l-0 md:border-t md:p-10">
+            <div className="fio rounded-b-cartao border border-t-0 bg-[#efe7d8] p-7 md:rounded-r-cartao md:rounded-bl-none md:border-l-0 md:border-t md:p-10">
               {sent ? (
                 <div className="flex h-full flex-col justify-center py-6" role="status">
                   <span

@@ -4,6 +4,73 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Tipografia do manual da marca: Montserrat nos títulos e botões, Open Sans
+ * no texto. Servidas pelo próprio site (public/fonts), sem Google Fonts: uma
+ * conexão a menos e nenhum IP de visitante enviado a terceiros.
+ * Só os subconjuntos latino e latino estendido, com eixo de peso variável.
+ */
+@font-face {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("/fonts/montserrat-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@font-face {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("/fonts/montserrat-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/open-sans-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@font-face {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/open-sans-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* Substitutas com as métricas ajustadas: enquanto a fonte carrega, o texto
+   já ocupa o mesmo espaço e nada pula quando ela chega. */
+@font-face {
+  font-family: "Montserrat Substituta";
+  src: local("Arial");
+  size-adjust: 113.4%;
+  ascent-override: 85%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Open Sans Substituta";
+  src: local("Arial");
+  size-adjust: 105.4%;
+  ascent-override: 101.4%;
+  descent-override: 27.8%;
+  line-gap-override: 0%;
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -12,8 +79,14 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
 
-  --font-display: "Archivo", "Arial Narrow", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  /* Arredondamentos do manual: cartões e fotos, mais generosos que os
+     controles (que seguem --radius, compartilhado com o painel). */
+  --radius-controle: 0.5rem;
+  --radius-cartao: 1.25rem;
+  --radius-foto: 1.5rem;
+
+  --font-display: "Montserrat", "Montserrat Substituta", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Open Sans", "Open Sans Substituta", ui-sans-serif, system-ui, sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -60,7 +133,9 @@
   --color-tinta: var(--saba-tinta);
   --color-papel: var(--saba-papel);
   --color-palco: var(--saba-palco);
+  --color-preto: var(--saba-preto);
   --color-grafite: var(--saba-grafite);
+  --color-laranja-tinta: var(--laranja-tinta);
   --color-tinta-suave: var(--tinta-suave);
   --color-papel-suave: var(--papel-suave);
 }
@@ -72,24 +147,32 @@
  *   palco    — quase preto, onde vive a fotografia;
  *   programa — papel creme, onde vive a informação.
  *
- * Laranja é luz de palco: como TEXTO só aparece sobre o palco (5,8:1).
+ * Laranja é luz de palco: como TEXTO só aparece sobre o palco (5,9:1).
  * Sobre o papel ele reprova em contraste (2,2:1) e fica restrito a
- * elementos gráficos — o traço, fios, marcadores.
+ * elementos gráficos — o traço, fios, marcadores. Sobre o laranja, o
+ * texto é sempre a tinta (5,3:1): o branco reprovaria (3,2:1).
+ *
+ * Cores do manual da marca: laranja #F26522, fundo #121212 e o preto
+ * puro nas fotos de abertura. O papel areia substitui o branco, por
+ * decisão do designer.
  */
 :root {
   --radius: 0.375rem;
 
-  /* Marca, amostrada do material da contratante */
-  --saba-laranja: #ed6b33;
+  /* Marca */
+  --saba-laranja: #f26522;
   --saba-tinta: #1f1e1c;
   --saba-papel: #e3d9c7;
-  --saba-palco: #161614;
+  --saba-palco: #121212;
+  --saba-preto: #000000;
   --saba-grafite: #373833;
   --saba-rosa: #f0a0bb;
 
   /* Texto secundário, conferido para AA em cada superfície */
   --tinta-suave: #47433d; /* 7,6:1 sobre o papel */
-  --papel-suave: #bdb6aa; /* 9,2:1 sobre o palco */
+  --papel-suave: #bdb6aa; /* 9,1:1 sobre o palco */
+  /* Laranja escurecido, para texto pequeno sobre o papel (6,1:1) */
+  --laranja-tinta: #8f3412;
 
   --background: var(--saba-papel);
   --foreground: var(--saba-tinta);
@@ -127,12 +210,13 @@
   --cena: clamp(4.5rem, 3rem + 4.5vw, 8rem); /* respiro entre cenas */
   --cena-curta: clamp(2.5rem, 1.8rem + 2.6vw, 4.5rem);
 
-  /* Escala tipográfica fluida */
-  --t-cartaz: clamp(2.9rem, 1.4rem + 5.6vw, 7.75rem);
-  --t-titulo: clamp(2.1rem, 1.4rem + 2.6vw, 4rem);
-  --t-subtitulo: clamp(1.45rem, 1.15rem + 1vw, 2.1rem);
-  --t-lide: clamp(1.2rem, 1.05rem + 0.55vw, 1.5rem);
-  --t-corpo: 1.125rem;
+  /* Escala tipográfica fluida. A Montserrat é larga: os tamanhos são
+     menores que os de uma fonte condensada para ocupar a mesma linha. */
+  --t-cartaz: clamp(2.6rem, 1.3rem + 5vw, 6.5rem);
+  --t-titulo: clamp(1.75rem, 1.2rem + 2.1vw, 3.25rem);
+  --t-subtitulo: clamp(1.3rem, 1.1rem + 0.8vw, 1.85rem);
+  --t-lide: clamp(1.15rem, 1.02rem + 0.5vw, 1.4rem);
+  --t-corpo: 1.0625rem;
   --t-legenda: 0.8125rem;
 
   /* Movimento: o "relevé" sobe rápido e sustenta, como subir na ponta
@@ -200,10 +284,9 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 650;
-    font-stretch: 88%;
+    font-weight: 700;
     letter-spacing: -0.015em;
-    line-height: 1.04;
+    line-height: 1.08;
     text-wrap: balance;
   }
   p {
@@ -241,9 +324,15 @@
 /* Números e datas: algarismos alinhados, do mesmo desenho dos títulos. */
 @utility numeral {
   font-family: var(--font-display);
-  font-weight: 650;
-  font-stretch: 88%;
+  font-weight: 700;
   font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Fotografia do manual: preto e branco, contraste mais pesado. Vale também
+   para as fotos enviadas pelo painel, para uma foto colorida não quebrar a
+   identidade. Logos de patrocinadores ficam de fora. */
+@utility foto-pb {
+  filter: grayscale(1) contrast(1.2);
 }
 
 /* Padrões editoriais na camada components: utilitários como `hidden`
@@ -266,6 +355,11 @@
     color: var(--saba-tinta);
     --fio: rgb(31 30 28 / 0.18);
     --suave: var(--tinta-suave);
+  }
+  /* Duas cenas escuras seguidas, em alturas fracionadas, deixam uma fresta
+     de 1px por onde o papel do fundo aparece. A sombra cobre a fresta. */
+  main > section.palco {
+    box-shadow: 0 1px 0 var(--saba-palco);
   }
   .cena-laranja {
     --fundo: var(--saba-laranja);
@@ -310,25 +404,26 @@
   .t-cartaz {
     font-family: var(--font-display);
     font-size: var(--t-cartaz);
-    font-weight: 750;
-    font-stretch: 82%;
-    line-height: 0.96;
-    letter-spacing: -0.02em;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.025em;
   }
+  /* Títulos de seção em caixa alta, como nas referências do designer
+     ("FALE CONOSCO", "NOSSA EQUIPE"). A caixa alta pede ar entre as letras. */
   .t-titulo {
     font-family: var(--font-display);
     font-size: var(--t-titulo);
-    font-weight: 650;
-    font-stretch: 88%;
-    line-height: 1.04;
-    letter-spacing: -0.015em;
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.005em;
+    text-transform: uppercase;
   }
   .t-sub {
     font-family: var(--font-display);
     font-size: var(--t-subtitulo);
-    font-weight: 600;
-    font-stretch: 92%;
-    line-height: 1.15;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
   }
   /* O lide é texto para ler, não para ver: vai na fonte de texto. */
   .t-lide {
@@ -343,12 +438,24 @@
     display: block;
   }
 
-  /* A palavra em itálico é o gesto de cada título. */
+  /* O gesto de cada título: as palavras em destaque. O manual não usa
+     itálico, então o destaque é de cor. No palco, o laranja acende o
+     texto; no papel, onde laranja não passa como texto, um fio laranja
+     corre por baixo das palavras — o mesmo fio que fecha os cartões. */
   .gesto {
-    font-style: italic;
+    background-image: linear-gradient(var(--saba-laranja), var(--saba-laranja));
+    background-repeat: no-repeat;
+    background-size: 100% 0.14em;
+    background-position: 0 92%;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
   .palco .gesto--luz {
     color: var(--saba-laranja);
+    background-image: none;
+  }
+  .cena-laranja .gesto {
+    background-image: linear-gradient(var(--saba-tinta), var(--saba-tinta));
   }
 
   /* ---------------------------------------------------------------------
@@ -370,7 +477,8 @@
     background-size: 100% 1px;
   }
 
-  /* Chamada principal: o preenchimento sobe de baixo, como luz acendendo. */
+  /* Chamada principal: o preenchimento sobe de baixo, como luz acendendo.
+     Botão do manual: Montserrat em caixa alta, cantos levemente arredondados. */
   .chamada {
     position: relative;
     isolation: isolate;
@@ -379,11 +487,14 @@
     justify-content: center;
     gap: 0.6rem;
     min-height: 3rem;
-    padding: 0 1.4rem;
+    padding: 0 1.5rem;
     border: 1.5px solid currentColor;
-    border-radius: 0.375rem;
-    font-size: 1rem;
-    font-weight: 600;
+    border-radius: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     overflow: hidden;
     transition: color var(--dur-rapida) var(--ease-releve);
   }
@@ -423,6 +534,48 @@
     color: var(--saba-tinta);
     --chamada-fundo: var(--saba-tinta);
     --chamada-texto: var(--saba-papel);
+  }
+  /* No palco, a tinta sumiria no fundo: a luz que sobe é a do papel. */
+  .palco .chamada--cheia {
+    --chamada-fundo: var(--saba-papel);
+    --chamada-texto: var(--saba-tinta);
+  }
+
+  /* Cartão do manual: cantos generosos e, nos destaques, um fio laranja
+     fechando a base (referência "Nossa equipe"). */
+  .cartao-fio {
+    box-shadow: inset 0 -3px 0 var(--saba-laranja);
+  }
+
+  /* ---------------------------------------------------------------------
+ * Recortes: o traço da logo sobre os cantos das fotos e a moldura
+ * laranja deslocada atrás delas (referência "Fale conosco").
+ * ------------------------------------------------------------------ */
+
+  .moldura {
+    position: relative;
+    isolation: isolate;
+    --desloca: clamp(0.75rem, 0.4rem + 1.4vw, 1.75rem);
+  }
+  .moldura__bloco {
+    position: absolute;
+    z-index: -1;
+    top: calc(var(--desloca) * -1);
+    right: calc(var(--desloca) * -1);
+    bottom: 18%;
+    left: 22%;
+    border-radius: var(--radius-foto);
+    background: var(--saba-laranja);
+  }
+  .moldura__traco {
+    position: absolute;
+    z-index: 2;
+    /* Nunca passa da margem da página: sem rolagem lateral no celular. */
+    left: max(calc(var(--desloca) * -1.6), calc(var(--margem) * -0.85));
+    bottom: calc(var(--desloca) * -1.6);
+    width: clamp(4.5rem, 3rem + 6vw, 8rem);
+    color: var(--saba-laranja);
+    pointer-events: none;
   }
 
   /* ---------------------------------------------------------------------
@@ -480,14 +633,14 @@
  * componentes de UI sem alterá-los (o painel também os usa).
  * ------------------------------------------------------------------ */
 
-.form-editorial input:not([type="checkbox"]):not([type="hidden"]),
+.form-editorial input:not([type="checkbox"]):not([type="hidden"]):not([type="file"]),
 .form-editorial textarea,
 .form-editorial button[role="combobox"] {
   height: auto;
   min-height: 3rem;
   margin-top: 0.4rem;
   border: 1px solid var(--color-input);
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   background: #f3ede2;
   box-shadow: none;
   padding-inline: 0.9rem;
@@ -505,7 +658,34 @@
 .form-editorial button[role="combobox"][data-state="open"] {
   outline: none;
   border-color: var(--saba-tinta);
-  box-shadow: 0 0 0 3px rgb(237 107 51 / 0.45);
+  box-shadow: 0 0 0 3px rgb(242 101 34 / 0.45);
+}
+/* Formulário sobre o palco (referência "Fale conosco"): campos escuros,
+   borda clara fina e o foco aceso em laranja. */
+.palco .form-editorial input:not([type="checkbox"]):not([type="hidden"]):not([type="file"]),
+.palco .form-editorial textarea,
+.palco .form-editorial button[role="combobox"] {
+  border-color: rgb(227 217 199 / 0.3);
+  background: rgb(227 217 199 / 0.04);
+  color: var(--saba-papel);
+}
+.palco .form-editorial input::placeholder,
+.palco .form-editorial textarea::placeholder {
+  color: var(--papel-suave);
+}
+.palco .form-editorial input:not([type="checkbox"]):focus-visible,
+.palco .form-editorial textarea:focus-visible,
+.palco .form-editorial button[role="combobox"]:focus-visible,
+.palco .form-editorial button[role="combobox"][data-state="open"] {
+  border-color: var(--saba-laranja);
+}
+.palco .form-editorial button[role="checkbox"] {
+  border-color: var(--saba-papel);
+}
+.palco .form-editorial button[role="checkbox"][data-state="checked"] {
+  border-color: var(--saba-laranja);
+  background: var(--saba-laranja);
+  color: var(--saba-tinta);
 }
 .form-editorial label,
 .form-editorial legend {
@@ -522,9 +702,9 @@
   align-items: center;
   gap: 0.75rem;
   font-family: var(--font-display);
-  font-size: 1.1875rem;
-  font-weight: 650;
-  line-height: 1.2;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.25;
 }
 .etapa-simulador > span {
   display: inline-flex;

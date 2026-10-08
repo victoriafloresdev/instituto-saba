@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { CSSProperties } from "react";
 import { Abertura } from "@/components/site/Abertura";
-import { Foto } from "@/components/site/Foto";
+import { FotoMoldurada } from "@/components/site/Foto";
 import { Section } from "@/components/site/Section";
 
 export const Route = createFileRoute("/sobre")({
@@ -109,8 +109,8 @@ function Sobre() {
           </span>,
         ]}
         lide="O Instituto Cultural Saba existe para fortalecer a dança no Brasil e revelar jovens talentos do país para o mundo."
-        foto="bastidores"
-        foco="60% 50%"
+        fundo="romantico"
+        fundoFoco="70% 50%"
       />
 
       <Section
@@ -142,7 +142,7 @@ function Sobre() {
           {PREMISSAS.map((premissa, i) => (
             <li
               key={i}
-              className={`flex flex-col rounded-lg p-7 md:p-8 ${
+              className={`flex flex-col rounded-cartao p-7 md:p-8 ${
                 i === 0 ? "palco" : "fio border bg-[#efe7d8]"
               }`}
               data-reveal="rise"
@@ -159,9 +159,9 @@ function Sobre() {
 
       <section data-surface="papel" className="papel pb-[var(--cena)]">
         <div className="container-x grid gap-y-14 md:grid-cols-12 md:gap-x-[var(--calha)]">
-          <div className="md:col-span-5 md:-ml-[var(--margem)]">
-            <div className="md:sticky md:top-24">
-              <Foto
+          <div className="md:col-span-5">
+            <div className="md:sticky md:top-28">
+              <FotoMoldurada
                 nome="marinaRetrato"
                 enquadramento="2 / 3"
                 foco="50% 20%"
@@ -184,7 +184,10 @@ function Sobre() {
               Bailarina, empresária e advogada. Idealizadora e fundadora do Instituto.
             </p>
 
-            <div className="fio mt-10 rounded-lg border bg-[#efe7d8] p-6 md:p-7" data-reveal="rise">
+            <div
+              className="fio mt-10 rounded-cartao border bg-[#efe7d8] p-6 md:p-7"
+              data-reveal="rise"
+            >
               <p className="eyebrow suave">Formação</p>
               <p className="mt-3 leading-relaxed">
                 Graduada em Direito e especialista em direito cultural pela PUC Minas, fundou a
@@ -202,7 +205,7 @@ function Sobre() {
                   data-reveal="rise"
                   style={atraso(i * 60)}
                 >
-                  <span className="numeral text-[1.6rem] leading-none text-[#8f3412]">
+                  <span className="numeral text-[1.6rem] leading-none text-laranja-tinta">
                     {t.quando}
                   </span>
                   <span className="leading-relaxed">{t.marco}</span>
@@ -215,13 +218,11 @@ function Sobre() {
               {PAPEIS.map((p, i) => (
                 <li
                   key={p.papel}
-                  className="fio rounded-lg border bg-[#efe7d8] p-5"
+                  className="fio rounded-cartao border bg-[#efe7d8] p-5"
                   data-reveal="rise"
                   style={atraso(i * 70)}
                 >
-                  <p className="font-display text-2xl font-semibold italic leading-tight">
-                    {p.papel}
-                  </p>
+                  <p className="font-display text-xl font-bold leading-tight">{p.papel}</p>
                   <p className="suave mt-2 text-sm">
                     {p.obra} · {p.ano}
                   </p>
@@ -230,11 +231,11 @@ function Sobre() {
             </ul>
 
             <figure
-              className="palco mt-14 rounded-lg p-7 md:p-9"
+              className="palco mt-14 rounded-cartao p-7 md:p-9"
               data-surface="palco"
               data-reveal="rise"
             >
-              <blockquote className="font-display text-[clamp(1.4rem,1.1rem+1vw,1.9rem)] font-medium italic leading-snug">
+              <blockquote className="font-display text-[clamp(1.4rem,1.1rem+1vw,1.9rem)] font-semibold leading-snug">
                 <span aria-hidden="true" className="text-laranja">
                   “
                 </span>
@@ -264,7 +265,7 @@ function Sobre() {
           {LEI.map((item, i) => (
             <article
               key={item.quem}
-              className="flex flex-col rounded-lg bg-[rgb(227_217_199/0.07)] p-7 md:p-9"
+              className="flex flex-col rounded-cartao bg-[rgb(227_217_199/0.07)] p-7 md:p-9"
               data-reveal="rise"
               style={atraso(i * 100)}
             >
@@ -300,7 +301,7 @@ function Sobre() {
           {PARTICIPE.map((item, i) => (
             <li
               key={item.to}
-              className="fio flex flex-col rounded-lg border bg-[#efe7d8] p-7 md:p-8"
+              className="fio flex flex-col rounded-cartao border bg-[#efe7d8] p-7 md:p-8"
               data-reveal="rise"
               style={atraso(i * 90)}
             >

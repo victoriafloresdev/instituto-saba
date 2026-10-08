@@ -32,6 +32,8 @@ function Programacao() {
           </span>,
         ]}
         lide="Espetáculos do repertório clássico em Belo Horizonte. Datas, horários e ingressos são publicados aqui assim que confirmados."
+        fundo="arabesque"
+        fundoFoco="50% 35%"
       />
 
       <section data-surface="palco" className="palco pb-[var(--cena)]">

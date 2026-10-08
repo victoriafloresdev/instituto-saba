@@ -39,7 +39,7 @@ export function ProgramaLista({ espetaculos }: { espetaculos: Spectacle[] }) {
               />
 
               <p
-                className="numeral text-[clamp(1.1rem,0.9rem+0.8vw,1.6rem)] italic md:col-span-3"
+                className="numeral text-[clamp(1.05rem,0.9rem+0.7vw,1.45rem)] md:col-span-3"
                 data-reveal="rise"
               >
                 {formatSpectacleDate(e)}
@@ -50,7 +50,7 @@ export function ProgramaLista({ espetaculos }: { espetaculos: Spectacle[] }) {
                 data-reveal="rise"
                 style={{ "--delay": "70ms" } as CSSProperties}
               >
-                <h3 className="font-display text-[clamp(1.8rem,1.2rem+2.2vw,3.1rem)] font-bold leading-[1.05] [font-stretch:84%] transition-transform duration-500 ease-[var(--ease-releve)] group-hover:translate-x-2">
+                <h3 className="font-display text-[clamp(1.6rem,1.1rem+1.9vw,2.7rem)] font-extrabold leading-[1.08] tracking-[-0.02em] transition-transform duration-500 ease-[var(--ease-releve)] group-hover:translate-x-2">
                   {e.title}
                 </h3>
                 {(e.subtitle || (e.sessions?.length ?? 0) > 1) && (

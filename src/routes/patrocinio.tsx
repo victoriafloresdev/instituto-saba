@@ -126,8 +126,8 @@ function Patrocinio() {
           </span>,
         ]}
         lide="O Ballet Dom Quixote é aprovado pela Lei Federal de Incentivo à Cultura, sob PRONAC 255925. Seu apoio ajuda a realizar uma grande produção, gerar trabalho e levar crianças de escolas públicas ao teatro."
-        foto="pointe"
-        foco="50% 30%"
+        fundo="tutus"
+        fundoFoco="65% 50%"
       >
         <a href="#fale-conosco" className="chamada chamada--cheia">
           Quero conversar <span className="seta">↓</span>
@@ -148,7 +148,7 @@ function Patrocinio() {
           {BENEFICIOS.map((b, i) => (
             <li
               key={b.titulo}
-              className={`flex flex-col rounded-lg p-7 md:p-8 ${
+              className={`flex flex-col rounded-cartao p-7 md:p-8 ${
                 i === 0 ? "palco" : "fio border bg-[#efe7d8]"
               }`}
               data-reveal="rise"
@@ -226,7 +226,7 @@ function Patrocinio() {
           {PERFIS.map((perfil, i) => (
             <article
               key={perfil.quem}
-              className="fio flex flex-col rounded-lg border bg-[#efe7d8] p-7 md:p-9"
+              className="fio flex flex-col rounded-cartao border bg-[#efe7d8] p-7 md:p-9"
               data-reveal="rise"
               style={atraso(i * 100)}
             >
@@ -255,7 +255,7 @@ function Patrocinio() {
         </div>
 
         <div
-          className="fio mt-5 grid gap-3 rounded-lg border p-7 md:grid-cols-[1fr_2fr] md:gap-10 md:p-9"
+          className="fio mt-5 grid gap-3 rounded-cartao border p-7 md:grid-cols-[1fr_2fr] md:gap-10 md:p-9"
           data-reveal="rise"
         >
           <h3 className="t-sub">Não se encaixa em nenhum dos dois?</h3>
@@ -350,7 +350,7 @@ function Patrocinio() {
 
           <div className="grid md:grid-cols-[1fr_1.55fr]">
             <aside
-              className="palco rounded-t-lg p-7 md:rounded-l-lg md:rounded-tr-none md:p-10"
+              className="palco rounded-t-cartao p-7 md:rounded-l-cartao md:rounded-tr-none md:p-10"
               data-surface="palco"
             >
               {/* Acompanha a rolagem do formulário, que é mais alto. */}
@@ -400,7 +400,7 @@ function Patrocinio() {
               </div>
             </aside>
 
-            <div className="fio rounded-b-lg border border-t-0 bg-[#efe7d8] p-7 md:rounded-r-lg md:rounded-bl-none md:border-l-0 md:border-t md:p-10">
+            <div className="fio rounded-b-cartao border border-t-0 bg-[#efe7d8] p-7 md:rounded-r-cartao md:rounded-bl-none md:border-l-0 md:border-t md:p-10">
               {sent ? (
                 <div className="flex h-full flex-col justify-center py-6" role="status">
                   <span
@@ -753,8 +753,8 @@ function Simulador({
   }
 
   return (
-    <div className="grid overflow-hidden rounded-lg md:grid-cols-[1.15fr_1fr]">
-      <div className="form-editorial fio space-y-10 border bg-[#efe7d8] p-7 md:rounded-l-lg md:border-r-0 md:p-10">
+    <div className="grid overflow-hidden rounded-cartao md:grid-cols-[1.15fr_1fr]">
+      <div className="form-editorial fio space-y-10 border bg-[#efe7d8] p-7 md:rounded-l-cartao md:border-r-0 md:p-10">
         <fieldset>
           <legend className="etapa-simulador">
             <span>1</span> Quem vai patrocinar?
@@ -834,7 +834,7 @@ function Simulador({
       </div>
 
       <div
-        className="palco flex flex-col p-7 md:rounded-r-lg md:p-10"
+        className="palco flex flex-col p-7 md:rounded-r-cartao md:p-10"
         data-surface="palco"
         aria-live="polite"
       >

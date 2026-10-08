@@ -21,6 +21,8 @@ interface Props {
   atraso?: number;
   /** Primeira dobra: carrega com prioridade e sem lazy loading. */
   prioridade?: boolean;
+  /** Mantém as cores originais. Por padrão a foto vai para o PB do manual. */
+  colorida?: boolean;
   className?: string;
   imgClassName?: string;
 }
@@ -40,6 +42,7 @@ export function Foto({
   cortina = false,
   atraso = 0,
   prioridade = false,
+  colorida = false,
   className,
   imgClassName,
 }: Props) {
@@ -66,9 +69,28 @@ export function Foto({
         loading={prioridade ? "eager" : "lazy"}
         fetchPriority={prioridade ? "high" : undefined}
         decoding={prioridade ? "sync" : "async"}
-        className={cn("absolute inset-0 h-full w-full object-cover", imgClassName)}
+        className={cn(
+          "absolute inset-0 h-full w-full object-cover",
+          !colorida && "foto-pb",
+          imgClassName,
+        )}
         style={{ objectPosition: foco }}
       />
+    </div>
+  );
+}
+
+/**
+ * Foto com os recortes do manual da marca: uma moldura laranja deslocada
+ * atrás dela e o traço da logo sobre o canto inferior. Para os momentos de
+ * destaque — usada com parcimônia, para não virar ruído.
+ */
+export function FotoMoldurada({ className, ...foto }: Props) {
+  return (
+    <div className={cn("moldura", className)}>
+      <span aria-hidden="true" className="moldura__bloco" />
+      <Foto {...foto} className="rounded-foto" />
+      <span aria-hidden="true" className="traco moldura__traco" />
     </div>
   );
 }
