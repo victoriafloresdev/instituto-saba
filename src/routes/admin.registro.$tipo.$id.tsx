@@ -1,6 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Archive, ArchiveRestore, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DeleteContentDialog } from "@/components/admin/DeleteContentDialog";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { SupabaseConfigNotice } from "@/components/admin/SupabaseConfigNotice";
 import { Marca } from "@/components/site/Marca";
@@ -9,6 +13,7 @@ import type { AuditionEmail, Status } from "@/lib/database.types";
 import { linkTemporario } from "@/lib/arquivos-audicao";
 import { MODELOS_EMAIL } from "@/lib/email-audicao";
 import { EMAIL_AOS_APROVADOS } from "@/lib/recursos";
+import { arquivarRegistro, ESTE_REGISTRO, excluirRegistro } from "@/lib/registros";
 
 const sources = {
   audicoes: {
@@ -92,6 +97,8 @@ function RegistroDetalhe() {
   const { tipo, id } = Route.useParams();
   const [record, setRecord] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
+  const [ocupado, setOcupado] = useState(false);
   const config = sources[tipo as Tipo];
 
   useEffect(() => {
@@ -165,6 +172,37 @@ function RegistroDetalhe() {
   const recebido = record.created_at
     ? new Date(String(record.created_at)).toLocaleString("pt-BR")
     : null;
+  const arquivadoEm = typeof record.arquivado_em === "string" ? record.arquivado_em : null;
+
+  async function alternarArquivo() {
+    setOcupado(true);
+    try {
+      const data = await arquivarRegistro(tipo as Tipo, id, !arquivadoEm);
+      setRecord((atual) => (atual ? { ...atual, arquivado_em: data } : atual));
+      toast.success(arquivadoEm ? "Registro de volta à lista." : "Registro arquivado.");
+    } catch {
+      toast.error(arquivadoEm ? "Não foi possível desarquivar." : "Não foi possível arquivar.");
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  async function excluir() {
+    setConfirmandoExclusao(false);
+    setOcupado(true);
+    try {
+      const { arquivosApagados } = await excluirRegistro(tipo as Tipo, id);
+      if (arquivosApagados) toast.success("Registro excluído.");
+      else
+        toast.warning(
+          "Registro excluído, mas as fotos ou o currículo não saíram do armazenamento. A limpeza automática apaga esses arquivos em até 2 dias.",
+        );
+      navigate({ to: "/admin/dashboard" });
+    } catch {
+      toast.error("Não foi possível excluir o registro.");
+      setOcupado(false);
+    }
+  }
 
   return (
     <PaginaRegistro>
@@ -175,28 +213,72 @@ function RegistroDetalhe() {
           <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             {typeof record.status === "string" && <StatusBadge value={record.status as Status} />}
             {recebido && <span>Recebido em {recebido}</span>}
+            {arquivadoEm && (
+              <span className="rounded-full bg-muted px-2.5 py-0.5 font-semibold text-foreground">
+                Arquivado em {new Date(arquivadoEm).toLocaleDateString("pt-BR")}
+              </span>
+            )}
           </div>
         </div>
-        {(email || whatsapp) && (
+        <div className="flex flex-col gap-3 md:items-end">
+          {(email || whatsapp) && (
+            <div className="flex flex-wrap gap-2">
+              {email && (
+                <a href={`mailto:${email}`} className="chamada chamada--cheia">
+                  Responder por e-mail
+                </a>
+              )}
+              {whatsapp && (
+                <a
+                  href={`https://wa.me/${whatsapp.startsWith("55") ? whatsapp : `55${whatsapp}`}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="chamada"
+                >
+                  Abrir WhatsApp ↗
+                </a>
+              )}
+            </div>
+          )}
           <div className="flex flex-wrap gap-2">
-            {email && (
-              <a href={`mailto:${email}`} className="chamada chamada--cheia">
-                Responder por e-mail
-              </a>
-            )}
-            {whatsapp && (
-              <a
-                href={`https://wa.me/${whatsapp.startsWith("55") ? whatsapp : `55${whatsapp}`}`}
-                target="_blank"
-                rel="noreferrer"
-                className="chamada"
-              >
-                Abrir WhatsApp ↗
-              </a>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={ocupado}
+              onClick={() => void alternarArquivo()}
+            >
+              {arquivadoEm ? (
+                <ArchiveRestore className="h-4 w-4" />
+              ) : (
+                <Archive className="h-4 w-4" />
+              )}
+              {arquivadoEm ? "Desarquivar" : "Arquivar"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={ocupado}
+              className="text-rose-800 hover:bg-rose-50 hover:text-rose-900"
+              onClick={() => setConfirmandoExclusao(true)}
+            >
+              <Trash2 className="h-4 w-4" />
+              Excluir
+            </Button>
           </div>
-        )}
+        </div>
       </div>
+
+      <DeleteContentDialog
+        open={confirmandoExclusao}
+        title={`Excluir ${ESTE_REGISTRO[tipo as Tipo]}?`}
+        description={`Tem certeza de que quer excluir “${nome}”? ${
+          tipo === "audicoes"
+            ? "A inscrição, as fotos e o currículo serão apagados."
+            : "O registro será apagado."
+        } Se quiser só tirar da lista, use Arquivar.`}
+        onCancel={() => setConfirmandoExclusao(false)}
+        onConfirm={() => void excluir()}
+      />
 
       {tipo === "audicoes" && <ArquivosEEmails registro={record} />}
 

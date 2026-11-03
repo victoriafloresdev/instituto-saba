@@ -32,6 +32,9 @@ import {
   Contact,
   ExternalLink,
   Mail,
+  Archive,
+  ArchiveRestore,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -43,10 +46,18 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { SponsorManager } from "@/components/admin/SponsorManager";
 import { PeopleManager } from "@/components/admin/PeopleManager";
 import { EnviarEmailAudicao } from "@/components/admin/EnviarEmailAudicao";
+import { DeleteContentDialog } from "@/components/admin/DeleteContentDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Status } from "@/lib/database.types";
 import { STATUS_AUDICAO, opcoesDeStatus } from "@/lib/status";
 import { EMAIL_AOS_APROVADOS } from "@/lib/recursos";
+import {
+  arquivarRegistro,
+  ESTE_REGISTRO,
+  excluirRegistro,
+  TABELA_DO_TIPO,
+  type TipoRegistro,
+} from "@/lib/registros";
 
 export const Route = createFileRoute("/admin/dashboard")({
   head: () => ({
@@ -59,7 +70,7 @@ export const Route = createFileRoute("/admin/dashboard")({
 });
 
 // Formulários recebidos do site.
-type Kind = "audicoes" | "patrocinadores" | "escolas" | "mensagens";
+type Kind = TipoRegistro;
 // Conteúdo editável que alimenta as páginas públicas.
 type ContentView = "conteudo-espetaculos" | "conteudo-equipe" | "conteudo-patrocinadores";
 type View = "dashboard" | Kind | ContentView;
@@ -72,6 +83,8 @@ type AdminRow = {
   detail: string;
   status: Status;
   createdAt: string;
+  /** Arquivado no painel: sai da lista principal e das contagens. */
+  arquivado: boolean;
   /** Só nas audições: espetáculo da inscrição (nulo = banco de talentos). */
   espetaculoId?: string | null;
   /** Só nas audições: título do espetáculo, para o e-mail aos aprovados. */
@@ -94,12 +107,15 @@ function Dashboard() {
   // Inscrições marcadas para o e-mail aos aprovados.
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
   const [emailAberto, setEmailAberto] = useState(false);
+  // Cada lista mostra os ativos ou, a pedido, os arquivados.
+  const [verArquivados, setVerArquivados] = useState(false);
+  const [excluindo, setExcluindo] = useState<AdminRow | null>(null);
 
   // Trocar de aba ou de filtro desfaz a seleção: o que some da tela não
   // pode continuar marcado sem a pessoa ver.
   useEffect(() => {
     setSelecionados(new Set());
-  }, [view, filtroAudicao, filtroStatus]);
+  }, [view, filtroAudicao, filtroStatus, verArquivados]);
 
   async function load() {
     setLoading(true);
@@ -142,6 +158,7 @@ function Dashboard() {
         detail: [r.modalidade, r.cidade, r.email].filter(Boolean).join(" · "),
         status: r.status,
         createdAt: r.created_at,
+        arquivado: Boolean(r.arquivado_em),
         espetaculoId: r.spectacle_id,
         espetaculoTitulo: r.spectacle_id ? (titulos.get(r.spectacle_id) ?? null) : null,
       })),
@@ -153,6 +170,7 @@ function Dashboard() {
         detail: `${r.email} · ${r.valor ? Number(r.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "Valor não informado"}`,
         status: r.status,
         createdAt: r.created_at,
+        arquivado: Boolean(r.arquivado_em),
       })),
       ...(schools.data ?? []).map((r) => ({
         id: r.id,
@@ -162,6 +180,7 @@ function Dashboard() {
         detail: `${r.cidade} · ${r.alunos} alunos`,
         status: r.status,
         createdAt: r.created_at,
+        arquivado: Boolean(r.arquivado_em),
       })),
       ...(messages.data ?? []).map((r) => ({
         id: r.id,
@@ -171,6 +190,7 @@ function Dashboard() {
         detail: r.email,
         status: r.status,
         createdAt: r.created_at,
+        arquivado: Boolean(r.arquivado_em),
       })),
     ]);
     setLoading(false);
@@ -182,15 +202,10 @@ function Dashboard() {
   const byKind = (kind: Kind) => rows.filter((row) => row.kind === kind);
 
   async function updateStatus(row: AdminRow, status: Status) {
-    const table =
-      row.kind === "audicoes"
-        ? "auditions"
-        : row.kind === "patrocinadores"
-          ? "sponsorship_leads"
-          : row.kind === "escolas"
-            ? "school_registrations"
-            : "contact_messages";
-    const { error } = await supabase.from(table).update({ status }).eq("id", row.id);
+    const { error } = await supabase
+      .from(TABELA_DO_TIPO[row.kind])
+      .update({ status })
+      .eq("id", row.id);
     if (error) {
       toast.error("Não foi possível atualizar o status.");
       return;
@@ -201,6 +216,43 @@ function Dashboard() {
       ),
     );
     toast.success("Status atualizado.");
+  }
+
+  const mesmo = (a: AdminRow, b: AdminRow) => a.id === b.id && a.kind === b.kind;
+
+  async function alternarArquivo(row: AdminRow) {
+    try {
+      await arquivarRegistro(row.kind, row.id, !row.arquivado);
+    } catch {
+      toast.error(row.arquivado ? "Não foi possível desarquivar." : "Não foi possível arquivar.");
+      return;
+    }
+    setRows((atual) =>
+      atual.map((item) => (mesmo(item, row) ? { ...item, arquivado: !row.arquivado } : item)),
+    );
+    toast.success(row.arquivado ? "Registro de volta à lista." : "Registro arquivado.");
+  }
+
+  async function confirmarExclusao() {
+    const row = excluindo;
+    if (!row) return;
+    setExcluindo(null);
+    try {
+      const { arquivosApagados } = await excluirRegistro(row.kind, row.id);
+      setRows((atual) => atual.filter((item) => !mesmo(item, row)));
+      setSelecionados((atual) => {
+        const novos = new Set(atual);
+        novos.delete(row.id);
+        return novos;
+      });
+      if (arquivosApagados) toast.success("Registro excluído.");
+      else
+        toast.warning(
+          "Registro excluído, mas as fotos ou o currículo não saíram do armazenamento. A limpeza automática apaga esses arquivos em até 2 dias.",
+        );
+    } catch {
+      toast.error("Não foi possível excluir o registro.");
+    }
   }
 
   async function logout() {
@@ -279,12 +331,16 @@ function Dashboard() {
         filtroAudicao === TODAS ||
         (filtroAudicao === BANCO ? !row.espetaculoId : row.espetaculoId === filtroAudicao),
     )
-    .filter((row) => view !== "audicoes" || filtroStatus === TODAS || row.status === filtroStatus);
+    .filter((row) => view !== "audicoes" || filtroStatus === TODAS || row.status === filtroStatus)
+    .filter((row) => row.arquivado === verArquivados);
+  const ativos = rows.filter((row) => !row.arquivado);
   const novos = (kind: View) =>
-    rows.filter((row) => row.kind === kind && row.status === "Novo").length;
+    ativos.filter((row) => row.kind === kind && row.status === "Novo").length;
+  const arquivadosDaAba = rows.filter((row) => row.kind === view && row.arquivado).length;
 
   function selecionar(key: View) {
     setView(key);
+    setVerArquivados(false);
     setOpenNav(false);
   }
 
@@ -392,60 +448,87 @@ function Dashboard() {
           ) : loading ? (
             <Carregando />
           ) : view === "dashboard" ? (
-            <Overview rows={rows} onOpen={setView} />
+            <Overview rows={ativos} onOpen={selecionar} />
           ) : (
             <DataTable
               filtro={
-                view === "audicoes" ? (
-                  <>
-                    <Select value={filtroAudicao} onValueChange={setFiltroAudicao}>
-                      <SelectTrigger className="h-9 w-[220px]" aria-label="Filtrar por audição">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={TODAS}>Todas as audições</SelectItem>
-                        {espetaculos.map((e) => (
-                          <SelectItem key={e.id} value={e.id}>
-                            {e.title}
-                          </SelectItem>
-                        ))}
-                        <SelectItem value={BANCO}>Banco de talentos</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select
-                      value={filtroStatus}
-                      onValueChange={(v) => setFiltroStatus(v as Status | typeof TODAS)}
-                    >
-                      <SelectTrigger className="h-9 w-[200px]" aria-label="Filtrar por status">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={TODAS}>Todos os status</SelectItem>
-                        {STATUS_AUDICAO.map((s) => (
-                          <SelectItem key={s} value={s}>
-                            {s}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {EMAIL_AOS_APROVADOS && (
-                      <Button
-                        size="sm"
-                        disabled={selecionados.size === 0}
-                        onClick={() => setEmailAberto(true)}
+                <>
+                  <div
+                    role="group"
+                    aria-label="Mostrar"
+                    className="inline-flex rounded-md border border-border p-0.5"
+                  >
+                    {[false, true].map((arquivados) => (
+                      <button
+                        key={String(arquivados)}
+                        type="button"
+                        aria-pressed={verArquivados === arquivados}
+                        onClick={() => setVerArquivados(arquivados)}
+                        className={cn(
+                          "rounded px-3 py-1 text-sm transition-colors",
+                          verArquivados === arquivados
+                            ? "bg-tinta font-semibold text-papel"
+                            : "text-muted-foreground hover:text-foreground",
+                        )}
                       >
-                        <Mail className="h-4 w-4" />
-                        {selecionados.size === 0
-                          ? "Enviar e-mail"
-                          : `Enviar e-mail (${selecionados.size})`}
-                      </Button>
-                    )}
-                  </>
-                ) : undefined
+                        {arquivados ? `Arquivados (${arquivadosDaAba})` : "Ativos"}
+                      </button>
+                    ))}
+                  </div>
+                  {view === "audicoes" && (
+                    <>
+                      <Select value={filtroAudicao} onValueChange={setFiltroAudicao}>
+                        <SelectTrigger className="h-9 w-[220px]" aria-label="Filtrar por audição">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={TODAS}>Todas as audições</SelectItem>
+                          {espetaculos.map((e) => (
+                            <SelectItem key={e.id} value={e.id}>
+                              {e.title}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value={BANCO}>Banco de talentos</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={filtroStatus}
+                        onValueChange={(v) => setFiltroStatus(v as Status | typeof TODAS)}
+                      >
+                        <SelectTrigger className="h-9 w-[200px]" aria-label="Filtrar por status">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={TODAS}>Todos os status</SelectItem>
+                          {STATUS_AUDICAO.map((s) => (
+                            <SelectItem key={s} value={s}>
+                              {s}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {EMAIL_AOS_APROVADOS && (
+                        <Button
+                          size="sm"
+                          disabled={selecionados.size === 0}
+                          onClick={() => setEmailAberto(true)}
+                        >
+                          <Mail className="h-4 w-4" />
+                          {selecionados.size === 0
+                            ? "Enviar e-mail"
+                            : `Enviar e-mail (${selecionados.size})`}
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </>
               }
               title={items.find((item) => item.key === view)?.label || ""}
               rows={currentRows}
+              vazio={verArquivados ? "Nenhum registro arquivado." : undefined}
               onStatus={updateStatus}
+              onArquivar={(row) => void alternarArquivo(row)}
+              onExcluir={setExcluindo}
               selecao={
                 // A seleção só serve ao e-mail aos aprovados (desligado em lib/recursos).
                 EMAIL_AOS_APROVADOS && view === "audicoes"
@@ -455,6 +538,21 @@ function Dashboard() {
             />
           )}
         </main>
+        <DeleteContentDialog
+          open={Boolean(excluindo)}
+          title={`Excluir ${excluindo ? ESTE_REGISTRO[excluindo.kind] : "este registro"}?`}
+          description={
+            excluindo
+              ? `Tem certeza de que quer excluir “${excluindo.title}”? ${
+                  excluindo.kind === "audicoes"
+                    ? "A inscrição, as fotos e o currículo serão apagados."
+                    : "O registro será apagado."
+                } Se quiser só tirar da lista, use Arquivar.`
+              : ""
+          }
+          onCancel={() => setExcluindo(null)}
+          onConfirm={() => void confirmarExclusao()}
+        />
         {EMAIL_AOS_APROVADOS && (
           <EnviarEmailAudicao
             aberto={emailAberto}
@@ -553,15 +651,21 @@ function DataTable({
   title,
   rows,
   onStatus,
+  onArquivar,
+  onExcluir,
   readonly = false,
   mostrarTipo = false,
   filtro,
   selecao,
+  vazio = "Nenhum registro ainda.",
 }: {
   filtro?: React.ReactNode;
   title: string;
   rows: AdminRow[];
   onStatus: (row: AdminRow, status: Status) => void;
+  onArquivar?: (row: AdminRow) => void;
+  onExcluir?: (row: AdminRow) => void;
+  vazio?: string;
   readonly?: boolean;
   mostrarTipo?: boolean;
   /** Caixas de seleção por linha (audições, para o e-mail aos aprovados). */
@@ -593,7 +697,7 @@ function DataTable({
         </p>
       </div>
       {rows.length === 0 ? (
-        <p className="px-5 py-12 text-center text-muted-foreground">Nenhum registro ainda.</p>
+        <p className="px-5 py-12 text-center text-muted-foreground">{vazio}</p>
       ) : (
         <div className="overflow-x-auto">
           <Table>
@@ -617,6 +721,11 @@ function DataTable({
                 <TableHead>Recebido</TableHead>
                 <TableHead>Status</TableHead>
                 {!readonly && <TableHead className="text-right">Alterar</TableHead>}
+                {!readonly && (
+                  <TableHead className="w-24">
+                    <span className="sr-only">Ações</span>
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -678,6 +787,36 @@ function DataTable({
                           ))}
                         </SelectContent>
                       </Select>
+                    </TableCell>
+                  )}
+                  {!readonly && (
+                    <TableCell onClick={(event) => event.stopPropagation()}>
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9"
+                          title={row.arquivado ? "Desarquivar" : "Arquivar"}
+                          aria-label={`${row.arquivado ? "Desarquivar" : "Arquivar"} ${row.title}`}
+                          onClick={() => onArquivar?.(row)}
+                        >
+                          {row.arquivado ? (
+                            <ArchiveRestore className="h-4 w-4" />
+                          ) : (
+                            <Archive className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 text-rose-800 hover:bg-rose-50 hover:text-rose-900"
+                          title="Excluir"
+                          aria-label={`Excluir ${row.title}`}
+                          onClick={() => onExcluir?.(row)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   )}
                 </TableRow>

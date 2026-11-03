@@ -49,6 +49,8 @@ export interface Audition {
   curriculo_path?: string | null;
   /** Quando a retenção (LGPD) apagou foto, medidas e currículo. */
   dados_apagados_em?: string | null;
+  /** Quando foi arquivado no painel; nulo = na lista principal. */
+  arquivado_em?: string | null;
   status: Status;
   created_at: string;
   updated_at: string;
@@ -82,6 +84,8 @@ export interface SponsorshipLead {
   valor: number | null;
   mensagem: string | null;
   tipo: "PF" | "PJ";
+  /** Quando foi arquivado no painel; nulo = na lista principal. */
+  arquivado_em?: string | null;
   status: Status;
   created_at: string;
   updated_at: string;
@@ -99,6 +103,8 @@ export interface SchoolRegistration {
   alunos: number;
   faixa: string;
   mensagem: string | null;
+  /** Quando foi arquivado no painel; nulo = na lista principal. */
+  arquivado_em?: string | null;
   status: Status;
   created_at: string;
   updated_at: string;
@@ -111,6 +117,8 @@ export interface ContactMessage {
   email: string;
   assunto: string;
   mensagem: string;
+  /** Quando foi arquivado no painel; nulo = na lista principal. */
+  arquivado_em?: string | null;
   status: Status;
   created_at: string;
   updated_at: string;
