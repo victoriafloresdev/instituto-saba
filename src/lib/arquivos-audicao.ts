@@ -1,7 +1,8 @@
 import { supabase } from "@/lib/supabase";
 
 /**
- * Arquivos da inscrição de audição: foto de rosto e currículo em PDF.
+ * Arquivos da inscrição de audição: fotos de rosto, no passé e de corpo
+ * inteiro, e currículo em PDF.
  *
  * Vão para o bucket PRIVADO "audicoes" (migração 20261009): qualquer pessoa
  * envia, mas só administradores veem. Os nomes são aleatórios e seguem o

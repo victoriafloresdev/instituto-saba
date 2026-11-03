@@ -101,8 +101,8 @@ function Patrocinadores() {
           </h2>
           <div className="md:col-span-5" data-reveal="rise" style={atraso(100)}>
             <p className="text-[1.0625rem] leading-relaxed">
-              Associe sua empresa a uma produção de grande porte e à formação de novos talentos —
-              com dedução no imposto de renda pela Lei Rouanet.
+              Associe a sua empresa a uma produção de grande porte e à valorização da cultura
+              nacional, a partir da destinação de imposto de renda.
             </p>
             <Link
               to="/patrocinio"

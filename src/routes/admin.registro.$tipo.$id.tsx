@@ -271,22 +271,29 @@ function DetailRow({ label, value: bruto }: { label: string; value: unknown }) {
   );
 }
 
+/** As fotos da inscrição, na ordem em que aparecem no painel. */
+const FOTOS_DA_AUDICAO = [
+  ["foto_path", "Rosto"],
+  ["foto_passe_path", "Passé"],
+  ["foto_corpo_path", "Corpo inteiro"],
+] as const;
+
 /**
- * Foto, currículo e e-mails enviados de uma inscrição de audição. Os
+ * Fotos, currículo e e-mails enviados de uma inscrição de audição. Os
  * arquivos são privados: o painel pede links temporários de 10 minutos.
  */
 function ArquivosEEmails({ registro }: { registro: Record<string, unknown> }) {
-  const fotoPath = typeof registro.foto_path === "string" ? registro.foto_path : null;
-  const curriculoPath =
-    typeof registro.curriculo_path === "string" ? registro.curriculo_path : null;
-  const apagadosEm =
-    typeof registro.dados_apagados_em === "string" ? registro.dados_apagados_em : null;
-  const [foto, setFoto] = useState<string | null>(null);
+  const texto = (valor: unknown) => (typeof valor === "string" ? valor : null);
+  const fotoPaths = FOTOS_DA_AUDICAO.map(([coluna]) => texto(registro[coluna]));
+  const curriculoPath = texto(registro.curriculo_path);
+  const apagadosEm = texto(registro.dados_apagados_em);
+  const [fotos, setFotos] = useState<(string | null)[]>([null, null, null]);
   const [curriculo, setCurriculo] = useState<string | null>(null);
   const [emails, setEmails] = useState<AuditionEmail[]>([]);
+  const chaveFotos = fotoPaths.join("|");
 
   useEffect(() => {
-    if (fotoPath) void linkTemporario(fotoPath).then(setFoto);
+    void Promise.all(fotoPaths.map((path) => (path ? linkTemporario(path) : null))).then(setFotos);
     if (curriculoPath) void linkTemporario(curriculoPath).then(setCurriculo);
     if (EMAIL_AOS_APROVADOS)
       void supabase
@@ -295,30 +302,46 @@ function ArquivosEEmails({ registro }: { registro: Record<string, unknown> }) {
         .eq("audition_id", String(registro.id))
         .order("enviado_em", { ascending: false })
         .then(({ data }) => setEmails(data ?? []));
-  }, [fotoPath, curriculoPath, registro.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chaveFotos, curriculoPath, registro.id]);
 
   return (
-    <div className="mt-10 grid max-w-4xl gap-5 md:grid-cols-[13rem_1fr]">
-      <Card className="flex flex-col items-center gap-4 p-5 text-center">
-        <div className="aspect-[4/5] w-full overflow-hidden rounded-md bg-muted">
-          {foto ? (
-            <a href={foto} target="_blank" rel="noreferrer" title="Abrir a foto em tamanho real">
-              <img
-                src={foto}
-                alt={`Foto de ${String(registro.nome)}`}
-                className="h-full w-full object-cover"
-              />
-            </a>
-          ) : (
-            <p className="grid h-full place-items-center px-3 text-sm text-muted-foreground">
-              {apagadosEm
-                ? "Foto apagada pelo prazo de guarda"
-                : fotoPath
-                  ? "Carregando…"
-                  : "Sem foto"}
-            </p>
-          )}
-        </div>
+    <div className="mt-10 grid max-w-5xl gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <Card className="flex flex-col gap-4 p-5">
+        <ul className="grid grid-cols-3 gap-3">
+          {FOTOS_DA_AUDICAO.map(([coluna, rotulo], i) => {
+            const url = fotos[i];
+            return (
+              <li key={coluna}>
+                <p className="mb-1.5 text-xs font-semibold text-muted-foreground">{rotulo}</p>
+                <div className="aspect-[3/4] w-full overflow-hidden rounded-md bg-muted">
+                  {url ? (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="Abrir a foto em tamanho real"
+                    >
+                      <img
+                        src={url}
+                        alt={`${rotulo}: foto de ${String(registro.nome)}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </a>
+                  ) : (
+                    <p className="grid h-full place-items-center px-2 text-center text-xs text-muted-foreground">
+                      {apagadosEm
+                        ? "Apagada pelo prazo de guarda"
+                        : fotoPaths[i]
+                          ? "Carregando…"
+                          : "Não enviada"}
+                    </p>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
         {curriculo ? (
           <a href={curriculo} target="_blank" rel="noreferrer" className="chamada w-full">
             Abrir currículo ↗
@@ -330,8 +353,8 @@ function ArquivosEEmails({ registro }: { registro: Record<string, unknown> }) {
         )}
         {apagadosEm && (
           <p className="text-xs text-muted-foreground">
-            Foto, medidas e currículo apagados em {new Date(apagadosEm).toLocaleDateString("pt-BR")}
-            , pelo prazo de guarda (LGPD).
+            Fotos, medidas e currículo apagados em{" "}
+            {new Date(apagadosEm).toLocaleDateString("pt-BR")}, pelo prazo de guarda (LGPD).
           </p>
         )}
       </Card>

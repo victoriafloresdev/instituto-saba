@@ -38,11 +38,14 @@ export interface Audition {
   responsavel_nome?: string | null;
   responsavel_contato?: string | null;
   responsavel_autorizou?: boolean;
-  /** Altura em centímetros e peso em quilos, opcionais. */
+  /** Altura em centímetros e peso em quilos. */
   altura_cm?: number | null;
   peso_kg?: number | null;
   /** Arquivos no bucket privado "audicoes": fotos/<uuid>.jpg e curriculos/<uuid>.pdf. */
   foto_path?: string | null;
+  /** Fotos no passé e de corpo inteiro (migração 20261103000001). */
+  foto_passe_path?: string | null;
+  foto_corpo_path?: string | null;
   curriculo_path?: string | null;
   /** Quando a retenção (LGPD) apagou foto, medidas e currículo. */
   dados_apagados_em?: string | null;

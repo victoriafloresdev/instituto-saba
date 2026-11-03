@@ -25,7 +25,7 @@ export const Route = createFileRoute("/privacidade")({
 const CONTROLADOR = "Instituto Cultural Saba";
 const CIDADE = "Belo Horizonte, Minas Gerais";
 const EMAIL_PRIVACIDADE = "institutoculturalsaba@gmail.com";
-const ATUALIZADA_EM = "9 de outubro de 2026";
+const ATUALIZADA_EM = "3 de novembro de 2026";
 
 const PRAZOS = [
   {
@@ -34,7 +34,7 @@ const PRAZOS = [
       "até o fim da seleção do elenco do espetáculo, e por mais 1 ano para eventuais substituições",
   },
   {
-    quem: "Foto, altura, peso e currículo da audição",
+    quem: "Fotos, altura, peso e currículo da audição",
     prazo:
       "apagados automaticamente 6 meses depois da última apresentação do espetáculo (no banco de talentos, 12 meses depois da inscrição). De quem entra no elenco, guardados enquanto durar a relação com o Instituto",
   },
@@ -64,7 +64,7 @@ const FORMULARIOS = [
   {
     nome: "Audições",
     dados:
-      "nome, e-mail, WhatsApp, idade, cidade, foto de rosto, altura e peso (opcionais), modalidade, experiência, currículo em PDF (opcional), link de vídeo ou portfólio, disponibilidade para ensaios e mensagem. Para menores de 18 anos, também nome e contato do responsável. A foto e o currículo ficam num armazenamento privado, acessível só à equipe de seleção.",
+      "nome, e-mail, WhatsApp, idade, cidade, fotos (de rosto, no passé e de corpo inteiro), altura, peso, modalidade, experiência, currículo em PDF, link de vídeo ou portfólio, disponibilidade para ensaios e mensagem. Para menores de 18 anos, também nome e contato do responsável. As fotos e o currículo ficam num armazenamento privado, acessível só à equipe de seleção.",
   },
   {
     nome: "Patrocínio",

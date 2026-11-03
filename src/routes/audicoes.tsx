@@ -89,8 +89,10 @@ function Audicoes() {
   const [disponibilidade, setDisponibilidade] = useState<Disponibilidade[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [enviandoArquivos, setEnviandoArquivos] = useState(false);
-  // Foto de rosto (obrigatória) e currículo em PDF (opcional).
+  // As três fotos (rosto, passé e corpo inteiro) e o currículo em PDF.
   const [foto, setFoto] = useState<File | null>(null);
+  const [fotoPasse, setFotoPasse] = useState<File | null>(null);
+  const [fotoCorpo, setFotoCorpo] = useState<File | null>(null);
   const [curriculo, setCurriculo] = useState<File | null>(null);
   // Menores de 18 anos precisam do responsável (LGPD, art. 14).
   const [idadeDigitada, setIdadeDigitada] = useState("");
@@ -221,14 +223,26 @@ function Audicoes() {
       toast.error("Envie uma foto de rosto.");
       return;
     }
+    if (!fotoPasse) {
+      toast.error("Envie uma foto no passé.");
+      return;
+    }
+    if (!fotoCorpo) {
+      toast.error("Envie uma foto de corpo inteiro.");
+      return;
+    }
     const altura = formString(data, "altura_cm");
     const peso = formString(data, "peso_kg").replace(",", ".");
-    if (altura && !isIntegerBetween(altura, 80, 230)) {
+    if (!isIntegerBetween(altura, 80, 230)) {
       toast.error("Informe a altura em centímetros, entre 80 e 230. Ex.: 165.");
       return;
     }
-    if (peso && !(Number(peso) >= 20 && Number(peso) <= 200)) {
+    if (!(Number(peso) >= 20 && Number(peso) <= 200)) {
       toast.error("Informe o peso em quilos, entre 20 e 200. Ex.: 52,5.");
+      return;
+    }
+    if (!curriculo) {
+      toast.error("Envie o seu currículo em PDF.");
       return;
     }
 
@@ -236,13 +250,19 @@ function Audicoes() {
     // Os arquivos sobem antes: a inscrição só é gravada com eles no lugar.
     setEnviandoArquivos(true);
     let fotoPath: string;
-    let curriculoPath: string | null = null;
+    let fotoPassePath: string;
+    let fotoCorpoPath: string;
+    let curriculoPath: string;
     try {
-      fotoPath = await enviarArquivoAudicao("foto", await prepararFoto(foto));
-      if (curriculo) curriculoPath = await enviarArquivoAudicao("curriculo", curriculo);
+      [fotoPath, fotoPassePath, fotoCorpoPath, curriculoPath] = await Promise.all([
+        prepararFoto(foto).then((f) => enviarArquivoAudicao("foto", f)),
+        prepararFoto(fotoPasse).then((f) => enviarArquivoAudicao("foto", f)),
+        prepararFoto(fotoCorpo).then((f) => enviarArquivoAudicao("foto", f)),
+        enviarArquivoAudicao("curriculo", curriculo),
+      ]);
     } catch {
       toast.error(
-        "Não foi possível enviar a foto ou o currículo. Confira os arquivos e tente de novo.",
+        "Não foi possível enviar as fotos ou o currículo. Confira os arquivos e tente de novo.",
       );
       setSubmitting(false);
       setEnviandoArquivos(false);
@@ -264,9 +284,11 @@ function Audicoes() {
         disponibilidade,
         spectacle_id: destino === BANCO ? null : destino,
         foto_path: fotoPath,
+        foto_passe_path: fotoPassePath,
+        foto_corpo_path: fotoCorpoPath,
         curriculo_path: curriculoPath,
-        altura_cm: altura ? Number(altura) : null,
-        peso_kg: peso ? Math.round(Number(peso) * 10) / 10 : null,
+        altura_cm: Number(altura),
+        peso_kg: Math.round(Number(peso) * 10) / 10,
         // Só vai quando é menor: inscrições de adultos não dependem destas colunas.
         ...(ehMenor
           ? {
@@ -284,6 +306,8 @@ function Audicoes() {
       setModalidade("");
       setDisponibilidade([]);
       setFoto(null);
+      setFotoPasse(null);
+      setFotoCorpo(null);
       setCurriculo(null);
       setIdadeDigitada("");
       setAutorizaResponsavel(false);
@@ -621,19 +645,36 @@ function Audicoes() {
 
                   <fieldset>
                     <legend className="etapa-simulador">
-                      <span>3</span> Foto e medidas
+                      <span>3</span> Fotos e medidas
                     </legend>
                     <p className="suave mt-2 text-sm leading-relaxed">
                       Vistos só pela equipe de seleção, para conhecer você e pensar em figurino e
                       composição do elenco. Ficam guardados com acesso restrito.
                     </p>
                     <div className="mt-5 grid gap-x-6 gap-y-6 sm:grid-cols-2">
-                      <CampoFoto foto={foto} aoEscolher={setFoto} className="sm:col-span-2" />
+                      <CampoFoto
+                        {...FOTOS.rosto}
+                        foto={foto}
+                        aoEscolher={setFoto}
+                        className="sm:col-span-2"
+                      />
+                      <CampoFoto
+                        {...FOTOS.passe}
+                        foto={fotoPasse}
+                        aoEscolher={setFotoPasse}
+                        className="sm:col-span-2"
+                      />
+                      <CampoFoto
+                        {...FOTOS.corpo}
+                        foto={fotoCorpo}
+                        aoEscolher={setFotoCorpo}
+                        className="sm:col-span-2"
+                      />
                       <Field
                         label="Altura (cm)"
                         name="altura_cm"
                         type="number"
-                        opcional
+                        required
                         min={80}
                         max={230}
                         placeholder="Ex.: 165"
@@ -642,7 +683,7 @@ function Audicoes() {
                         label="Peso (kg)"
                         name="peso_kg"
                         type="number"
-                        opcional
+                        required
                         min={20}
                         max={200}
                         step="0.1"
@@ -811,7 +852,7 @@ const COMO_FUNCIONA = [
   {
     titulo: "Envie sua inscrição",
     texto:
-      "Preencha o formulário com seus dados, uma foto de rosto, sua experiência e, se tiver, um vídeo e o currículo.",
+      "Preencha o formulário com seus dados, três fotos, altura, peso, o currículo e, se tiver, um vídeo.",
   },
   {
     titulo: "Aguarde o contato",
@@ -827,16 +868,17 @@ const COMO_FUNCIONA = [
 
 const TENHA_EM_MAOS = [
   {
-    titulo: "Uma foto de rosto",
-    texto: "De frente, com boa luz e sem filtro. Pode ser feita com o celular.",
+    titulo: "Três fotos",
+    texto:
+      "De rosto, no passé e de corpo inteiro, com boa luz e sem filtro. Podem ser feitas com o celular.",
   },
   {
     titulo: "Um vídeo dançando",
     texto: "Ou um portfólio. Não é obrigatório, mas ajuda muito a equipe a conhecer você.",
   },
   {
-    titulo: "Sua trajetória",
-    texto: "Onde estudou, grupos e companhias de que participou.",
+    titulo: "Seu currículo em PDF",
+    texto: "Onde estudou, grupos e companhias de que participou, espetáculos e prêmios.",
   },
   {
     titulo: "Seus horários",
@@ -987,16 +1029,46 @@ function Field({
   );
 }
 
+/** As três fotos obrigatórias da inscrição. */
+const FOTOS = {
+  rosto: {
+    id: "rosto",
+    rotulo: "Foto de rosto",
+    dica: "De frente, com boa luz e sem filtro.",
+    formato: "rosto",
+  },
+  passe: {
+    id: "passe",
+    rotulo: "Foto no passé",
+    dica: "Corpo inteiro, de frente ou de lado, com a perna em passé.",
+    formato: "corpo",
+  },
+  corpo: {
+    id: "corpo",
+    rotulo: "Foto de corpo inteiro",
+    dica: "De frente, em pé, com roupa de aula (collant ou malha).",
+    formato: "corpo",
+  },
+} as const;
+
 /**
- * Foto de rosto: o input nativo fica escondido e o rótulo vira o botão, com
- * a miniatura da foto escolhida ao lado. Navegável pelo teclado como um
- * campo comum.
+ * Uma foto da inscrição: o input nativo fica escondido e o rótulo vira o
+ * botão, com a miniatura da foto escolhida ao lado — redonda para o rosto,
+ * vertical para as de corpo. Navegável pelo teclado como um campo comum.
  */
 function CampoFoto({
+  id,
+  rotulo,
+  dica,
+  formato,
   foto,
   aoEscolher,
   className,
 }: {
+  id: string;
+  rotulo: string;
+  dica: string;
+  formato: "rosto" | "corpo";
   foto: File | null;
   aoEscolher: (arquivo: File | null) => void;
   className?: string;
@@ -1028,15 +1100,20 @@ function CampoFoto({
 
   return (
     <div className={className}>
-      <p id="foto-rotulo" className="text-[0.9375rem] font-semibold">
-        Foto de rosto<span aria-hidden="true"> *</span>
+      <p id={`foto-${id}-rotulo`} className="text-[0.9375rem] font-semibold">
+        {rotulo}
+        <span aria-hidden="true"> *</span>
       </p>
       <div className="mt-2 flex items-center gap-5">
-        <div className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-dashed border-[rgb(31_30_28/0.25)] bg-[#f6f1e8]">
+        <div
+          className={`grid shrink-0 place-items-center overflow-hidden border-2 border-dashed border-[rgb(31_30_28/0.25)] bg-[#f6f1e8] ${
+            formato === "rosto" ? "h-24 w-24 rounded-full" : "h-32 w-24 rounded-controle"
+          }`}
+        >
           {miniatura ? (
             <img
               src={miniatura}
-              alt="Prévia da foto escolhida"
+              alt={`Prévia: ${rotulo.toLowerCase()}`}
               className="h-full w-full object-cover"
             />
           ) : (
@@ -1052,16 +1129,16 @@ function CampoFoto({
               type="file"
               accept={FOTO_TIPOS.join(",")}
               className="sr-only"
-              aria-labelledby="foto-rotulo"
-              aria-describedby="foto-dica"
+              aria-labelledby={`foto-${id}-rotulo`}
+              aria-describedby={`foto-${id}-dica`}
               onChange={(e) => {
                 escolher(e.target.files?.[0]);
                 e.target.value = "";
               }}
             />
           </label>
-          <p id="foto-dica" className="suave mt-2 text-sm">
-            De frente, com boa luz e sem filtro. JPG, PNG ou WEBP.
+          <p id={`foto-${id}-dica`} className="suave mt-2 text-sm">
+            {dica} JPG, PNG ou WEBP.
           </p>
         </div>
       </div>
@@ -1069,7 +1146,7 @@ function CampoFoto({
   );
 }
 
-/** Currículo em PDF, opcional. */
+/** Currículo em PDF, obrigatório. */
 function CampoCurriculo({
   arquivo,
   aoEscolher,
@@ -1093,7 +1170,7 @@ function CampoCurriculo({
   return (
     <div>
       <p id="curriculo-rotulo" className="text-[0.9375rem] font-semibold">
-        Currículo em PDF <span className="suave font-normal">(opcional)</span>
+        Currículo em PDF<span aria-hidden="true"> *</span>
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
         <label className="chamada cursor-pointer has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-laranja">

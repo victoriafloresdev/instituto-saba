@@ -7,13 +7,19 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *   1. Inscrições vencidas — a regra de prazo está no banco, na função
  *      audicoes_dados_vencidos(): 6 meses após a temporada, ou 12 meses após
  *      a inscrição no banco de talentos; aprovados na 2ª fase ficam de fora.
- *      Foto e currículo são apagados; altura e peso, zerados.
+ *      As três fotos e o currículo são apagados; altura e peso, zerados.
  *   2. Arquivos órfãos — enviados por alguém que desistiu ou teve erro antes
  *      de gravar a inscrição. Saem depois de 2 dias sem dono.
  */
 
 const BUCKET = "audicoes";
 const ORFAO_APOS_MS = 2 * 24 * 60 * 60 * 1000;
+
+/** Colunas que guardam caminhos de cada pasta do bucket. */
+const COLUNAS_DA_PASTA = {
+  fotos: ["foto_path", "foto_passe_path", "foto_corpo_path"],
+  curriculos: ["curriculo_path"],
+} as const;
 
 export interface ResultadoDaLimpeza {
   inscricoesLimpas: number;
@@ -27,9 +33,13 @@ export async function limparAudicoes(supabase: SupabaseClient): Promise<Resultad
   const lista = (vencidas ?? []) as {
     id: string;
     foto_path: string | null;
+    foto_passe_path: string | null;
+    foto_corpo_path: string | null;
     curriculo_path: string | null;
   }[];
-  const arquivos = lista.flatMap((v) => [v.foto_path, v.curriculo_path]).filter(Boolean);
+  const arquivos = lista
+    .flatMap((v) => [v.foto_path, v.foto_passe_path, v.foto_corpo_path, v.curriculo_path])
+    .filter(Boolean);
   if (arquivos.length) {
     const { error: erroArquivos } = await supabase.storage
       .from(BUCKET)
@@ -41,6 +51,8 @@ export async function limparAudicoes(supabase: SupabaseClient): Promise<Resultad
       .from("auditions")
       .update({
         foto_path: null,
+        foto_passe_path: null,
+        foto_corpo_path: null,
         curriculo_path: null,
         altura_cm: null,
         peso_kg: null,
@@ -54,7 +66,7 @@ export async function limparAudicoes(supabase: SupabaseClient): Promise<Resultad
   }
 
   let orfaosApagados = 0;
-  for (const pasta of ["fotos", "curriculos"] as const) {
+  for (const [pasta, colunas] of Object.entries(COLUNAS_DA_PASTA)) {
     const { data: objetos } = await supabase.storage
       .from(BUCKET)
       .list(pasta, { limit: 1000, sortBy: { column: "created_at", order: "asc" } });
@@ -63,9 +75,18 @@ export async function limparAudicoes(supabase: SupabaseClient): Promise<Resultad
       .map((o) => `${pasta}/${o.name}`);
     if (!antigos.length) continue;
 
-    const coluna = pasta === "fotos" ? "foto_path" : "curriculo_path";
-    const { data: usados } = await supabase.from("auditions").select(coluna).in(coluna, antigos);
-    const emUso = new Set((usados ?? []).map((u) => (u as Record<string, string>)[coluna]));
+    // Uma foto da pasta pode ser de rosto, no passé ou de corpo inteiro:
+    // só é órfã se nenhuma das colunas a usa.
+    const emUso = new Set<string>();
+    for (const coluna of colunas) {
+      const { data: usados, error: erroUso } = await supabase
+        .from("auditions")
+        .select(coluna)
+        .in(coluna, antigos);
+      // Na dúvida, não apaga nada desta pasta.
+      if (erroUso) throw new Error(`Falha ao conferir arquivos em uso: ${erroUso.message}`);
+      for (const u of usados ?? []) emUso.add((u as Record<string, string>)[coluna]);
+    }
     const orfaos = antigos.filter((caminho) => !emUso.has(caminho));
     if (orfaos.length) {
       await supabase.storage.from(BUCKET).remove(orfaos);
