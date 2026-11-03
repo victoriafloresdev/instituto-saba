@@ -75,6 +75,7 @@ interface FormValues {
   audition_enabled: boolean;
   audition_opens_at: DataHora;
   ticket_sales_open_at: DataHora;
+  show_people: boolean;
   status: SpectacleStatus;
   sort_order: string;
 }
@@ -100,6 +101,7 @@ const EMPTY: FormValues = {
   audition_enabled: false,
   audition_opens_at: { data: "", hora: "" },
   ticket_sales_open_at: { data: "", hora: "" },
+  show_people: false,
   status: "draft",
   sort_order: "0",
 };
@@ -129,6 +131,7 @@ function toFormValues(spectacle: Spectacle): FormValues {
     audition_enabled: spectacle.audition_enabled ?? false,
     audition_opens_at: paraCampoLocal(spectacle.audition_opens_at),
     ticket_sales_open_at: paraCampoLocal(spectacle.ticket_sales_open_at),
+    show_people: spectacle.show_people ?? false,
     status: spectacle.status,
     sort_order: String(spectacle.sort_order),
   };
@@ -183,6 +186,7 @@ function toPayload(values: FormValues): SpectacleInsert {
     audition_enabled: values.audition_enabled,
     audition_opens_at: paraIso(values.audition_opens_at),
     ticket_sales_open_at: paraIso(values.ticket_sales_open_at),
+    show_people: values.show_people,
     status: values.status,
     sort_order: Number(values.sort_order),
   };
@@ -550,6 +554,22 @@ function SpectacleDialog({
             valor={values.ticket_sales_open_at}
             onChange={(valor) => set("ticket_sales_open_at", valor)}
           />
+          <label className="flex items-start gap-3 rounded-lg border border-border bg-card p-4 sm:col-span-2">
+            <Checkbox
+              checked={values.show_people}
+              onCheckedChange={(v) => set("show_people", v === true)}
+              className="mt-0.5"
+            />
+            <span>
+              <span className="block font-semibold">
+                Mostrar a ficha técnica e o elenco no site
+              </span>
+              <span className="mt-0.5 block text-sm font-normal text-muted-foreground">
+                Desmarcado, a página do espetáculo não mostra ninguém da equipe nem do elenco. As
+                pessoas cadastradas na aba Equipe e elenco continuam guardadas no painel.
+              </span>
+            </span>
+          </label>
           <TextAreaField
             label="Descrição"
             className="sm:col-span-2"

@@ -3,10 +3,13 @@ import type { CSSProperties } from "react";
 import { FotoDeFundo } from "@/components/site/Abertura";
 import { fichaDoEspetaculo, type Pessoa } from "@/data/ficha-tecnica";
 import { Contagem } from "@/components/site/Contagem";
-import type { SpectaclePerson } from "@/lib/database.types";
+import type { SpectaclePerson, Sponsor } from "@/lib/database.types";
 import {
+  fetchActiveSponsors,
   fetchPublishedSpectacleBySlug,
   fetchSpectaclePeople,
+  SPONSOR_TYPE_LABELS,
+  SPONSOR_TYPE_ORDER,
   siteAssetUrl,
   formatSessao,
   formatSpectacleDate,
@@ -17,9 +20,14 @@ import {
 export const Route = createFileRoute("/espetaculo/$slug")({
   loader: async ({ params }) => {
     const spectacle = await fetchPublishedSpectacleBySlug(params.slug);
+    // Com a ficha fechada ao público, as pessoas nem são buscadas: o que o
+    // loader devolve vai junto no HTML da página, mesmo sem aparecer.
     // null = tabela de equipe indisponível; a página usa a ficha do código.
-    const pessoas = spectacle ? await fetchSpectaclePeople(spectacle.id) : null;
-    return { spectacle, pessoas };
+    const [pessoas, patrocinadores] = await Promise.all([
+      spectacle?.show_people ? fetchSpectaclePeople(spectacle.id) : Promise.resolve(null),
+      spectacle ? fetchActiveSponsors() : Promise.resolve([]),
+    ]);
+    return { spectacle, pessoas, patrocinadores };
   },
   head: ({ loaderData }) => {
     const spectacle = loaderData?.spectacle;
@@ -45,7 +53,7 @@ export const Route = createFileRoute("/espetaculo/$slug")({
 const atraso = (ms: number) => ({ "--delay": `${ms}ms` }) as CSSProperties;
 
 function EspetaculoDetalhe() {
-  const { spectacle, pessoas } = Route.useLoaderData();
+  const { spectacle, pessoas, patrocinadores } = Route.useLoaderData();
 
   if (!spectacle) {
     return (
@@ -63,16 +71,19 @@ function EspetaculoDetalhe() {
 
   const ficha = fichaDoEspetaculo(spectacle.slug);
   const sinopse = ficha?.sinopse ?? (spectacle.synopsis || "").split(/\n{2,}/).filter(Boolean);
-  // Equipe e elenco vêm do painel; sem a tabela, da ficha que está no código.
-  const time = pessoas
-    ? agruparPessoas(pessoas)
-    : {
-        destaques: ficha?.remontagem ? [ficha.remontagem] : [],
-        direcao: ficha?.direcao ?? [],
-        equipe: ficha?.equipe ?? [],
-        elenco: [],
-        convidados: [],
-      };
+  // Equipe e elenco só aparecem com a ficha aberta no painel. Vêm do painel;
+  // sem a tabela, da ficha que está no código.
+  const time = !spectacle.show_people
+    ? { destaques: [], direcao: [], equipe: [], elenco: [], convidados: [] }
+    : pessoas
+      ? agruparPessoas(pessoas)
+      : {
+          destaques: ficha?.remontagem ? [ficha.remontagem] : [],
+          direcao: ficha?.direcao ?? [],
+          equipe: ficha?.equipe ?? [],
+          elenco: [],
+          convidados: [],
+        };
   const temElenco = time.elenco.length + time.convidados.length > 0;
   const temFicha =
     time.destaques.length + time.direcao.length + time.equipe.length > 0 || temElenco;
@@ -394,6 +405,8 @@ function EspetaculoDetalhe() {
         </section>
       ))}
 
+      <CreditosPatrocinio patrocinadores={patrocinadores} />
+
       {/* Audição (só quando o espetáculo tem) e os selos da Lei Rouanet. */}
       {(spectacle.audition_enabled || ficha?.pronac) && (
         <section
@@ -479,6 +492,88 @@ function EspetaculoDetalhe() {
         </section>
       )}
     </>
+  );
+}
+
+/**
+ * Os patrocinadores como nos créditos de um programa de teatro: uma linha
+ * por cota, o nome da cota à esquerda e as logos à direita, maiores para o
+ * patrocínio master. Sobre o papel, porque as logos são feitas para fundo
+ * claro.
+ */
+function CreditosPatrocinio({ patrocinadores }: { patrocinadores: Sponsor[] }) {
+  const cotas = SPONSOR_TYPE_ORDER.map((tipo) => ({
+    tipo,
+    lista: patrocinadores.filter((p) => p.sponsor_type === tipo),
+  })).filter((c) => c.lista.length > 0);
+  if (cotas.length === 0) return null;
+
+  return (
+    <section data-surface="papel" className="papel py-[var(--cena-curta)]">
+      <div className="container-x">
+        <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+          <div>
+            <p className="eyebrow suave" data-reveal="rise">
+              Patrocínio
+            </p>
+            <h2 className="t-titulo mt-4" data-reveal="rise" style={atraso(60)}>
+              Quem torna <span className="gesto">este espetáculo possível.</span>
+            </h2>
+          </div>
+          <Link to="/patrocinio" className="link-traco font-semibold">
+            Seja um patrocinador →
+          </Link>
+        </div>
+
+        <dl className="mt-10 md:mt-12">
+          {cotas.map(({ tipo, lista }, i) => (
+            <div
+              key={tipo}
+              className="fio grid gap-5 border-t py-8 md:grid-cols-12 md:items-center md:gap-x-[var(--calha)]"
+              data-reveal="rise"
+              style={atraso(i * 80)}
+            >
+              <dt className="eyebrow suave md:col-span-3">{SPONSOR_TYPE_LABELS[tipo]}</dt>
+              <dd className="md:col-span-9">
+                <ul className="flex flex-wrap items-center gap-x-14 gap-y-6">
+                  {lista.map((p) => {
+                    const logo = siteAssetUrl(p.logo_path);
+                    return (
+                      <li key={p.id}>
+                        <Link
+                          to="/patrocinadores"
+                          className="block transition-opacity hover:opacity-75"
+                        >
+                          {logo ? (
+                            <img
+                              src={logo}
+                              alt={p.logo_alt || p.name}
+                              loading="lazy"
+                              className={`w-auto object-contain ${
+                                tipo === "master"
+                                  ? "h-16 max-w-[16rem] md:h-20 md:max-w-[20rem]"
+                                  : "h-11 max-w-[12rem] md:h-12"
+                              }`}
+                            />
+                          ) : (
+                            <span
+                              className={`font-semibold ${tipo === "master" ? "text-3xl" : "text-xl"}`}
+                            >
+                              {p.name}
+                            </span>
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </dd>
+            </div>
+          ))}
+          <div aria-hidden="true" className="fio border-t" />
+        </dl>
+      </div>
+    </section>
   );
 }
 

@@ -143,6 +143,8 @@ export interface Spectacle {
   audition_enabled: boolean;
   audition_opens_at: string | null;
   ticket_sales_open_at: string | null;
+  /** Mostra a ficha técnica e o elenco na página pública. */
+  show_people: boolean;
   status: SpectacleStatus;
   sort_order: number;
   created_by: string | null;
@@ -174,6 +176,7 @@ export interface SpectacleInsert {
   audition_enabled?: boolean;
   audition_opens_at?: string | null;
   ticket_sales_open_at?: string | null;
+  show_people?: boolean;
   status?: SpectacleStatus;
   sort_order?: number;
   created_by?: string | null;

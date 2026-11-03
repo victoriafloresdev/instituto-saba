@@ -188,6 +188,16 @@ export function PeopleManager() {
         </div>
       </div>
 
+      {spectacle && !spectacle.show_people && !missingTable && (
+        <Card className="border-dashed p-5">
+          <p className="font-semibold">A ficha técnica deste espetáculo está fechada ao público.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Ninguém daqui aparece no site, mesmo marcado como visível. Para abrir, edite o
+            espetáculo na aba Espetáculos e marque “Mostrar a ficha técnica e o elenco no site”.
+          </p>
+        </Card>
+      )}
+
       {missingTable ? (
         <Card className="p-6">
           <p className="font-semibold">A tabela de equipe ainda não existe no banco.</p>
