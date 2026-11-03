@@ -312,31 +312,28 @@ const PARTICIPE = [
 
 /**
  * Primeira dobra. A foto acende como luz de palco; o traço da marca é
- * desenhado por uma varredura circular. No celular, a composição troca
- * de foto — uma bailarina na vertical — em vez de espremer a horizontal.
+ * desenhado por uma varredura circular. A bailarina fica à direita, com o
+ * escuro à esquerda para o título, então a mesma foto serve no celular,
+ * recortada sobre ela.
  */
 function AberturaHome({ espetaculos }: { espetaculos: Spectacle[] }) {
   const destaques = espetaculos.slice(0, 2);
-  const horizontal = IMAGENS.arabesque;
-  const vertical = IMAGENS.pointe;
+  const capa = IMAGENS.giro;
 
   return (
     <section
       data-surface="palco"
       className="palco relative isolate flex min-h-[100svh] flex-col overflow-hidden"
     >
-      <picture className="absolute inset-0 -z-10">
-        <source media="(max-width: 767px)" srcSet={srcset(vertical)} sizes="100vw" />
-        <img
-          src={`/images/${horizontal.nome}-1400.webp`}
-          srcSet={srcset(horizontal)}
-          sizes="100vw"
-          alt={horizontal.alt}
-          fetchPriority="high"
-          decoding="sync"
-          className="acende foto-pb h-full w-full object-cover object-[50%_35%]"
-        />
-      </picture>
+      <img
+        src={`/images/${capa.nome}-1400.webp`}
+        srcSet={srcset(capa)}
+        sizes="100vw"
+        alt={capa.alt}
+        fetchPriority="high"
+        decoding="sync"
+        className="acende foto-pb absolute inset-0 -z-10 h-full w-full object-cover object-[66%_40%] md:object-[60%_40%]"
+      />
 
       {/* No celular o título cai sobre o corpo da bailarina: a base escurece
           para o texto continuar legível. No desktop a foto já é escura ali. */}

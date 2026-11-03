@@ -9,70 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SobreRouteImport } from './routes/sobre'
-import { Route as ProjetoRouteImport } from './routes/projeto'
-import { Route as ProgramacaoRouteImport } from './routes/programacao'
-import { Route as PrivacidadeRouteImport } from './routes/privacidade'
-import { Route as PatrocinioRouteImport } from './routes/patrocinio'
-import { Route as PatrocinadoresRouteImport } from './routes/patrocinadores'
-import { Route as EscolasRouteImport } from './routes/escolas'
-import { Route as ElencoRouteImport } from './routes/elenco'
-import { Route as ContatoRouteImport } from './routes/contato'
-import { Route as AudicoesRouteImport } from './routes/audicoes'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as EspetaculoIndexRouteImport } from './routes/espetaculo.index'
+import { Route as AudicoesRouteImport } from './routes/audicoes'
+import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as ElencoRouteImport } from './routes/elenco'
+import { Route as EscolasRouteImport } from './routes/escolas'
+import { Route as PatrocinadoresRouteImport } from './routes/patrocinadores'
+import { Route as PatrocinioRouteImport } from './routes/patrocinio'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as ProgramacaoRouteImport } from './routes/programacao'
+import { Route as ProjetoRouteImport } from './routes/projeto'
+import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as EspetaculoSlugRouteImport } from './routes/espetaculo.$slug'
-import { Route as ApiLimpezaAudicoesRouteImport } from './routes/api.limpeza-audicoes'
-import { Route as AdminRedefinirSenhaRouteImport } from './routes/admin.redefinir-senha'
-import { Route as AdminRecuperarSenhaRouteImport } from './routes/admin.recuperar-senha'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminRecuperarSenhaRouteImport } from './routes/admin.recuperar-senha'
+import { Route as AdminRedefinirSenhaRouteImport } from './routes/admin.redefinir-senha'
+import { Route as ApiLimpezaAudicoesRouteImport } from './routes/api.limpeza-audicoes'
+import { Route as EspetaculoIndexRouteImport } from './routes/espetaculo.index'
+import { Route as EspetaculoSlugRouteImport } from './routes/espetaculo.$slug'
 import { Route as ApiAudicoesEmailRouteImport } from './routes/api.audicoes.email'
 import { Route as AdminRegistroTipoIdRouteImport } from './routes/admin.registro.$tipo.$id'
 
-const SobreRoute = SobreRouteImport.update({
-  id: '/sobre',
-  path: '/sobre',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjetoRoute = ProjetoRouteImport.update({
-  id: '/projeto',
-  path: '/projeto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProgramacaoRoute = ProgramacaoRouteImport.update({
-  id: '/programacao',
-  path: '/programacao',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacidadeRoute = PrivacidadeRouteImport.update({
-  id: '/privacidade',
-  path: '/privacidade',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PatrocinioRoute = PatrocinioRouteImport.update({
-  id: '/patrocinio',
-  path: '/patrocinio',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PatrocinadoresRoute = PatrocinadoresRouteImport.update({
-  id: '/patrocinadores',
-  path: '/patrocinadores',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscolasRoute = EscolasRouteImport.update({
-  id: '/escolas',
-  path: '/escolas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ElencoRoute = ElencoRouteImport.update({
-  id: '/elenco',
-  path: '/elenco',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContatoRoute = ContatoRouteImport.update({
-  id: '/contato',
-  path: '/contato',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AudicoesRoute = AudicoesRouteImport.update({
@@ -80,14 +40,49 @@ const AudicoesRoute = AudicoesRouteImport.update({
   path: '/audicoes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ContatoRoute = ContatoRouteImport.update({
+  id: '/contato',
+  path: '/contato',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EspetaculoIndexRoute = EspetaculoIndexRouteImport.update({
-  id: '/espetaculo/',
-  path: '/espetaculo/',
+const ElencoRoute = ElencoRouteImport.update({
+  id: '/elenco',
+  path: '/elenco',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EscolasRoute = EscolasRouteImport.update({
+  id: '/escolas',
+  path: '/escolas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PatrocinadoresRoute = PatrocinadoresRouteImport.update({
+  id: '/patrocinadores',
+  path: '/patrocinadores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PatrocinioRoute = PatrocinioRouteImport.update({
+  id: '/patrocinio',
+  path: '/patrocinio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgramacaoRoute = ProgramacaoRouteImport.update({
+  id: '/programacao',
+  path: '/programacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjetoRoute = ProjetoRouteImport.update({
+  id: '/projeto',
+  path: '/projeto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -95,19 +90,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EspetaculoSlugRoute = EspetaculoSlugRouteImport.update({
-  id: '/espetaculo/$slug',
-  path: '/espetaculo/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiLimpezaAudicoesRoute = ApiLimpezaAudicoesRouteImport.update({
-  id: '/api/limpeza-audicoes',
-  path: '/api/limpeza-audicoes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRedefinirSenhaRoute = AdminRedefinirSenhaRouteImport.update({
-  id: '/admin/redefinir-senha',
-  path: '/admin/redefinir-senha',
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRecuperarSenhaRoute = AdminRecuperarSenhaRouteImport.update({
@@ -115,9 +100,24 @@ const AdminRecuperarSenhaRoute = AdminRecuperarSenhaRouteImport.update({
   path: '/admin/recuperar-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminDashboardRoute = AdminDashboardRouteImport.update({
-  id: '/admin/dashboard',
-  path: '/admin/dashboard',
+const AdminRedefinirSenhaRoute = AdminRedefinirSenhaRouteImport.update({
+  id: '/admin/redefinir-senha',
+  path: '/admin/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLimpezaAudicoesRoute = ApiLimpezaAudicoesRouteImport.update({
+  id: '/api/limpeza-audicoes',
+  path: '/api/limpeza-audicoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EspetaculoIndexRoute = EspetaculoIndexRouteImport.update({
+  id: '/espetaculo/',
+  path: '/espetaculo/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EspetaculoSlugRoute = EspetaculoSlugRouteImport.update({
+  id: '/espetaculo/$slug',
+  path: '/espetaculo/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAudicoesEmailRoute = ApiAudicoesEmailRouteImport.update({
@@ -292,67 +292,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sobre': {
-      id: '/sobre'
-      path: '/sobre'
-      fullPath: '/sobre'
-      preLoaderRoute: typeof SobreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projeto': {
-      id: '/projeto'
-      path: '/projeto'
-      fullPath: '/projeto'
-      preLoaderRoute: typeof ProjetoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/programacao': {
-      id: '/programacao'
-      path: '/programacao'
-      fullPath: '/programacao'
-      preLoaderRoute: typeof ProgramacaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidade': {
-      id: '/privacidade'
-      path: '/privacidade'
-      fullPath: '/privacidade'
-      preLoaderRoute: typeof PrivacidadeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/patrocinio': {
-      id: '/patrocinio'
-      path: '/patrocinio'
-      fullPath: '/patrocinio'
-      preLoaderRoute: typeof PatrocinioRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/patrocinadores': {
-      id: '/patrocinadores'
-      path: '/patrocinadores'
-      fullPath: '/patrocinadores'
-      preLoaderRoute: typeof PatrocinadoresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escolas': {
-      id: '/escolas'
-      path: '/escolas'
-      fullPath: '/escolas'
-      preLoaderRoute: typeof EscolasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/elenco': {
-      id: '/elenco'
-      path: '/elenco'
-      fullPath: '/elenco'
-      preLoaderRoute: typeof ElencoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contato': {
-      id: '/contato'
-      path: '/contato'
-      fullPath: '/contato'
-      preLoaderRoute: typeof ContatoRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/audicoes': {
@@ -362,18 +306,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AudicoesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/contato': {
+      id: '/contato'
+      path: '/contato'
+      fullPath: '/contato'
+      preLoaderRoute: typeof ContatoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/espetaculo/': {
-      id: '/espetaculo/'
-      path: '/espetaculo'
-      fullPath: '/espetaculo/'
-      preLoaderRoute: typeof EspetaculoIndexRouteImport
+    '/elenco': {
+      id: '/elenco'
+      path: '/elenco'
+      fullPath: '/elenco'
+      preLoaderRoute: typeof ElencoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/escolas': {
+      id: '/escolas'
+      path: '/escolas'
+      fullPath: '/escolas'
+      preLoaderRoute: typeof EscolasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/patrocinadores': {
+      id: '/patrocinadores'
+      path: '/patrocinadores'
+      fullPath: '/patrocinadores'
+      preLoaderRoute: typeof PatrocinadoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/patrocinio': {
+      id: '/patrocinio'
+      path: '/patrocinio'
+      fullPath: '/patrocinio'
+      preLoaderRoute: typeof PatrocinioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/programacao': {
+      id: '/programacao'
+      path: '/programacao'
+      fullPath: '/programacao'
+      preLoaderRoute: typeof ProgramacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projeto': {
+      id: '/projeto'
+      path: '/projeto'
+      fullPath: '/projeto'
+      preLoaderRoute: typeof ProjetoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -383,25 +376,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/espetaculo/$slug': {
-      id: '/espetaculo/$slug'
-      path: '/espetaculo/$slug'
-      fullPath: '/espetaculo/$slug'
-      preLoaderRoute: typeof EspetaculoSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/limpeza-audicoes': {
-      id: '/api/limpeza-audicoes'
-      path: '/api/limpeza-audicoes'
-      fullPath: '/api/limpeza-audicoes'
-      preLoaderRoute: typeof ApiLimpezaAudicoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/redefinir-senha': {
-      id: '/admin/redefinir-senha'
-      path: '/admin/redefinir-senha'
-      fullPath: '/admin/redefinir-senha'
-      preLoaderRoute: typeof AdminRedefinirSenhaRouteImport
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/recuperar-senha': {
@@ -411,11 +390,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRecuperarSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/dashboard': {
-      id: '/admin/dashboard'
-      path: '/admin/dashboard'
-      fullPath: '/admin/dashboard'
-      preLoaderRoute: typeof AdminDashboardRouteImport
+    '/admin/redefinir-senha': {
+      id: '/admin/redefinir-senha'
+      path: '/admin/redefinir-senha'
+      fullPath: '/admin/redefinir-senha'
+      preLoaderRoute: typeof AdminRedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/limpeza-audicoes': {
+      id: '/api/limpeza-audicoes'
+      path: '/api/limpeza-audicoes'
+      fullPath: '/api/limpeza-audicoes'
+      preLoaderRoute: typeof ApiLimpezaAudicoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/espetaculo/': {
+      id: '/espetaculo/'
+      path: '/espetaculo'
+      fullPath: '/espetaculo/'
+      preLoaderRoute: typeof EspetaculoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/espetaculo/$slug': {
+      id: '/espetaculo/$slug'
+      path: '/espetaculo/$slug'
+      fullPath: '/espetaculo/$slug'
+      preLoaderRoute: typeof EspetaculoSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/audicoes/email': {

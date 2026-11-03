@@ -308,8 +308,8 @@ function Audicoes() {
           </span>,
         ]}
         lide="O elenco de cada espetáculo do Instituto é formado por bailarinos selecionados em audição pública, ao lado de convidados de renome internacional."
-        fundo="estudio"
-        fundoFoco="60% 50%"
+        fundo="bastidores"
+        fundoFoco="62% 50%"
       >
         <a href="#audicoes" className="chamada chamada--cheia">
           Ver audições <span className="seta">↓</span>

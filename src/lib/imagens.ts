@@ -15,6 +15,13 @@ export interface Imagem {
 }
 
 export const IMAGENS = {
+  /** Capa da home, enviada pela contratante em 03/11/2026. */
+  giro: {
+    nome: "capa-giro",
+    larguras: [800, 1400, 2000],
+    proporcao: 16 / 9,
+    alt: "Bailarina de branco girando sob um feixe de luz, com a saia desfocada pelo movimento",
+  },
   arabesque: {
     nome: "palco-arabesque",
     larguras: [800, 1400, 2400],
@@ -50,12 +57,6 @@ export const IMAGENS = {
     larguras: [900, 1600],
     proporcao: 3 / 2,
     alt: "Bailarina de tutu romântico em pose sobre um praticável no palco escuro",
-  },
-  estudio: {
-    nome: "estudio",
-    larguras: [1000, 1600],
-    proporcao: 3 / 2,
-    alt: "Bailarina contemporânea em espacate no chão do estúdio",
   },
   marinaSentada: {
     nome: "marina-sentada",

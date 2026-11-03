@@ -7,9 +7,8 @@ import type { Spectacle } from "@/lib/database.types";
 
 /**
  * A programação como num programa de teatro impresso: uma entrada por
- * linha, separadas por fios. No desktop, a fotografia do espetáculo surge
- * à direita da linha sob o cursor; no celular ela fica sempre visível,
- * acima do título, porque não existe hover no toque.
+ * linha, separadas por fios. No celular, a fotografia do espetáculo fica
+ * acima do título; no desktop a linha fica só com o texto.
  */
 export function ProgramaLista({ espetaculos }: { espetaculos: Spectacle[] }) {
   return (
@@ -74,16 +73,6 @@ export function ProgramaLista({ espetaculos }: { espetaculos: Spectacle[] }) {
                   </span>
                 </span>
               </div>
-
-              {/* Foto que aparece sob o cursor, só no desktop. */}
-              <Foto
-                caminho={e.image_path}
-                nome={e.image_path ? undefined : reserva}
-                alt=""
-                enquadramento="4 / 5"
-                sizes="18vw"
-                className="pointer-events-none absolute right-[22%] top-1/2 z-10 hidden w-[15vw] max-w-[15rem] -translate-y-1/2 opacity-0 transition-[opacity,clip-path] duration-500 ease-[var(--ease-releve)] [clip-path:inset(12%_0_12%_0)] group-hover:opacity-100 group-hover:[clip-path:inset(0_0_0_0)] md:block"
-              />
             </Link>
           </li>
         );
