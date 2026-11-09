@@ -47,8 +47,16 @@ Só aparecem no site os espetáculos com `status = 'published'` e os patrocinado
 `status = 'active'`. As imagens enviadas pelo painel vão para o bucket `site-assets`, nas
 pastas `spectacles/` e `sponsors/` exigidas pelas políticas de escrita.
 
-## Pendente
+## Tabelas dos formulários
 
 As tabelas dos formulários públicos (`auditions`, `sponsorship_leads`,
-`school_registrations`, `contact_messages` e `profiles`) foram criadas direto no painel e
-ainda não têm migração versionada neste repositório.
+`school_registrations`, `contact_messages`) e a de perfis (`profiles`) foram criadas direto
+no painel. A migração `migrations/20260910000000_tabelas_dos_formularios.sql` as reproduz
+na forma original, a partir da estrutura lida no banco em 09/11/2026; as mudanças
+posteriores estão nas migrações seguintes. Ela não precisa ser aplicada no banco atual
+(lá, não muda nada): serve para montar um banco novo, rodando todos os arquivos de
+`migrations/` na ordem dos nomes.
+
+Conferido em 09/11/2026: as migrações rodadas em sequência num Postgres vazio dão as
+mesmas colunas, restrições, índices, políticas, permissões e gatilhos do banco em
+produção.
