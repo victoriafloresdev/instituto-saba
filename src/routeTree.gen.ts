@@ -19,6 +19,7 @@ import { Route as PatrocinioRouteImport } from './routes/patrocinio'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ProgramacaoRouteImport } from './routes/programacao'
 import { Route as ProjetoRouteImport } from './routes/projeto'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
@@ -78,6 +79,11 @@ const ProgramacaoRoute = ProgramacaoRouteImport.update({
 const ProjetoRoute = ProjetoRouteImport.update({
   id: '/projeto',
   path: '/projeto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SobreRoute = SobreRouteImport.update({
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/privacidade': typeof PrivacidadeRoute
   '/programacao': typeof ProgramacaoRoute
   '/projeto': typeof ProjetoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/programacao': typeof ProgramacaoRoute
   '/projeto': typeof ProjetoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/privacidade': typeof PrivacidadeRoute
   '/programacao': typeof ProgramacaoRoute
   '/projeto': typeof ProjetoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/recuperar-senha': typeof AdminRecuperarSenhaRoute
@@ -211,6 +220,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/programacao'
     | '/projeto'
+    | '/sitemap.xml'
     | '/sobre'
     | '/admin/dashboard'
     | '/admin/recuperar-senha'
@@ -233,6 +243,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/programacao'
     | '/projeto'
+    | '/sitemap.xml'
     | '/sobre'
     | '/admin/dashboard'
     | '/admin/recuperar-senha'
@@ -255,6 +266,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/programacao'
     | '/projeto'
+    | '/sitemap.xml'
     | '/sobre'
     | '/admin/dashboard'
     | '/admin/recuperar-senha'
@@ -278,6 +290,7 @@ export interface RootRouteChildren {
   PrivacidadeRoute: typeof PrivacidadeRoute
   ProgramacaoRoute: typeof ProgramacaoRoute
   ProjetoRoute: typeof ProjetoRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SobreRoute: typeof SobreRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminRecuperarSenhaRoute: typeof AdminRecuperarSenhaRoute
@@ -360,6 +373,13 @@ declare module '@tanstack/react-router' {
       path: '/projeto'
       fullPath: '/projeto'
       preLoaderRoute: typeof ProjetoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sobre': {
@@ -446,6 +466,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacidadeRoute: PrivacidadeRoute,
   ProgramacaoRoute: ProgramacaoRoute,
   ProjetoRoute: ProjetoRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SobreRoute: SobreRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminRecuperarSenhaRoute: AdminRecuperarSenhaRoute,
