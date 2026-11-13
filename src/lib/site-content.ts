@@ -43,12 +43,22 @@ export function siteAssetUrl(path: string | null | undefined): string | null {
   return supabase.storage.from(SITE_ASSETS_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
+/** Nomes das categorias no painel. No site, ver rotuloPublico(). */
 export const SPONSOR_TYPE_LABELS: Record<SponsorType, string> = {
-  master: "Patrocínio master",
+  master: "Patrocínio em destaque",
   sponsor: "Patrocinador",
   supporter: "Apoiador",
   partner: "Parceiro",
 };
+
+/**
+ * Nome da categoria como aparece no site. A categoria em destaque não leva
+ * nome de cota (a Marina pediu para tirar "patrocínio master" em 13/11/2026):
+ * aparece só como "Patrocínio".
+ */
+export function rotuloPublico(tipo: SponsorType): string {
+  return tipo === "master" ? "Patrocínio" : SPONSOR_TYPE_LABELS[tipo];
+}
 
 /** Ordem de exibição dos blocos de patrocinadores no site. */
 export const SPONSOR_TYPE_ORDER: SponsorType[] = ["master", "sponsor", "supporter", "partner"];

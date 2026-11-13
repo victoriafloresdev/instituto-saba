@@ -70,6 +70,37 @@ export const IMAGENS = {
     proporcao: 2 / 3,
     alt: "Retrato de corpo inteiro de Marina Saba, de terno escuro, contra fundo claro",
   },
+  // Fotos da Bolbi, enviadas em 13/11/2026 para a página Patrocinadores.
+  bolbiGuindaste: {
+    nome: "bolbi-guindaste",
+    larguras: [800, 1216],
+    proporcao: 1216 / 913,
+    alt: "Guindaste da Bolbi com a lança estendida contra o céu, ao lado de contêineres empilhados",
+  },
+  bolbiGancho: {
+    nome: "bolbi-gancho",
+    larguras: [800, 1216],
+    proporcao: 1216 / 913,
+    alt: "Gancho de guindaste da Bolbi suspenso no céu, sobre uma caçamba de carga",
+  },
+  bolbiConteineres: {
+    nome: "bolbi-conteineres",
+    larguras: [800, 1216],
+    proporcao: 1216 / 913,
+    alt: "Contêineres da Bolbi empilhados, vistos de baixo, com o nome da empresa pintado",
+  },
+  bolbiCaminhao: {
+    nome: "bolbi-caminhao",
+    larguras: [800, 1216],
+    proporcao: 1216 / 913,
+    alt: "Caminhão-guindaste da Bolbi no pátio da empresa, com a lança erguida",
+  },
+  bolbiEncontro: {
+    nome: "bolbi-encontro",
+    larguras: [514],
+    proporcao: 514 / 913,
+    alt: "Encontro na sede da Bolbi, diante de fotografias históricas dos guindastes da empresa",
+  },
 } satisfies Record<string, Imagem>;
 
 export type NomeImagem = keyof typeof IMAGENS;

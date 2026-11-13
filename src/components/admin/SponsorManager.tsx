@@ -370,7 +370,7 @@ function SponsorDialog({
             label="Categoria"
             value={values.sponsor_type}
             options={TYPE_OPTIONS}
-            hint="Patrocínio master aparece em destaque no topo da página."
+            hint="Patrocínio em destaque abre a página Patrocinadores, com mais espaço. No site, aparece só como “Patrocínio”."
             onChange={(value) => set("sponsor_type", value)}
           />
           <TextField

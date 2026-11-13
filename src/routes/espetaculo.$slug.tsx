@@ -8,7 +8,7 @@ import {
   fetchActiveSponsors,
   fetchPublishedSpectacleBySlug,
   fetchSpectaclePeople,
-  SPONSOR_TYPE_LABELS,
+  rotuloPublico,
   SPONSOR_TYPE_ORDER,
   siteAssetUrl,
   formatSessao,
@@ -498,7 +498,7 @@ function EspetaculoDetalhe() {
 /**
  * Os patrocinadores como nos créditos de um programa de teatro: uma linha
  * por cota, o nome da cota à esquerda e as logos à direita, maiores para o
- * patrocínio master. Sobre o papel, porque as logos são feitas para fundo
+ * patrocínio em destaque. Sobre o papel, porque as logos são feitas para fundo
  * claro.
  */
 function CreditosPatrocinio({ patrocinadores }: { patrocinadores: Sponsor[] }) {
@@ -533,7 +533,7 @@ function CreditosPatrocinio({ patrocinadores }: { patrocinadores: Sponsor[] }) {
               data-reveal="rise"
               style={atraso(i * 80)}
             >
-              <dt className="eyebrow suave md:col-span-3">{SPONSOR_TYPE_LABELS[tipo]}</dt>
+              <dt className="eyebrow suave md:col-span-3">{rotuloPublico(tipo)}</dt>
               <dd className="md:col-span-9">
                 <ul className="flex flex-wrap items-center gap-x-14 gap-y-6">
                   {lista.map((p) => {

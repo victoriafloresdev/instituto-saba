@@ -248,14 +248,11 @@ const FAZEMOS = [
  */
 function FaixaPatrocinio({ patrocinadores }: { patrocinadores: Sponsor[] }) {
   if (patrocinadores.length === 0) return null;
-  const soMaster = patrocinadores.every((p) => p.sponsor_type === "master");
 
   return (
     <section data-surface="papel" aria-label="Patrocinadores" className="papel fio border-b">
       <div className="container-x flex flex-col gap-6 py-8 md:flex-row md:items-center md:gap-12 md:py-10">
-        <p className="eyebrow suave shrink-0">
-          {soMaster ? "Patrocínio master" : "Patrocinadores"}
-        </p>
+        <p className="eyebrow suave shrink-0">Patrocínio</p>
         <ul className="flex flex-wrap items-center gap-x-12 gap-y-6">
           {patrocinadores.map((p) => {
             const logo = siteAssetUrl(p.logo_path);
